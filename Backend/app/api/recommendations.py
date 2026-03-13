@@ -1,0 +1,86 @@
+from fastapi import APIRouter, Depends, Query, HTTPException
+from pydantic import BaseModel
+import redis.asyncio as redis
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.services.recommendation_engine import RecommendationEngine, ScoredSpot
+from app.core.database import get_db
+from app.api.deps import get_current_user
+from app.models.user import User
+from app.repositories.parking_repository import ParkingRepository
+from app.repositories.event_repository import EventRepository
+from app.schemas.parking_spot import ParkingSpotResponse
+import json
+from app.core.caching import get_redis
+
+router = APIRouter(prefix="/recommendations", tags=["recommendations"])
+
+
+class RecommendationResponse(BaseModel):
+    spot: ParkingSpotResponse
+    score: float
+    score_breakdown: dict
+    model_config = {"from_attributes": True}
+async def invalidate_recommendation_cache(cache: redis.Redis, pattern: str = "recommendations:*"):
+    keys = await cache.keys(pattern)
+    if keys:
+        await cache.delete(*keys)
+
+@router.get("/", response_model=list[RecommendationResponse])
+async def get_recommendations(
+    user: User = Depends(get_current_user),
+    user_lat: float | None = Query(default=None),
+    user_lon: float | None = Query(default=None),
+    campus_location: str | None = Query(default=None, description="Filter recommendations to a specific campus"),
+    limit: int = Query(default=3),
+    event_id: int | None = Query(default=None, description="Event ID to boost nearby parking spots"),
+    event_lat: float | None = Query(default=None, description="Latitude of event for proximity scoring"),
+    event_lon: float | None = Query(default=None, description="Longitude of event for proximity scoring"),
+    db: AsyncSession = Depends(get_db)
+):
+    # If event_id is provided, fetch the event and use its coordinates
+    if event_id is not None:
+        event_repo = EventRepository(db)
+        event = await event_repo.get_by_id(event_id)
+        if event is None:
+            raise HTTPException(status_code=404, detail="Event not found")
+        event_lat = event.latitude
+        event_lon = event.longitude
+
+    cache_key = f"recommendations:{user.user_id}:{user_lat}:{user_lon}:{limit}:{campus_location}:{event_id}:{event_lat}:{event_lon}"
+
+    try:
+        cache = await get_redis()
+        cached = await cache.get(cache_key)
+        if cached:
+            return json.loads(cached)
+    except Exception:
+        cache = None  # Redis unavailable — fall through to live query
+
+    repo = ParkingRepository(db)
+    engine = RecommendationEngine(repo)
+    scored_spots = await engine.get_recommendations(
+        user, user_lat, user_lon, limit, event_lat=event_lat, event_lon=event_lon
+    )
+
+    if campus_location is not None:
+        scored_spots = [
+            s for s in scored_spots
+            if s.spot.campus_location and s.spot.campus_location.lower() == campus_location.lower()
+        ]
+
+    result = [
+        RecommendationResponse(
+            spot=spot.spot,
+            score=spot.score,
+            score_breakdown=spot.score_breakdown,
+        )
+        for spot in scored_spots
+    ]
+
+    try:
+        if cache is not None:
+            await cache.setex(cache_key, 300, json.dumps([r.model_dump() for r in result]))
+    except Exception:
+        pass  # cache write failure is non-fatal
+
+    return result
