@@ -1,3 +1,0 @@
--r base.txt
-# Production uses gunicorn + uvicorn workers
-uvicorn[standard]

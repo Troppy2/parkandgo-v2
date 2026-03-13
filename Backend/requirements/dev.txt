@@ -1,3 +1,0 @@
--r base.txt
-uvicorn[standard]
--r test.txt
