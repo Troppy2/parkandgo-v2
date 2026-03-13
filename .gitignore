@@ -1,7 +1,16 @@
-.env
-__pycache__/
-*.pyc
-
+# Environment files
 .env
 .env.local
 *.env
+
+# Python
+__pycache__/
+*.pyc
+
+# Local development files
+parkandgo-admin-dashboard.html
+parkandgo-v2-UI-demo.html
+parkandgo version 2 planning document.txt
+
+# Local database
+parkandgo_db_postgres
