@@ -1,0 +1,742 @@
+Park and Go – Version 2 Planning Document
+=================================================================
+OVERVIEW
+=================================================================
+Version 2 of Park and Go is a complete architectural overhaul transforming the app from a Flask-based vanilla web app into a production-grade, cross-platform system. The backend migrates to FastAPI for async performance, while the frontend rebuilds in React + TypeScript, enabling a single codebase that deploys as both a website and a mobile app (PWA + Android APK).
+
+Primary Goals:
+- Migrate backend from Flask to FastAPI for async request handling
+- Rebuild frontend from vanilla JS to React + TypeScript
+- Single codebase for web and mobile (PWA + APK)
+- Enhanced recommendation engine with modular ML-ready architecture
+- Production-grade observability, monitoring, and performance optimization
+- Clean, responsive UI/UX with loading states for async operations
+
+=================================================================
+KEY UPDATES FROM V1
+=================================================================
+
+1. Loading Indicators:
+   - Skeleton loaders for initial page loads
+   - Progress bars for operations exceeding 500ms
+   - Spinner overlays for background calculations
+   - Toast notifications for async task completion
+
+2. UI/UX Enhancements:
+   - Mobile-first responsive design (adapts to all screen sizes)
+   - Simplified navigation with collapsible sidebar on mobile
+   - Touch-friendly tap targets (min 44x44px)
+   - Smooth transitions between app states
+   - Pull-to-refresh on mobile views
+
+3. Cross-Platform Architecture:
+   - PWA configuration for installable web app
+   - Capacitor/Cordova integration for APK generation
+   - Responsive breakpoints for web/tablet/mobile
+   - Platform-specific optimizations (touch vs click events)
+
+4. Deployment Strategy:
+   - Internal APK testing among friend group first
+   - Progressive rollout based on feedback
+   - No public Play Store release until validated
+
+=================================================================
+COMPLETE PROJECT STRUCTURE
+=================================================================
+
+parkandgo-v2/
+│
+├── backend/                           # FastAPI Application
+│   ├── app/
+│   │   ├── __init__.py
+│   │   ├── main.py                    # FastAPI entrypoint, middleware, exception handlers
+│   │   │
+│   │   ├── core/                       # Core infrastructure
+│   │   │   ├── __init__.py
+│   │   │   ├── config.py               # Pydantic settings, env vars management
+│   │   │   ├── database.py             # Async SQLAlchemy engine, session factory
+│   │   │   ├── caching.py              # Redis client, cache decorators
+│   │   │   ├── security.py              # JWT handlers, password hashing, OAuth
+│   │   │   ├── logging.py               # Structured JSON logging config
+│   │   │   └── exceptions.py            # Custom exception classes
+│   │   │
+│   │   ├── models/                      # SQLAlchemy ORM Models
+│   │   │   ├── __init__.py
+│   │   │   ├── base.py                   # Base model class with timestamp columns
+│   │   │   ├── user.py                    # User accounts, profiles, preferences
+│   │   │   ├── parking_spot.py            # Parking locations, availability, pricing
+│   │   │   ├── recommendation.py          # Stored recommendation results for analysis
+│   │   │   ├── reservation.py              # Booking records
+│   │   │   └── session.py                   # User session tracking
+│   │   │
+│   │   ├── schemas/                       # Pydantic Models (Request/Response)
+│   │   │   ├── __init__.py
+│   │   │   ├── user.py                      # Login, register, profile schemas
+│   │   │   ├── parking.py                    # Spot details, search queries, availability
+│   │   │   ├── recommendation.py             # Scoring inputs and ranked results
+│   │   │   ├── navigation.py                  # Route requests and responses
+│   │   │   └── common.py                       # Pagination, error responses
+│   │   │
+│   │   ├── repositories/                    # Data Access Layer
+│   │   │   ├── __init__.py
+│   │   │   ├── base.py                        # Generic CRUD operations
+│   │   │   ├── user_repository.py              # User-specific queries
+│   │   │   ├── parking_repository.py            # Spatial queries with PostGIS
+│   │   │   ├── recommendation_repository.py     # Historical recommendation access
+│   │   │   └── reservation_repository.py         # Booking queries
+│   │   │
+│   │   ├── services/                         # Business Logic Layer
+│   │   │   ├── __init__.py
+│   │   │   ├── auth_service.py                  # Authentication logic
+│   │   │   ├── recommendation_engine.py          # Core scoring algorithm (ML-ready)
+│   │   │   ├── routing_service.py                # Pathfinding (Dijkstra/shortest path)
+│   │   │   ├── geocoding_service.py               # External geocoding API abstraction
+│   │   │   ├── caching_service.py                 # Intelligent cache management
+│   │   │   ├── availability_service.py            # Real-time spot availability
+│   │   │   └── analytics_service.py                # Usage tracking for ML training
+│   │   │
+│   │   ├── api/                               # API Routes
+│   │   │   ├── __init__.py
+│   │   │   ├── deps.py                          # Dependency injection (DB, current user)
+│   │   │   ├── auth.py                           # /auth/* endpoints
+│   │   │   ├── users.py                           # /users/* endpoints
+│   │   │   ├── parking.py                          # /parking/* endpoints
+│   │   │   ├── recommendations.py                   # /recommendations/* endpoints
+│   │   │   ├── navigation.py                         # /navigate/* endpoints
+│   │   │   └── admin.py                               # Admin-only endpoints
+│   │   │
+│   │   ├── tasks/                              # Background Tasks (Celery/RQ)
+│   │   │   ├── __init__.py
+│   │   │   ├── worker.py                          # Celery app configuration
+│   │   │   ├── recommendation_tasks.py             # Async recommendation generation
+│   │   │   ├── geocoding_tasks.py                   # Batch geocoding jobs
+│   │   │   └── cleanup_tasks.py                      # Data retention, cache invalidation
+│   │   │
+│   │   └── utils/                               # Helper Functions
+│   │       ├── __init__.py
+│   │       ├── metrics.py                          # Prometheus metrics
+│   │       ├── validators.py                        # Custom validation logic
+│   │       └── helpers.py                            # General utilities
+│   │
+│   ├── alembic/                                 # Database Migrations
+│   │   ├── versions/
+│   │   ├── env.py
+│   │   ├── README
+│   │   └── script.py.mako
+│   │
+│   ├── tests/                                   # Backend Tests
+│   │   ├── __init__.py
+│   │   ├── conftest.py                            # Pytest fixtures
+│   │   ├── test_services/
+│   │   │   ├── test_recommendation_engine.py
+│   │   │   ├── test_routing_service.py
+│   │   │   └── test_geocoding_service.py
+│   │   ├── test_api/
+│   │   │   ├── test_auth.py
+│   │   │   ├── test_parking.py
+│   │   │   └── test_recommendations.py
+│   │   └── test_repositories/
+│   │       ├── test_user_repository.py
+│   │       └── test_parking_repository.py
+│   │
+│   ├── scripts/                                 # Utility Scripts
+│   │   ├── seed_db.py                             # Initial data seeding
+│   │   ├── benchmark.py                            # Performance testing
+│   │   └── generate_test_data.py
+│   │
+│   ├── requirements/                             # Environment-specific requirements
+│   │   ├── base.txt
+│   │   ├── dev.txt
+│   │   ├── test.txt
+│   │   └── prod.txt
+│   │
+│   ├── .env.example                               # Environment variables template
+│   ├── .dockerignore
+│   ├── Dockerfile
+│   └── docker-compose.yml                          # Local development setup
+│
+├── frontend/                                      # React + TypeScript Application
+│   ├── public/
+│   │   ├── favicon.ico
+│   │   ├── manifest.json                           # PWA manifest
+│   │   ├── robots.txt
+│   │   └── icons/                                   # App icons for PWA/APK
+│   │
+│   ├── src/
+│   │   ├── main.tsx                                 # Entry point
+│   │   ├── vite-env.d.ts
+│   │   │
+│   │   ├── app/                                     # App core
+│   │   │   ├── App.tsx                               # Root component
+│   │   │   ├── routes.tsx                             # Route definitions
+│   │   │   ├── providers.tsx                           # Context providers
+│   │   │   └── error-boundary.tsx                       # Global error handling
+│   │   │
+│   │   ├── features/                                 # Feature-based modules
+│   │   │   ├── auth/
+│   │   │   │   ├── components/
+│   │   │   │   │   ├── LoginForm.tsx
+│   │   │   │   │   ├── RegisterForm.tsx
+│   │   │   │   │   └── ProtectedRoute.tsx
+│   │   │   │   ├── hooks/
+│   │   │   │   │   ├── useAuth.ts
+│   │   │   │   │   └── useLogin.ts
+│   │   │   │   ├── services/
+│   │   │   │   │   └── authApi.ts
+│   │   │   │   └── types/
+│   │   │   │       └── auth.types.ts
+│   │   │   │
+│   │   │   ├── map/
+│   │   │   │   ├── components/
+│   │   │   │   │   ├── MapView.tsx
+│   │   │   │   │   ├── MarkerCluster.tsx
+│   │   │   │   │   ├── RouteLayer.tsx
+│   │   │   │   │   └── MapControls.tsx
+│   │   │   │   ├── hooks/
+│   │   │   │   │   ├── useMap.ts
+│   │   │   │   │   ├── useMapController.ts
+│   │   │   │   │   └── useMarkers.ts
+│   │   │   │   ├── services/
+│   │   │   │   │   └── mapService.ts
+│   │   │   │   ├── store/
+│   │   │   │   │   └── mapSlice.ts
+│   │   │   │   └── types/
+│   │   │   │       └── map.types.ts
+│   │   │   │
+│   │   │   ├── search/
+│   │   │   │   ├── components/
+│   │   │   │   │   ├── SearchBar.tsx
+│   │   │   │   │   ├── SearchResults.tsx
+│   │   │   │   │   └── SearchFilters.tsx
+│   │   │   │   ├── hooks/
+│   │   │   │   │   ├── useSearch.ts
+│   │   │   │   │   └── useDebouncedSearch.ts
+│   │   │   │   └── services/
+│   │   │   │       └── searchApi.ts
+│   │   │   │
+│   │   │   ├── recommendations/
+│   │   │   │   ├── components/
+│   │   │   │   │   ├── RecommendationList.tsx
+│   │   │   │   │   ├── RecommendationCard.tsx
+│   │   │   │   │   ├── ScoreBreakdown.tsx
+│   │   │   │   │   └── LoadingSkeleton.tsx
+│   │   │   │   ├── hooks/
+│   │   │   │   │   ├── useRecommendations.ts
+│   │   │   │   │   └── useRecommendationPolling.ts
+│   │   │   │   └── services/
+│   │   │   │       └── recommendationApi.ts
+│   │   │   │
+│   │   │   ├── navigation/
+│   │   │   │   ├── components/
+│   │   │   │   │   ├── RouteDisplay.tsx
+│   │   │   │   │   ├── TurnByTurn.tsx
+│   │   │   │   │   └── ETAIndicator.tsx
+│   │   │   │   └── services/
+│   │   │   │       └── navigationApi.ts
+│   │   │   │
+│   │   │   └── profile/
+│   │   │       ├── components/
+│   │   │       │   ├── UserProfile.tsx
+│   │   │       │   ├── Preferences.tsx
+│   │   │       │   └── BookingHistory.tsx
+│   │   │       └── services/
+│   │   │           └── profileApi.ts
+│   │   │
+│   │   ├── components/                            # Shared UI Components
+│   │   │   ├── ui/                                 # Atomic components
+│   │   │   │   ├── Button.tsx
+│   │   │   │   ├── Card.tsx
+│   │   │   │   ├── Input.tsx
+│   │   │   │   ├── Select.tsx
+│   │   │   │   ├── Spinner.tsx
+│   │   │   │   ├── ProgressBar.tsx
+│   │   │   │   ├── Skeleton.tsx
+│   │   │   │   ├── Toast.tsx
+│   │   │   │   └── Modal.tsx
+│   │   │   │
+│   │   │   └── layout/                             # Layout components
+│   │   │       ├── Sidebar.tsx
+│   │   │       ├── Header.tsx
+│   │   │       ├── Footer.tsx
+│   │   │       ├── MobileNav.tsx
+│   │   │       └── ResponsiveContainer.tsx
+│   │   │
+│   │   ├── lib/                                    # Core libraries and utilities
+│   │   │   ├── api/
+│   │   │   │   ├── client.ts                         # Axios/Fetch instance
+│   │   │   │   ├── interceptors.ts                    # Request/response interceptors
+│   │   │   │   └── endpoints.ts                        # API endpoint constants
+│   │   │   │
+│   │   │   ├── map/
+│   │   │   │   ├── config.ts                           # Map provider configuration
+│   │   │   │   ├── createMap.ts                        # Map initialization
+│   │   │   │   ├── layerManager.ts                     # Dynamic layer management
+│   │   │   │   ├── markerManager.ts                    # Marker clustering/rendering
+│   │   │   │   ├── routeRenderer.ts                    # Path visualization
+│   │   │   │   └── boundsHelper.ts                     # Viewport calculations
+│   │   │   │
+│   │   │   └── utils/
+│   │   │       ├── format.ts                            # Date/number formatting
+│   │   │       ├── validation.ts                         # Form validation rules
+│   │   │       └── platform.ts                            # Platform detection (web/mobile)
+│   │   │
+│   │   ├── hooks/                                      # Global custom hooks
+│   │   │   ├── useDebounce.ts
+│   │   │   ├── useLocalStorage.ts
+│   │   │   ├── useMediaQuery.ts
+│   │   │   ├── useTheme.ts
+│   │   │   └── useLoadingState.ts
+│   │   │
+│   │   ├── services/                                   # Service layer
+│   │   │   ├── queryClient.ts                            # TanStack Query config
+│   │   │   ├── authService.ts
+│   │   │   └── errorTracker.ts                            # Error monitoring
+│   │   │
+│   │   ├── store/                                       # Zustand stores
+│   │   │   ├── authStore.ts
+│   │   │   ├── uiStore.ts
+│   │   │   └── recommendationStore.ts
+│   │   │
+│   │   ├── types/                                       # TypeScript type definitions
+│   │   │   ├── api.types.ts
+│   │   │   ├── parking.types.ts
+│   │   │   ├── user.types.ts
+│   │   │   ├── recommendation.types.ts
+│   │   │   ├── navigation.types.ts
+│   │   │   └── common.types.ts
+│   │   │
+│   │   ├── styles/
+│   │   │   ├── index.css                                 # Tailwind imports
+│   │   │   ├── variables.css                              # CSS custom properties
+│   │   │   └── animations.css                              # Keyframe animations
+│   │   │
+│   │   └── config/                                      # App configuration
+│   │       ├── constants.ts
+│   │       └── env.ts
+│   │
+│   ├── tests/                                           # Frontend tests
+│   │   ├── setup.ts
+│   │   ├── unit/
+│   │   │   ├── components/
+│   │   │   └── hooks/
+│   │   ├── integration/
+│   │   │   ├── map-flow.test.tsx
+│   │   │   └── recommendation-flow.test.tsx
+│   │   └── e2e/
+│   │       └── smoke.spec.ts
+│   │
+│   ├── android/                                         # Android build output (generated)
+│   ├── capacitor.config.ts                               # Capacitor configuration
+│   ├── vite.config.ts                                    # Vite build config
+│   ├── tsconfig.json                                      # TypeScript config
+│   ├── tsconfig.node.json
+│   ├── tailwind.config.ts                                 # Tailwind theme
+│   ├── postcss.config.js
+│   ├── .eslintrc.js
+│   ├── .prettierrc
+│   ├── index.html
+│   └── package.json
+│
+├── infrastructure/                                      # Deployment configs
+│   ├── nginx/
+│   │   └── default.conf
+│   ├── monitoring/
+│   │   ├── prometheus.yml
+│   │   └── grafana-dashboards/
+│   └── scripts/
+│       ├── deploy.sh
+│       └── backup.sh
+│
+├── docker-compose.yml                                   # Full stack orchestration
+├── docker-compose.dev.yml                                # Dev overrides
+├── .gitignore
+├── .dockerignore
+├── README.md
+└── LICENSE
+=================================================================
+RECOMENDATION ENGINE
+=================================================================
+The recommendation engine ranks locations using a weighted scoring system. Each factor contributes a percentage of the final recommendation score. The total possible score is 100 points.
+
+Scoring Rubric:
+1. Cost(40): Prioritizes affordable options for users
+2. Distance to campus(25): Rewards locations closer to campus
+3. User Parking Preferences(15): Matches user-selected preferences
+4. Major(10): Relevance based on the user's academic major
+5. Verified Spot(10): Increases trust for verified locations
+
+
+Score_cost = (
+Cost - 40
+distance to east/west campus - 25
+preferences - 15
+major - 10
+verified spot - 10
+)
+
+Design Rationale
+- Cost is the most influential factor because affordability is a primary decision driver.
+
+- Distance strongly impacts convenience for students traveling between campuses.
+
+- Preferences allow personalization within the recommendation results.
+
+- Major provides contextual relevance but is not a dominant signal.
+
+- Verified spots improve reliability and user trust in recommendations.
+
+=================================================================
+UMN ICAL CATEGORY MAPPING
+=================================================================
+
+SPORTS:
+Pulls from: Athletics, Sports, and Recreation
+- webcal://events.tc.umn.edu/live/ical/events/category/Athletics%2C%20Sports%2C%20and%20Recreation/header/Athletics%2C%20Sports%2C%20and%20Recreation%20Events
+STUDENT LIFE:
+Pulls from: Student Life + Campus Affairs
+- webcal://events.tc.umn.edu/live/ical/events/category/Student%20Life/header/Student%20Life%20Events
+- webcal://events.tc.umn.edu/live/ical/events/category/Campus%20Affairs/header/Campus%20Affairs%20Events
+
+ACADEMICS:
+Pulls from: Academics, Research, and Education + Professional Development
+- webcal://events.tc.umn.edu/live/ical/events/category/Academics%2C%20Research%2C%20and%20Education/header/Academics%2C%20Research%2C%20and%20Education%20Events
+- webcal://events.tc.umn.edu/live/ical/events/category/Professional%20Development/header/Professional%20Development%20Events
+
+STEM:
+Pulls from: Science, Engineering, and Technology + Artificial Intelligence (AI)
+- webcal://events.tc.umn.edu/live/ical/events/category/Science%2C%20Engineering%2C%20and%20Technology/header/Science%2C%20Engineering%2C%20and%20Technology%20Events
+- webcal://events.tc.umn.edu/live/ical/events/category/Artificial%20Intelligence%20(AI)/header/Artificial%20Intelligence%20(AI)%20Events
+
+ARTS:
+Pulls from: Arts, Culture, Architecture, and Design + Exhibition
+- webcal://events.tc.umn.edu/live/ical/events/category/Arts%2C%20Culture%2C%20Architecture%2C%20and%20Design/header/Arts%2C%20Culture%2C%20Architecture%2C%20and%20Design%20Events
+- webcal://events.tc.umn.edu/live/ical/events/category/Extension/header/Extension%20Events
+
+
+=================================================================
+MAPLIBRE GL 3D BUILDING
+=================================================================
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Display buildings in 3D</title>
+  <meta property="og:description" content="Use extrusions to display buildings' height in 3D." />
+  <meta charset='utf-8'>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@5.19.0/dist/maplibre-gl.css' />
+  <script src='https://unpkg.com/maplibre-gl@5.19.0/dist/maplibre-gl.js'></script>
+  <style>
+      body { margin: 0; padding: 0; }
+      html, body, #map { height: 100%; }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+  const map = new maplibregl.Map({
+      style: `https://tiles.openfreemap.org/styles/bright`,
+      center: [-74.0066, 40.7135],
+      zoom: 15.5,
+      pitch: 45,
+      bearing: -17.6,
+      container: 'map',
+      canvasContextAttributes: {antialias: true}
+  });
+
+  // The 'building' layer in the streets vector source contains building-height
+  // data from OpenStreetMap.
+  map.on('load', () => {
+      // Insert the layer beneath any symbol layer.
+      const layers = map.getStyle().layers;
+
+      let labelLayerId;
+      for (let i = 0; i < layers.length; i++) {
+          if (layers[i].type === 'symbol' && layers[i].layout['text-field']) {
+              labelLayerId = layers[i].id;
+              break;
+          }
+      }
+
+      map.addSource('openfreemap', {
+          url: `https://tiles.openfreemap.org/planet`,
+          type: 'vector',
+      });
+
+      map.addLayer(
+          {
+              'id': '3d-buildings',
+              'source': 'openfreemap',
+              'source-layer': 'building',
+              'type': 'fill-extrusion',
+              'minzoom': 15,
+              'filter': ['!=', ['get', 'hide_3d'], true],
+              'paint': {
+                  'fill-extrusion-color': [
+                      'interpolate',
+                      ['linear'],
+                      ['get', 'render_height'], 0, 'lightgray', 200, 'royalblue', 400, 'lightblue'
+                  ],
+                  'fill-extrusion-height': [
+                      'interpolate',
+                      ['linear'],
+                      ['zoom'],
+                      15,
+                      0,
+                      16,
+                      ['get', 'render_height']
+                  ],
+                  'fill-extrusion-base': ['case',
+                      ['>=', ['get', 'zoom'], 16],
+                      ['get', 'render_min_height'], 0
+                  ]
+              }
+          },
+          labelLayerId
+      );
+  });
+</script>
+</body>
+</html>
+
+=====================================
+TAILWIND REUSABLE STYLE NAMES
+=====================================
+
+---
+COLORS
+---
+
+MAROON
+bg-maroon
+bg-maroon-hover
+bg-maroon-light
+bg-maroon-light2
+
+text-maroon
+text-maroon-hover
+
+border-maroon
+
+
+GOLD
+bg-gold
+bg-gold-dark
+bg-gold-light
+
+text-gold
+text-gold-dark
+
+border-gold
+
+
+TEXT COLORS
+text-text1
+text-text2
+text-text3
+
+
+BACKGROUND COLORS
+bg-bg
+bg-bg2
+
+
+BORDERS
+border-border
+border-border2
+
+
+STATUS COLORS
+bg-green
+text-green
+border-green
+
+bg-amber
+text-amber
+border-amber
+
+bg-red
+text-red
+border-red
+
+bg-blue
+text-blue
+border-blue
+
+
+---
+BORDER RADIUS
+---
+
+rounded
+rounded-sm
+rounded-lg
+
+
+---
+SHADOWS
+---
+
+shadow-sm
+shadow-md
+shadow-lg
+
+
+---
+FONT
+---
+
+font-sans
+
+
+---
+COMMON COMBINATIONS (OPTIONAL)
+---
+
+Primary Button
+bg-maroon
+hover:bg-maroon-hover
+text-white
+rounded
+shadow-sm
+
+Secondary Button
+bg-gold
+hover:bg-gold-dark
+text-text1
+rounded
+
+Card
+bg-bg
+border
+border-border
+rounded
+shadow-sm
+
+Panel
+bg-bg2
+border
+border-border
+rounded
+
+Input
+bg-bg
+border
+border-border
+rounded-sm
+text-text1
+
+Divider
+border-t
+border-border2
+
+Badge
+rounded-lg
+px-3
+py-1
+text-sm
+font-medium
+
+
+---
+STATE EXAMPLES
+---
+
+Hover
+hover:bg-maroon-hover
+hover:bg-gold-dark
+hover:shadow-md
+
+Focus
+focus:outline-none
+focus:ring-2
+focus:ring-maroon
+
+Disabled
+opacity-50
+pointer-events-none
+
+=================================================================
+TECHNICAL STACK SUMMARY
+=================================================================
+
+BACKEND (FastAPI):
+- Framework: FastAPI (async)
+- Database: PostgreSQL + PostGIS
+- ORM: SQLAlchemy 2.0
+- Migrations: Alembic
+- Caching: Redis
+- Task Queue: Celery/RQ
+- Auth: OAuth2 + JWT
+- Validation: Pydantic
+- Testing: Pytest
+- Monitoring: Prometheus + Grafana
+
+FRONTEND (React + TypeScript):
+- Core: React 18, TypeScript
+- Build: Vite
+- Styling: Tailwind CSS, clsx
+- Server State: TanStack Query
+- Forms: React Hook Form + Zod
+- State: Zustand
+- Maps: Leaflet/Mapbox GL
+- PWA: Vite PWA plugin
+- Mobile: Capacitor
+- Testing: Vitest, React Testing Library, Playwright
+
+=================================================================
+DEPLOYMENT TARGETS
+=================================================================
+
+1. Web Application:
+   - Deployed via Vercel/Netlify (frontend)
+   - Backend hosted on AWS/GCP/DigitalOcean
+   - Custom domain support
+
+2. PWA (Progressive Web App):
+   - Installable on mobile devices
+   - Offline capability for basic features
+   - Push notification support
+
+3. Android APK:
+   - Built via Capacitor
+   - Internal testing via APK distribution
+   - Future Play Store release after validation
+
+=================================================================
+PHASE 1 MILESTONES (NOW → MAY 2026)
+=================================================================
+
+Q1 2026:
+- Backend migration from Flask to FastAPI
+- Database schema redesign with PostGIS
+- Redis caching implementation
+- Basic API endpoints (auth, parking)
+
+Q2 2026:
+- Frontend rebuild in React + TypeScript
+- Core UI components with Tailwind
+- Map integration with clustering
+- Recommendation engine v1 (rule-based)
+
+Q3 2026:
+- Loading states and skeleton screens
+- Responsive design completion
+- PWA configuration
+- Internal APK builds for testing
+
+Q4 2026:
+- Performance optimization
+- Load testing (3k+ concurrent users)
+- Friend group testing and feedback
+- Bug fixes and polish
+- Documentation completion
+Q5 2026 Version 2.5: 
+- Security Updates (Keep user data safe and encrypt it)
+- Events on campus tab (Similar local vibe navigation button on Google Maps)
+- https://events.tc.umn.edu/all
+=================================================================
+SUMMARY
+=================================================================
+
+Version 2 transforms Park and Go from a prototype into a production-ready, cross-platform application. The Flask → FastAPI migration enables async performance at scale, while the vanilla JS → React/TypeScript rebuild delivers a modern, responsive UI. By maintaining a single codebase for web and mobile (via PWA + Capacitor), development efficiency is maximized. Loading indicators, responsive design, and touch-friendly interfaces ensure excellent UX across all platforms. With a clear focus on engineering excellence and user feedback through internal APK testing, V2 lays the foundation for future ML enhancements and public release.

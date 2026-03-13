@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Park & Go — V2 UI Concept</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --maroon:#7A0019;--maroon-h:#91253b;--maroon-lt:rgba(122,0,25,0.08);--maroon-lt2:rgba(122,0,25,0.14);
+  --gold:#FFCC33;--gold-lt:rgba(255,204,51,0.18);--gold-dk:#c9a200;
+  --bg:#f2f2f7;--bg2:#e5e5ea;--border:rgba(0,0,0,0.09);--border2:rgba(0,0,0,0.05);
+  --text1:#1c1c1e;--text2:#6c6c70;--text3:#aeaeb2;
+  --green:#34c759;--amber:#ff9500;--red:#ff3b30;--blue:#007aff;
+  --blur:blur(20px) saturate(180%);
+  --r:16px;--rs:10px;--rp:100px;
+  --sh-sm:0 1px 3px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.05);
+  --sh-md:0 4px 16px rgba(0,0,0,0.12),0 2px 6px rgba(0,0,0,0.08);
+  --sh-lg:0 8px 32px rgba(0,0,0,0.16),0 4px 12px rgba(0,0,0,0.1);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#1a1a2e;background-image:radial-gradient(ellipse at 20% 50%,rgba(122,0,25,0.12) 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(255,204,51,0.06) 0%,transparent 50%);font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;font-size:14px;color:var(--text1);line-height:1.4;min-height:100vh;}
+
+/* ── PAGE CHROME ── */
+.ph{background:rgba(15,15,30,0.85);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border-bottom:1px solid rgba(255,255,255,0.08);padding:18px 48px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;}
+.ph-logo{font-size:22px;font-weight:800;letter-spacing:-0.3px;}
+.pt{color:var(--maroon)}.pa{color:var(--gold-dk)}.pg{color:var(--maroon-h)}
+.ph-logo .pt,.ph-logo .pg{color:#fff;}
+.ph-logo .pa{color:var(--gold);}
+.ph-tag{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.9);background:linear-gradient(135deg,var(--maroon),var(--maroon-h));border-radius:var(--rp);padding:5px 14px;box-shadow:0 2px 8px rgba(122,0,25,0.4);}
+
+/* ── SECTION LABELS ── */
+.sec{padding:52px 48px 0;}
+.sec-hd{display:flex;align-items:center;gap:16px;margin-bottom:28px;}
+.sec-ico{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.sec-ico.m{background:rgba(122,0,25,0.2);box-shadow:0 0 0 1px rgba(122,0,25,0.3);}
+.sec-ico.d{background:rgba(255,204,51,0.15);box-shadow:0 0 0 1px rgba(255,204,51,0.3);}
+.sec-t{font-size:22px;font-weight:700;color:#fff;letter-spacing:-0.3px;}.sec-s{font-size:13px;color:rgba(255,255,255,0.45);margin-top:3px;}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:32px;padding:0 48px 52px;}
+.pcard{display:flex;flex-direction:column;align-items:center;gap:12px;}
+.pname{font-size:10px;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;text-align:center;}
+.pframe{background:#fff;border-radius:46px;border:9px solid #111;box-shadow:0 0 0 1px rgba(255,255,255,0.06),0 32px 64px rgba(0,0,0,0.5),0 16px 32px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.1);overflow:hidden;position:relative;width:298px;}
+.notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:108px;height:28px;background:#111;border-radius:0 0 18px 18px;z-index:50;}
+
+/* ── MAP BG ── */
+.mapbg{background-color:#dde8d5;background-image:linear-gradient(rgba(0,0,0,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,0.025) 1px,transparent 1px);background-size:18px 18px;position:relative;}
+.mapbg::before{content:'';position:absolute;inset:0;background:linear-gradient(#b8ccb0,#b8ccb0) 50% 0/3px 100% no-repeat,linear-gradient(#b8ccb0,#b8ccb0) 0 44%/100% 3px no-repeat,linear-gradient(#c4d4bc,#c4d4bc) 30% 0/1.5px 100% no-repeat,linear-gradient(#c4d4bc,#c4d4bc) 70% 0/1.5px 100% no-repeat,linear-gradient(#c4d4bc,#c4d4bc) 0 68%/100% 1.5px no-repeat;pointer-events:none;}
+
+/* ══════════════════════════════════════════════════
+   SHARED COMPONENT TOKENS
+══════════════════════════════════════════════════ */
+.gpin{position:absolute;display:flex;align-items:center;gap:5px;background:#fff;border-radius:var(--rp);padding:5px 11px 5px 7px;font-size:12px;font-weight:600;box-shadow:var(--sh-md);cursor:pointer;white-space:nowrap;border:1.5px solid transparent;z-index:10;}
+.gpin.sel{background:var(--maroon);color:#fff;border-color:var(--maroon);}
+.gpin .pd{width:8px;height:8px;border-radius:50%;}
+.gpin.g .pd{background:var(--green)}.gpin.a .pd{background:var(--amber)}.gpin.sel .pd{background:var(--gold);}
+.gfab{width:42px;height:42px;background:#fff;border-radius:50%;box-shadow:var(--sh-md);display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;}
+
+/* ── chips / pills ── */
+.chip{font-size:11px;font-weight:500;padding:5px 11px;border-radius:var(--rp);border:1.5px solid var(--border);background:#fff;cursor:pointer;color:var(--text1);}
+.chip.ac{background:var(--maroon);border-color:var(--maroon);color:#fff;}
+
+/* ── score bar row ── */
+.brow{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.blbl{font-size:10px;color:var(--text2);width:88px;flex-shrink:0;}
+.btrk{flex:1;height:3.5px;background:var(--bg2);border-radius:2px;overflow:hidden;}
+.bfill{height:100%;background:var(--maroon);border-radius:2px;}
+.bval{font-size:10px;font-weight:700;color:var(--maroon);width:22px;text-align:right;flex-shrink:0;}
+
+/* ── add spot button style ── */
+.add-spot-row{display:flex;align-items:center;gap:9px;padding:10px 11px;border:1.5px dashed rgba(122,0,25,0.3);border-radius:var(--rs);background:var(--maroon-lt);cursor:pointer;flex-shrink:0;}
+.add-ico{width:28px;height:28px;background:var(--maroon);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;font-weight:600;flex-shrink:0;}
+
+/* ── toggle ── */
+.tog{width:40px;height:23px;border-radius:12px;background:var(--maroon);position:relative;flex-shrink:0;}
+.tog.off{background:#c7c7cc;}
+.tok{position:absolute;top:2px;right:2px;width:19px;height:19px;background:#fff;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,0.2);}
+.tog.off .tok{right:auto;left:2px;}
+
+/* ══════════════════════════════════════════════════
+   MOBILE SCREEN 1 — MAP MAIN VIEW
+══════════════════════════════════════════════════ */
+.s-map{height:640px;overflow:hidden;position:relative;}
+/* top search bar */
+.gm-bar{position:absolute;top:38px;left:12px;right:12px;z-index:20;background:#fff;border-radius:28px;height:48px;display:flex;align-items:center;padding:0 14px;gap:10px;box-shadow:0 2px 16px rgba(0,0,0,0.15);}
+.gm-st{flex:1;font-size:14px;color:var(--text3);}
+.gm-av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--maroon),var(--maroon-h));display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;flex-shrink:0;}
+.gm-gear{font-size:18px;cursor:pointer;color:var(--text2);}
+/* bottom sheet */
+.gbs{position:absolute;bottom:0;left:0;right:0;background:#fff;border-radius:22px 22px 0 0;box-shadow:0 -2px 24px rgba(0,0,0,0.13);z-index:20;padding:0 0 8px;}
+.gbs-handle{width:36px;height:4px;background:#d1d1d6;border-radius:2px;margin:10px auto 0;}
+/* tab switcher: Spots / Local Events */
+.gbs-tabs{display:flex;border-bottom:1px solid var(--border);margin:10px 14px 0;}
+.gbs-tab{flex:1;padding:8px 0;font-size:13px;font-weight:600;color:var(--text3);text-align:center;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;}
+.gbs-tab.ac{color:var(--maroon);border-bottom-color:var(--maroon);}
+/* See Filters row */
+.see-filters-row{padding:10px 14px 6px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
+.see-filters-lbl{font-size:12px;font-weight:600;color:var(--maroon);display:flex;align-items:center;gap:5px;}
+.see-filters-arr{font-size:11px;color:var(--maroon);}
+/* Filter expand */
+.filters-expand{max-height:0;overflow:hidden;padding:0 14px;}
+.filters-expand.open{max-height:200px;}
+.filter-sec{margin-bottom:10px;}
+.filter-sec-t{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--text3);margin-bottom:6px;}
+.chips-row{display:flex;flex-wrap:wrap;gap:6px;}
+.cslide-row{display:flex;align-items:center;gap:9px;margin-top:6px;}
+.ctrack{flex:1;height:4px;background:var(--bg2);border-radius:2px;position:relative;}
+.cfill{position:absolute;left:0;top:0;bottom:0;width:55%;background:var(--maroon);border-radius:2px;}
+.cthumb{position:absolute;top:50%;left:55%;transform:translate(-50%,-50%);width:14px;height:14px;background:var(--maroon);border-radius:50%;border:2.5px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.2);}
+.cval{font-size:11px;font-weight:700;color:var(--maroon);white-space:nowrap;}
+/* spots title row */
+.gbs-ttl{padding:10px 14px 6px;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:space-between;color:var(--text1);}
+.gbs-badge{font-size:11px;font-weight:500;color:var(--text2);background:var(--bg);border-radius:var(--rp);padding:3px 9px;}
+/* spot card scroll */
+.gscroll{display:flex;gap:10px;padding:4px 14px 16px;overflow-x:auto;scrollbar-width:none;}
+.gscard{flex-shrink:0;width:148px;background:#fff;border:1.5px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;box-shadow:var(--sh-sm);}
+.gscard.top{border-color:var(--maroon);box-shadow:0 2px 8px rgba(122,0,25,0.15);}
+.gscard-img{height:62px;background:linear-gradient(135deg,var(--maroon-lt),var(--gold-lt));display:flex;align-items:center;justify-content:center;font-size:24px;position:relative;}
+.grank{position:absolute;top:6px;left:6px;background:var(--maroon);color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:var(--rp);}
+.gscard-bd{padding:8px 10px 10px;}
+.gscard-nm{font-size:11px;font-weight:700;margin-bottom:2px;color:var(--text1);}
+.gscard-mt{font-size:10px;color:var(--text2);display:flex;flex-direction:column;gap:1px;}
+.gsprice{display:inline-block;margin-top:5px;font-size:10px;font-weight:700;color:var(--maroon);background:var(--maroon-lt);border-radius:var(--rp);padding:2px 8px;}
+/* Suggest a spot card at end of scroll */
+.gscard-add{flex-shrink:0;width:120px;border:1.5px dashed rgba(122,0,25,0.3);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:14px 10px;background:var(--maroon-lt);cursor:pointer;}
+.gscard-add-ico{width:30px;height:30px;background:var(--maroon);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;}
+.gscard-add-nm{font-size:10px;font-weight:600;color:var(--maroon);text-align:center;line-height:1.4;}
+
+/* ══════════════════════════════════════════════════
+   MOBILE SCREEN 1B — BOTTOM SHEET: LOCAL EVENTS TAB
+══════════════════════════════════════════════════ */
+/* reuses gbs, gbs-tabs, but shows events list instead */
+.ev-scroll{overflow-y:auto;max-height:280px;padding:6px 14px 14px;}
+.ev-item{background:var(--bg);border:1.5px solid var(--border);border-radius:var(--rs);padding:10px;margin-bottom:8px;cursor:pointer;}
+.ev-item.pinned{border-color:var(--maroon);background:var(--maroon-lt);}
+.ev-row{display:flex;gap:10px;align-items:flex-start;margin-bottom:7px;}
+.ev-dc{width:36px;height:36px;background:#fff;border-radius:8px;border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;}
+.ev-dc .mo{font-size:8px;font-weight:700;color:var(--maroon);text-transform:uppercase;}
+.ev-dc .dy{font-size:16px;font-weight:800;line-height:1;}
+.ev-inf{flex:1;min-width:0;}
+.ev-nm{font-size:12px;font-weight:700;line-height:1.3;margin-bottom:2px;}
+.ev-meta{font-size:10px;color:var(--text2);}
+.ev-badge{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:var(--rp);background:var(--gold-lt);color:var(--gold-dk);border:1px solid rgba(201,162,0,0.22);}
+.ev-badge.m{background:var(--maroon-lt);color:var(--maroon);border-color:rgba(122,0,25,0.18);}
+.ev-badge.cl{background:rgba(0,122,255,0.08);color:var(--blue);border-color:rgba(0,122,255,0.18);}
+.ev-btns{display:flex;gap:6px;}
+.ev-map-btn{flex:1;font-size:10px;font-weight:600;color:var(--blue);background:rgba(0,122,255,0.07);border:1px solid rgba(0,122,255,0.15);border-radius:6px;padding:6px;text-align:center;cursor:pointer;}
+.ev-rem-btn{flex:1;font-size:10px;font-weight:600;color:var(--maroon);background:var(--maroon-lt);border:1px solid rgba(122,0,25,0.18);border-radius:6px;padding:6px;text-align:center;cursor:pointer;}
+.ev-rem-btn.set{background:var(--maroon);color:#fff;border-color:var(--maroon);}
+/* event cats row */
+.ev-cats{display:flex;gap:6px;padding:8px 14px 4px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--border);}
+.ev-cat{flex-shrink:0;font-size:11px;font-weight:500;padding:4px 11px;border-radius:var(--rp);background:var(--bg);border:1px solid var(--border);cursor:pointer;}
+.ev-cat.ac{background:var(--maroon);color:#fff;border-color:var(--maroon);}
+
+/* ══════════════════════════════════════════════════
+   MOBILE SCREEN 2 — SPOT DETAIL SHEET
+══════════════════════════════════════════════════ */
+.s-detail{height:640px;position:relative;overflow:hidden;}
+.detail-back{position:absolute;top:40px;left:10px;width:34px;height:34px;background:#fff;border-radius:50%;box-shadow:var(--sh-md);display:flex;align-items:center;justify-content:center;font-size:16px;z-index:20;cursor:pointer;}
+.detail-pin{position:absolute;top:30%;left:50%;transform:translate(-50%,-50%);z-index:5;display:flex;flex-direction:column;align-items:center;}
+.pin-head{width:34px;height:34px;background:var(--maroon);border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 0 0 6px rgba(122,0,25,0.18);display:flex;align-items:center;justify-content:center;}
+.pin-inner{width:13px;height:13px;background:#fff;border-radius:50%;transform:rotate(45deg);}
+.det-sheet{position:absolute;bottom:0;left:0;right:0;background:#fff;border-radius:22px 22px 0 0;box-shadow:0 -4px 24px rgba(0,0,0,0.12);z-index:20;}
+.det-handle{width:34px;height:4px;background:#d1d1d6;border-radius:2px;margin:10px auto;}
+.det-top{padding:0 18px 13px;border-bottom:1px solid var(--border);}
+.det-hrow{display:flex;align-items:flex-start;gap:12px;margin-bottom:9px;}
+.det-sc{width:46px;height:46px;background:var(--maroon);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;flex-shrink:0;}
+.det-scn{font-size:17px;font-weight:800;line-height:1;}
+.det-scl{font-size:7px;opacity:.8;margin-top:1px;letter-spacing:.5px;}
+.det-nm{font-size:17px;font-weight:700;line-height:1.2;}
+.det-sub{font-size:12px;color:var(--text2);margin-top:3px;}
+.det-chips-row{display:flex;gap:6px;flex-wrap:wrap;}
+.dchip{font-size:11px;font-weight:500;padding:4px 10px;border-radius:var(--rp);background:var(--bg);border:1px solid var(--border);}
+.dchip.v{background:rgba(52,199,89,0.1);color:var(--green);border-color:rgba(52,199,89,0.3);}
+.see-row{padding:11px 18px 0;display:flex;align-items:center;gap:5px;cursor:pointer;}
+.see-lbl{font-size:12px;font-weight:600;color:var(--maroon);}
+.see-arr{font-size:11px;color:var(--maroon);}
+.det-expand{padding:0 18px;max-height:0;overflow:hidden;transition:max-height .3s;}
+.det-expand.open{max-height:200px;}
+.det-acts{padding:12px 18px 22px;display:flex;gap:9px;}
+.det-nav{flex:1;background:var(--maroon);color:#fff;border:none;border-radius:var(--rs);padding:13px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;}
+.det-save{width:46px;height:46px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--rs);display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;flex-shrink:0;}
+
+/* ══════════════════════════════════════════════════
+   MOBILE SCREEN 3 — SETTINGS (full screen page)
+══════════════════════════════════════════════════ */
+.s-settings-page{height:640px;position:relative;overflow:hidden;display:flex;align-items:flex-end;}
+.set-scrim{position:absolute;inset:0;background:rgba(0,0,0,0.45);z-index:1;backdrop-filter:blur(1px);}
+.set-modal{position:relative;z-index:5;width:100%;background:#fff;border-radius:24px 24px 0 0;box-shadow:0 -12px 40px rgba(0,0,0,0.22);padding-bottom:28px;}
+.set-handle{width:36px;height:4px;background:#d1d1d6;border-radius:2px;margin:12px auto 0;}
+.set-tbar{padding:14px 20px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+.set-title{font-size:17px;font-weight:700;letter-spacing:-0.2px;}
+.set-x{width:28px;height:28px;background:var(--bg);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--text2);cursor:pointer;}
+.set-sec{padding:12px 20px 0;}
+.set-sec-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.9px;color:var(--text3);margin-bottom:6px;}
+.set-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border2);}
+.set-row:last-child{border-bottom:none;}
+.set-ico{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.set-ico.m{background:var(--maroon-lt)}.set-ico.g{background:var(--gold-lt)}.set-ico.b{background:rgba(0,122,255,.1)}.set-ico.gr{background:rgba(52,199,89,.1)}.set-ico.r{background:rgba(255,59,48,.1)}
+.set-txt{flex:1;}
+.set-lbl{font-size:13px;font-weight:500;color:var(--text1);}
+.set-sub{font-size:11px;color:var(--text2);margin-top:1px;}
+.set-chev{color:var(--text3);font-size:16px;line-height:1;}
+/* Saved spots sub-section inside settings */
+.saved-spots-list{padding:0 20px 4px;background:#fafafa;border-bottom:1px solid var(--border2);}
+.saved-spot-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border2);}
+.saved-spot-item:last-child{border-bottom:none;}
+.ss-ico{width:28px;height:28px;background:var(--maroon-lt);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.ss-nm{font-size:12px;font-weight:600;color:var(--text1);}
+.ss-sub{font-size:10px;color:var(--text2);margin-top:1px;}
+.ss-del{width:26px;height:26px;background:rgba(255,59,48,0.1);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;flex-shrink:0;}
+.ss-edit{width:26px;height:26px;background:var(--bg);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;flex-shrink:0;}
+.set-danger-btn{display:block;margin:14px 20px 0;width:calc(100% - 40px);padding:11px;background:rgba(255,59,48,0.07);border:1.5px solid rgba(255,59,48,0.2);border-radius:var(--rs);color:var(--red);font-size:13px;font-weight:600;cursor:pointer;text-align:center;}
+
+/* ══════════════════════════════════════════════════
+   MOBILE SCREEN 4 — ACTIVE NAVIGATION
+══════════════════════════════════════════════════ */
+.s-nav{height:640px;position:relative;overflow:hidden;}
+.nav-route{position:absolute;top:200px;left:47%;width:4px;height:190px;background:linear-gradient(to bottom,var(--maroon),rgba(122,0,25,0.1));border-radius:2px;z-index:3;}
+.nav-route::after{content:'';position:absolute;bottom:-7px;left:50%;transform:translateX(-50%);width:13px;height:13px;background:var(--maroon);border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 4px rgba(122,0,25,0.22);}
+.nav-arrow{position:absolute;top:268px;left:calc(47% - 8px);width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:13px solid var(--maroon);z-index:4;opacity:.65;}
+.nav-top{position:absolute;top:0;left:0;right:0;background:var(--maroon);padding:38px 14px 14px;z-index:20;display:flex;align-items:flex-start;gap:10px;}
+.nav-dir-ico{width:38px;height:38px;background:rgba(255,255,255,0.18);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.nav-dir-main{font-size:16px;font-weight:700;color:#fff;}
+.nav-dir-sub{font-size:12px;color:rgba(255,255,255,0.72);margin-top:2px;}
+.nav-end{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);color:#fff;border-radius:var(--rp);padding:6px 13px;font-size:12px;font-weight:600;cursor:pointer;flex-shrink:0;}
+.nav-street{position:absolute;top:112px;left:0;right:0;background:rgba(0,0,0,0.52);backdrop-filter:blur(4px);padding:6px 14px;z-index:10;display:flex;justify-content:space-between;}
+.nav-street-nm{font-size:13px;font-weight:600;color:#fff;}
+.nav-speed{font-size:11px;font-weight:700;background:rgba(255,255,255,0.15);color:#fff;border-radius:4px;padding:2px 8px;}
+.nav-bottom{position:absolute;bottom:0;left:0;right:0;background:#fff;border-radius:22px 22px 0 0;box-shadow:0 -4px 20px rgba(0,0,0,0.12);z-index:20;overflow:hidden;}
+.nav-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:16px 16px 0;}
+.nav-sbox{background:var(--bg);border-radius:var(--rs);padding:10px;text-align:center;}
+.nav-sl{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;}
+.nav-sv{font-size:18px;font-weight:800;line-height:1;color:var(--text1);}
+.nav-sv.m{color:var(--maroon);}
+.nav-su{font-size:10px;color:var(--text2);}
+.nav-modes{display:flex;gap:8px;padding:10px 14px 14px;}
+.nav-mb{flex:1;padding:10px;border-radius:var(--rp);border:1.5px solid var(--border);background:#fff;font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;}
+.nav-mb.ac{background:var(--maroon);border-color:var(--maroon);color:#fff;}
+.nav-see-row{border-top:1px solid var(--border);padding:10px 14px 12px;display:flex;align-items:center;justify-content:center;gap:5px;cursor:pointer;}
+.nav-see-lbl{font-size:12px;font-weight:600;color:var(--maroon);}
+.nav-see-arr{font-size:11px;color:var(--maroon);}
+.nav-det-exp{max-height:0;overflow:hidden;transition:max-height .3s;}
+.nav-det-exp.open{max-height:200px;}
+.nav-det-inner{padding:0 14px 16px;border-top:1px solid var(--border);padding-top:10px;}
+.nav-det-ttl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text3);margin-bottom:8px;}
+.nav-det-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border2);}
+.nav-det-row:last-child{border-bottom:none;}
+.nav-det-k{font-size:12px;color:var(--text2);}
+.nav-det-v{font-size:12px;font-weight:600;}
+.nav-det-v.m{color:var(--maroon);}
+
+/* ══════════════════════════════════════════════════
+   DESKTOP SECTION
+══════════════════════════════════════════════════ */
+.dsec-wrap{padding:0 48px 56px;}
+.dsec-lbl{font-size:11px;color:rgba(255,255,255,0.35);margin-bottom:12px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;}
+.dframe{background:#fff;border-radius:14px;overflow:hidden;border:1px solid rgba(0,0,0,0.15);box-shadow:0 32px 64px rgba(0,0,0,0.5),0 8px 24px rgba(0,0,0,0.3);display:flex;height:580px;position:relative;}
+/* macOS title bar */
+.dtbar{position:absolute;top:0;left:0;right:0;height:36px;background:rgba(246,246,246,0.93);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border-bottom:1px solid rgba(0,0,0,0.1);display:flex;align-items:center;padding:0 12px;gap:8px;z-index:50;}
+.dot{width:12px;height:12px;border-radius:50%;}
+.dot.r{background:#ff5f56;}.dot.y{background:#ffbd2e;}.dot.g{background:#27c93f;}
+.dtbar-title{position:absolute;left:50%;transform:translateX(-50%);font-size:12px;font-weight:600;color:var(--text2);display:flex;align-items:center;gap:4px;}
+/* Apple Maps sidebar */
+.am-sb{width:340px;flex-shrink:0;background:rgba(246,246,246,0.85);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border-right:1px solid rgba(0,0,0,0.1);display:flex;flex-direction:column;padding-top:36px;overflow:hidden;}
+.am-sb-top{padding:14px 14px 10px;border-bottom:1px solid rgba(0,0,0,0.08);}
+.am-search{background:rgba(255,255,255,0.8);border:1px solid rgba(0,0,0,0.1);border-radius:9px;padding:8px 11px;display:flex;align-items:center;gap:7px;box-shadow:0 1px 2px rgba(0,0,0,0.06);margin-bottom:9px;}
+.am-si{color:var(--text3);font-size:13px;}
+.am-st{flex:1;font-size:13px;color:var(--text3);}
+.am-urow{display:flex;align-items:center;gap:9px;padding:7px 9px;background:rgba(255,255,255,0.6);border-radius:var(--rs);}
+.am-uav{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--maroon),var(--maroon-h));display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;flex-shrink:0;}
+.am-unm{font-size:12px;font-weight:600;}
+.am-udt{font-size:10px;color:var(--text2);}
+.am-uset{margin-left:auto;font-size:15px;cursor:pointer;color:var(--text2);}
+/* filter pills row */
+.am-fps{padding:9px 14px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid rgba(0,0,0,0.06);}
+.am-fp{flex-shrink:0;font-size:11px;font-weight:500;padding:5px 11px;border-radius:var(--rp);background:rgba(255,255,255,0.72);border:1px solid rgba(0,0,0,0.1);cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,0.05);}
+.am-fp.ac{background:var(--maroon);border-color:var(--maroon);color:#fff;}
+/* cost slider */
+.am-cost{padding:9px 14px 10px;border-bottom:1px solid rgba(0,0,0,0.06);}
+.am-clbl{font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px;}
+.am-ctrack{height:4px;background:#e5e5ea;border-radius:2px;position:relative;}
+.am-cfill{position:absolute;left:0;top:0;bottom:0;width:55%;background:var(--maroon);border-radius:2px;}
+.am-cthumb{position:absolute;top:50%;left:55%;transform:translate(-50%,-50%);width:13px;height:13px;background:var(--maroon);border-radius:50%;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.2);}
+/* tab switcher inside sidebar */
+.am-sb-tabs{display:flex;border-bottom:1px solid rgba(0,0,0,0.06);flex-shrink:0;}
+.am-sb-tab{flex:1;padding:9px 0;font-size:12px;font-weight:600;color:var(--text3);text-align:center;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;}
+.am-sb-tab.ac{color:var(--maroon);border-bottom-color:var(--maroon);}
+/* sidebar body */
+.am-sb-body{flex:1;overflow-y:auto;display:flex;flex-direction:column;overflow-x:hidden;}
+.am-res-hd{padding:10px 14px 4px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text3);flex-shrink:0;}
+.am-slist{padding:0 8px;flex:1;}
+.am-srow{display:flex;align-items:center;gap:9px;padding:9px 8px;border-radius:var(--rs);cursor:pointer;border-bottom:1px solid rgba(0,0,0,0.05);}
+.am-srow:hover,.am-srow.sel{background:rgba(122,0,25,0.06);}
+.am-sico{width:32px;height:32px;border-radius:9px;background:var(--maroon-lt);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.am-sico.gd{background:var(--gold-lt);}
+.am-sinf{flex:1;min-width:0;}
+.am-snm{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.am-smt{font-size:10px;color:var(--text2);margin-top:1px;}
+.am-srt{text-align:right;flex-shrink:0;}
+.am-spr{font-size:12px;font-weight:700;color:var(--maroon);}
+.am-sds{font-size:9px;color:var(--text3);margin-top:2px;}
+/* sidebar events list */
+.am-ev-list{padding:6px 8px;flex:1;overflow-y:auto;}
+.am-ev-item{background:#fff;border:1.5px solid var(--border);border-radius:var(--rs);padding:10px;margin-bottom:7px;cursor:pointer;}
+.am-ev-item.pinned{border-color:var(--maroon);}
+.am-ev-row{display:flex;gap:9px;margin-bottom:6px;}
+.am-ev-dc{width:34px;text-align:center;flex-shrink:0;}
+.am-ev-mo{font-size:8px;font-weight:700;text-transform:uppercase;color:var(--maroon);letter-spacing:.4px;}
+.am-ev-dy{font-size:20px;font-weight:800;line-height:1;color:var(--text1);}
+.am-ev-nm{font-size:12px;font-weight:700;margin-bottom:2px;}
+.am-ev-meta{font-size:10px;color:var(--text2);margin-bottom:5px;}
+.am-ev-btns{display:flex;gap:5px;}
+.am-ev-mb{flex:1;font-size:10px;font-weight:600;padding:5px;border-radius:6px;cursor:pointer;text-align:center;}
+.am-ev-mb.map{color:var(--blue);background:rgba(0,122,255,0.08);border:1px solid rgba(0,122,255,0.18);}
+.am-ev-mb.rem{color:var(--maroon);background:var(--maroon-lt);border:1px solid rgba(122,0,25,0.2);}
+.am-ev-mb.rem.set{background:var(--maroon);color:#fff;border-color:var(--maroon);}
+/* sidebar footer */
+.am-sb-ft{padding:9px;border-top:1px solid rgba(0,0,0,0.08);flex-shrink:0;}
+.am-addbtn{display:flex;align-items:center;gap:9px;padding:9px 10px;border:1.5px dashed rgba(122,0,25,0.32);border-radius:var(--rs);background:var(--maroon-lt);cursor:pointer;width:100%;}
+.am-add-ico{width:28px;height:28px;background:var(--maroon);border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:700;flex-shrink:0;}
+.am-add-nm{font-size:12px;font-weight:600;color:var(--maroon);}
+.am-add-sb{font-size:10px;color:rgba(122,0,25,0.6);margin-top:1px;}
+/* map area */
+.am-map{flex:1;position:relative;overflow:hidden;}
+.am-map-inner{position:absolute;inset:36px 0 0 0;}
+.am-mtbar{position:absolute;top:0;left:0;right:0;padding:9px 12px;display:flex;gap:7px;background:linear-gradient(to bottom,rgba(246,246,246,0.9) 65%,transparent);backdrop-filter:blur(4px);z-index:10;}
+.am-mpill{background:rgba(255,255,255,0.9);border:1px solid rgba(0,0,0,0.1);border-radius:var(--rp);padding:5px 12px;font-size:11px;font-weight:500;cursor:pointer;box-shadow:var(--sh-sm);white-space:nowrap;}
+.am-mpill.ac{background:var(--maroon);color:#fff;border-color:var(--maroon);}
+/* Apple Maps pin bubbles */
+.apin{position:absolute;display:flex;flex-direction:column;align-items:center;cursor:pointer;z-index:5;}
+.apin-b{background:#fff;border:1.5px solid rgba(0,0,0,0.11);border-radius:var(--rp);padding:4px 10px 4px 7px;font-size:11px;font-weight:600;display:flex;align-items:center;gap:4px;box-shadow:var(--sh-md);white-space:nowrap;}
+.apin-b.sel{background:var(--maroon);color:#fff;border-color:var(--maroon);}
+.apin-tail{width:2px;height:5px;background:rgba(0,0,0,0.12);margin-top:-1px;}
+.apin-b.sel+.apin-tail{background:var(--maroon);}
+.apd{width:7px;height:7px;border-radius:50%;}
+.apd.g{background:var(--green)}.apd.a{background:var(--amber)}.apd.r{background:var(--red)}.apd.w{background:#fff;}
+/* controls */
+.am-ctrl{position:absolute;right:12px;z-index:10;border-radius:var(--rs);border:1px solid rgba(0,0,0,0.11);overflow:hidden;box-shadow:var(--sh-md);}
+.am-cbtn{width:34px;height:34px;background:rgba(255,255,255,0.9);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;border:none;}
+.am-cbtn:first-child{border-bottom:1px solid rgba(0,0,0,0.08);}
+.am-locate{position:absolute;right:12px;width:34px;height:34px;background:rgba(255,255,255,0.9);border:1px solid rgba(0,0,0,0.11);border-radius:var(--rs);box-shadow:var(--sh-sm);display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;z-index:10;}
+/* detail card */
+.am-dc{position:absolute;bottom:14px;left:12px;right:12px;background:rgba(255,255,255,0.95);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid rgba(0,0,0,0.1);border-radius:var(--r);padding:14px;box-shadow:var(--sh-lg);z-index:10;}
+.am-dc-top{display:flex;align-items:flex-start;gap:11px;margin-bottom:10px;}
+.am-dc-sc{width:44px;height:44px;background:var(--maroon);border-radius:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;flex-shrink:0;}
+.am-dc-scn{font-size:17px;font-weight:800;line-height:1;}
+.am-dc-scl{font-size:7px;opacity:.8;margin-top:1px;letter-spacing:.4px;}
+.am-dc-nm{font-size:14px;font-weight:700;}
+.am-dc-sb{font-size:11px;color:var(--text2);margin-top:2px;}
+.am-dc-chips{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;}
+.am-dc-chip{font-size:10px;font-weight:500;padding:3px 8px;border-radius:var(--rp);background:var(--bg);border:1px solid var(--border);}
+.am-dc-chip.v{background:rgba(52,199,89,0.1);color:var(--green);border-color:rgba(52,199,89,0.25);}
+.am-dc-see{display:flex;align-items:center;gap:5px;cursor:pointer;margin-bottom:10px;}
+.am-dc-see-lbl{font-size:11px;font-weight:600;color:var(--maroon);}
+.am-dc-see-arr{font-size:10px;color:var(--maroon);}
+.am-dc-expand{max-height:0;overflow:hidden;transition:max-height .3s;}
+.am-dc-expand.open{max-height:140px;}
+.am-dc-btns{display:flex;gap:7px;}
+.am-nav-btn{flex:1;background:var(--maroon);color:#fff;border:none;border-radius:var(--rs);padding:9px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;}
+.am-dir-btn{background:rgba(0,122,255,0.08);color:var(--blue);border:1px solid rgba(0,122,255,0.18);border-radius:var(--rs);padding:9px 13px;font-size:12px;font-weight:600;cursor:pointer;}
+
+/* ── Desktop Settings modal ── */
+.am-set-ov{position:absolute;inset:0;background:rgba(0,0,0,0.3);z-index:100;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.am-set-modal{background:rgba(246,246,246,0.97);backdrop-filter:var(--blur);border:1px solid rgba(0,0,0,0.12);border-radius:18px;width:380px;box-shadow:var(--sh-lg);overflow:hidden;max-height:520px;overflow-y:auto;}
+.am-sm-hd{padding:14px 18px 11px;border-bottom:1px solid rgba(0,0,0,0.08);display:flex;align-items:center;justify-content:space-between;}
+.am-sm-t{font-size:16px;font-weight:700;}
+.am-sm-x{width:24px;height:24px;background:rgba(0,0,0,0.07);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;color:var(--text2);}
+.am-sm-sec{padding:9px 18px 0;}
+.am-sm-sl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text3);margin-bottom:6px;}
+.am-sm-row{display:flex;align-items:center;padding:9px 0;border-bottom:1px solid rgba(0,0,0,0.05);gap:9px;}
+.am-sm-row:last-child{border-bottom:none;}
+.am-sm-ico{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+.am-sm-ico.m{background:var(--maroon-lt)}.am-sm-ico.g{background:var(--gold-lt)}.am-sm-ico.b{background:rgba(0,122,255,.1)}.am-sm-ico.gr{background:rgba(52,199,89,.1)}
+.am-sm-lbl{flex:1;font-size:12px;font-weight:500;}
+.am-stog{width:36px;height:21px;border-radius:11px;background:var(--maroon);position:relative;flex-shrink:0;}
+.am-stog.off{background:#c7c7cc;}
+.am-stok{position:absolute;top:2px;right:2px;width:17px;height:17px;background:#fff;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,0.2);}
+.am-stog.off .am-stok{right:auto;left:2px;}
+.am-schev{color:var(--text3);font-size:13px;}
+/* Saved spots inside settings modal */
+.am-saved-list{padding:0 18px 6px;}
+.am-saved-item{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid rgba(0,0,0,0.05);}
+.am-saved-item:last-child{border-bottom:none;}
+.am-ss-ico{width:26px;height:26px;background:var(--maroon-lt);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+.am-ss-nm{flex:1;font-size:12px;font-weight:500;}
+.am-ss-sub{font-size:10px;color:var(--text2);margin-top:1px;}
+.am-ss-del{width:22px;height:22px;background:rgba(255,59,48,0.1);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;flex-shrink:0;}
+.am-ss-edit{width:22px;height:22px;background:var(--bg);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;flex-shrink:0;}
+.am-sm-ft{padding:10px 18px 14px;}
+.am-sm-done{width:100%;background:var(--maroon);color:#fff;border:none;border-radius:var(--rs);padding:10px;font-size:13px;font-weight:600;cursor:pointer;}
+
+/* ── PAGE FOOTER ── */
+.pfoot{background:rgba(15,15,30,0.7);backdrop-filter:var(--blur);border-top:1px solid rgba(255,255,255,0.07);padding:16px 48px;display:flex;align-items:center;justify-content:space-between;font-size:11px;color:rgba(255,255,255,0.3);font-weight:500;}
+.pfoot span{font-weight:700;color:rgba(255,255,255,0.7);}
+@media(max-width:640px){.ph,.sec,.pgrid,.dsec-wrap,.pfoot{padding-left:16px;padding-right:16px;}.pgrid{grid-template-columns:1fr;}.dframe{height:360px;}.am-sb{width:190px;}}
+</style>
+</head>
+<body>
+
+<!-- PAGE HEADER -->
+<div class="ph">
+  <div class="ph-logo"><span class="pt">Park</span><span class="pa">&</span><span class="pg">Go</span></div>
+  <div class="ph-tag">V2 UI Concept</div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+  MOBILE SCREENS
+══════════════════════════════════════════════ -->
+<div class="sec">
+  <div class="sec-hd">
+    <div class="sec-ico m">📱</div>
+    <div><div class="sec-t">Mobile — Google Maps Style</div><div class="sec-s">Tabbed pull-up sheet · Filters · Settings modal · Navigation view</div></div>
+  </div>
+</div>
+
+<div class="pgrid">
+
+  <!-- ── SCREEN 1A: MAP — Spots Tab ── -->
+  <div class="pcard">
+    <div class="pframe">
+      <div class="notch"></div>
+      <div class="s-map mapbg">
+        <!-- Search / settings bar -->
+        <div class="gm-bar">
+          <span class="gm-gear">⚙️</span>
+          <div class="gm-st">Search parking spots…</div>
+          <div class="gm-av">AJ</div>
+        </div>
+        <!-- Map pins -->
+        <div class="gpin sel" style="top:36%;left:18%"><span class="pd" style="background:var(--gold)"></span>#1 Oak St</div>
+        <div class="gpin g" style="top:26%;left:50%"><span class="pd"></span>$1.50/hr</div>
+        <div class="gpin a" style="top:44%;left:57%"><span class="pd"></span>$2.50</div>
+        <div class="gpin g" style="top:51%;left:12%"><span class="pd"></span>Free</div>
+        <!-- FABs -->
+        <div style="position:absolute;right:10px;bottom:290px;z-index:20;display:flex;flex-direction:column;gap:8px;">
+          <div class="gfab">📍</div>
+        </div>
+        <!-- Bottom sheet -->
+        <div class="gbs">
+          <div class="gbs-handle"></div>
+          <!-- Tabs: Suggested Spots | Local Events -->
+          <div class="gbs-tabs">
+            <div class="gbs-tab ac">🅿️ Suggested Spots</div>
+            <div class="gbs-tab">🎉 Local Events</div>
+          </div>
+          <!-- See Filters row -->
+          <div class="see-filters-row">
+            <span class="see-filters-lbl">🔽 See filters</span>
+            <span class="see-filters-arr">▼</span>
+          </div>
+          <!-- Filter expand (closed state shown) -->
+          <div class="filters-expand">
+            <div class="filter-sec">
+              <div class="filter-sec-t">Parking Type</div>
+              <div class="chips-row">
+                <div class="chip ac">All</div><div class="chip">🏢 Ramp</div><div class="chip">🛣 Street</div><div class="chip">🌿 Surface</div>
+              </div>
+            </div>
+            <div class="filter-sec">
+              <div class="filter-sec-t">Max Cost / hr</div>
+              <div class="cslide-row">
+                <div class="ctrack"><div class="cfill"></div><div class="cthumb"></div></div>
+                <span class="cval">$3.00</span>
+              </div>
+            </div>
+          </div>
+          <div class="gbs-ttl">Near You <span class="gbs-badge">4 spots</span></div>
+          <div class="gscroll">
+            <div class="gscard top">
+              <div class="gscard-img">🏢<span class="grank">#1</span></div>
+              <div class="gscard-bd"><div class="gscard-nm">Oak Street Ramp</div><div class="gscard-mt"><span>East Bank</span><span>0.2 mi · Ramp</span></div><span class="gsprice">$1.50/hr</span></div>
+            </div>
+            <div class="gscard">
+              <div class="gscard-img">🛣</div>
+              <div class="gscard-bd"><div class="gscard-nm">University Ave</div><div class="gscard-mt"><span>East Bank</span><span>0.4 mi · Street</span></div><span class="gsprice">$2.00/hr</span></div>
+            </div>
+            <div class="gscard">
+              <div class="gscard-img">🌿</div>
+              <div class="gscard-bd"><div class="gscard-nm">Pioneer Lot</div><div class="gscard-mt"><span>East Bank</span><span>0.5 mi</span></div><span class="gsprice" style="color:var(--green);background:rgba(52,199,89,0.1)">Free</span></div>
+            </div>
+            <div class="gscard">
+              <div class="gscard-img">🏢</div>
+              <div class="gscard-bd"><div class="gscard-nm">4th St Ramp</div><div class="gscard-mt"><span>West Bank</span><span>0.8 mi</span></div><span class="gsprice">$2.50/hr</span></div>
+            </div>
+            <!-- Suggest a spot at end of scroll -->
+            <div class="gscard-add">
+              <div class="gscard-add-ico">➕</div>
+              <div class="gscard-add-nm">Suggest a Spot</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pname">Map — Spots Tab</div>
+  </div>
+
+  <!-- ── SCREEN 1B: MAP — Local Events Tab ── -->
+  <div class="pcard">
+    <div class="pframe">
+      <div class="notch"></div>
+      <div class="s-map mapbg">
+        <!-- Search bar -->
+        <div class="gm-bar">
+          <span class="gm-gear">⚙️</span>
+          <div class="gm-st">Events near UMN…</div>
+          <div class="gm-av">AJ</div>
+        </div>
+        <!-- Event pins on map -->
+        <div class="gpin" style="top:30%;left:26%;border-color:var(--gold-dk);background:var(--gold-lt);color:var(--gold-dk)"><span style="width:8px;height:8px;border-radius:50%;background:var(--gold-dk);display:inline-block"></span>Expo</div>
+        <div class="gpin" style="top:44%;left:50%;border-color:var(--blue);background:rgba(0,122,255,.07);color:var(--blue)"><span style="width:8px;height:8px;border-radius:50%;background:var(--blue);display:inline-block"></span>Hockey</div>
+        <div class="gpin g" style="top:23%;left:56%"><span class="pd"></span>Career Fair</div>
+        <div style="position:absolute;right:10px;bottom:290px;z-index:20"><div class="gfab">📍</div></div>
+        <!-- Bottom sheet — Events tab active -->
+        <div class="gbs">
+          <div class="gbs-handle"></div>
+          <div class="gbs-tabs">
+            <div class="gbs-tab">🅿️ Suggested Spots</div>
+            <div class="gbs-tab ac">🎉 Local Events</div>
+          </div>
+          <!-- Event cats -->
+          <div class="ev-cats">
+            <div class="ev-cat ac">All</div><div class="ev-cat">Sports</div><div class="ev-cat">Academic</div><div class="ev-cat">Clubs</div><div class="ev-cat">Social</div>
+          </div>
+          <!-- Event list -->
+          <div class="ev-scroll">
+            <div class="ev-item pinned">
+              <div class="ev-row">
+                <div class="ev-dc"><div class="mo">MAR</div><div class="dy">15</div></div>
+                <div class="ev-inf"><div class="ev-nm">Engineering Expo 2026</div><div class="ev-meta">📍 Keller Hall · 10 AM – 4 PM</div><span class="ev-badge">Academic</span></div>
+              </div>
+              <div class="ev-btns"><div class="ev-map-btn">📍 Go to Map</div><div class="ev-rem-btn set">🔔 Reminder Set</div></div>
+            </div>
+            <div class="ev-item">
+              <div class="ev-row">
+                <div class="ev-dc"><div class="mo">MAR</div><div class="dy">18</div></div>
+                <div class="ev-inf"><div class="ev-nm">Gopher Hockey vs. Wisconsin</div><div class="ev-meta">📍 3M Arena · 7:00 PM</div><span class="ev-badge m">Sports</span></div>
+              </div>
+              <div class="ev-btns"><div class="ev-map-btn">📍 Go to Map</div><div class="ev-rem-btn">🔔 Set Reminder</div></div>
+            </div>
+            <div class="ev-item">
+              <div class="ev-row">
+                <div class="ev-dc"><div class="mo">MAR</div><div class="dy">22</div></div>
+                <div class="ev-inf"><div class="ev-nm">Spring Career Fair</div><div class="ev-meta">📍 McNamara Alumni Center · 9 AM</div><span class="ev-badge">Academic</span></div>
+              </div>
+              <div class="ev-btns"><div class="ev-map-btn">📍 Go to Map</div><div class="ev-rem-btn">🔔 Set Reminder</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pname">Map — Local Events Tab</div>
+  </div>
+
+  <!-- ── SCREEN 1C: MAP — Filters Expanded ── -->
+  <div class="pcard">
+    <div class="pframe">
+      <div class="notch"></div>
+      <div class="s-map mapbg">
+        <div class="gm-bar">
+          <span class="gm-gear">⚙️</span>
+          <div class="gm-st">Search parking spots…</div>
+          <div class="gm-av">AJ</div>
+        </div>
+        <div class="gpin sel" style="top:24%;left:18%"><span class="pd" style="background:var(--gold)"></span>#1 Oak St</div>
+        <div class="gpin g" style="top:18%;left:50%"><span class="pd"></span>$1.50/hr</div>
+        <div style="position:absolute;right:10px;bottom:380px;z-index:20"><div class="gfab">📍</div></div>
+        <div class="gbs">
+          <div class="gbs-handle"></div>
+          <div class="gbs-tabs">
+            <div class="gbs-tab ac">🅿️ Suggested Spots</div>
+            <div class="gbs-tab">🎉 Local Events</div>
+          </div>
+          <!-- See Filters OPEN -->
+          <div class="see-filters-row">
+            <span class="see-filters-lbl">🔼 Hide filters</span>
+            <span class="see-filters-arr">▲</span>
+          </div>
+          <div class="filters-expand open" style="padding:0 14px;">
+            <div class="filter-sec" style="margin-bottom:8px;">
+              <div class="filter-sec-t">Parking Type</div>
+              <div class="chips-row">
+                <div class="chip ac">All</div><div class="chip">🏢 Ramp</div><div class="chip">🛣 Street</div><div class="chip">🌿 Surface</div><div class="chip">🔑 Permit</div>
+              </div>
+            </div>
+            <div class="filter-sec" style="margin-bottom:8px;">
+              <div class="filter-sec-t">Campus</div>
+              <div class="chips-row">
+                <div class="chip ac">East Bank</div><div class="chip">West Bank</div><div class="chip">St. Paul</div>
+              </div>
+            </div>
+            <div class="filter-sec" style="margin-bottom:10px;">
+              <div class="filter-sec-t">Max Cost / hr</div>
+              <div class="cslide-row">
+                <div class="ctrack"><div class="cfill"></div><div class="cthumb"></div></div>
+                <span class="cval">$3.00</span>
+              </div>
+            </div>
+          </div>
+          <div class="gscroll">
+            <div class="gscard top">
+              <div class="gscard-img">🏢<span class="grank">#1</span></div>
+              <div class="gscard-bd"><div class="gscard-nm">Oak Street Ramp</div><div class="gscard-mt"><span>East Bank · 0.2 mi</span></div><span class="gsprice">$1.50/hr</span></div>
+            </div>
+            <div class="gscard">
+              <div class="gscard-img">🌿</div>
+              <div class="gscard-bd"><div class="gscard-nm">Pioneer Lot</div><div class="gscard-mt"><span>East Bank · 0.5 mi</span></div><span class="gsprice" style="color:var(--green);background:rgba(52,199,89,0.1)">Free</span></div>
+            </div>
+            <div class="gscard-add">
+              <div class="gscard-add-ico">➕</div>
+              <div class="gscard-add-nm">Suggest a Spot</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pname">Map — Filters Expanded</div>
+  </div>
+
+  <!-- ── SCREEN 2: SPOT DETAIL SHEET ── -->
+  <div class="pcard">
+    <div class="pframe">
+      <div class="notch"></div>
+      <div class="s-detail mapbg">
+        <div class="detail-back">←</div>
+        <div class="detail-pin"><div class="pin-head"><div class="pin-inner"></div></div></div>
+        <div class="det-sheet">
+          <div class="det-handle"></div>
+          <div class="det-top">
+            <div class="det-hrow">
+              <div class="det-sc"><div class="det-scn">87</div><div class="det-scl">SCORE</div></div>
+              <div><div class="det-nm">Oak Street Ramp</div><div class="det-sub">East Bank · Parking Ramp</div></div>
+            </div>
+            <div class="det-chips-row">
+              <div class="dchip v">✓ Verified</div>
+              <div class="dchip">East Bank</div>
+              <div class="dchip">Ramp</div>
+              <div class="dchip">$1.50/hr</div>
+            </div>
+          </div>
+          <div class="see-row" onclick="this.nextElementSibling.classList.toggle('open');this.querySelector('.see-arr').textContent=this.nextElementSibling.classList.contains('open')?'▲':'▼'">
+            <span class="see-lbl">see details</span><span class="see-arr">▼</span>
+          </div>
+          <div class="det-expand">
+            <div style="padding-top:8px">
+              <div class="brow"><div class="blbl">Cost (40pts)</div><div class="btrk"><div class="bfill" style="width:88%"></div></div><div class="bval">35</div></div>
+              <div class="brow"><div class="blbl">Distance (25)</div><div class="btrk"><div class="bfill" style="width:80%"></div></div><div class="bval">20</div></div>
+              <div class="brow"><div class="blbl">Preferences (15)</div><div class="btrk"><div class="bfill" style="width:67%"></div></div><div class="bval">10</div></div>
+              <div class="brow"><div class="blbl">Major (10)</div><div class="btrk"><div class="bfill" style="width:80%"></div></div><div class="bval">8</div></div>
+              <div class="brow"><div class="blbl">Verified (10)</div><div class="btrk"><div class="bfill" style="width:100%"></div></div><div class="bval">10</div></div>
+            </div>
+          </div>
+          <div class="det-acts">
+            <button class="det-nav">🗺 Navigate</button>
+            <button class="det-save">🔖</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pname">Spot Detail Sheet</div>
+  </div>
+
+  <!-- ── SCREEN 3: SETTINGS PAGE (full screen) ── -->
+  <div class="pcard">
+    <div class="pframe">
+      <div class="notch"></div>
+      <div class="s-settings-page mapbg">
+        <div class="set-scrim"></div>
+        <div class="set-modal">
+          <div class="set-handle"></div>
+          <div class="set-tbar"><div class="set-title">Settings</div><div class="set-x">✕</div></div>
+          <div class="set-sec">
+            <div class="set-sec-lbl">Account</div>
+            <div class="set-row"><div class="set-ico m">👤</div><div class="set-txt"><div class="set-lbl">Edit Profile</div><div class="set-sub">Alex Johnson · Computer Science</div></div><div class="set-chev">›</div></div>
+            <div class="set-row"><div class="set-ico g">🅿️</div><div class="set-txt"><div class="set-lbl">Default Campus</div><div class="set-sub">East Bank</div></div><div class="set-chev">›</div></div>
+            <div class="set-row" style="padding-bottom:6px;border-bottom:none;"><div class="set-ico m">🔖</div><div class="set-txt"><div class="set-lbl">Saved Parking Spots</div><div class="set-sub">2 spots saved</div></div><div class="set-chev">›</div></div>
+            <div class="saved-spots-list">
+              <div class="saved-spot-item">
+                <div class="ss-ico">🏢</div>
+                <div style="flex:1"><div class="ss-nm">Oak Street Ramp</div><div class="ss-sub">East Bank · $1.50/hr</div></div>
+                <div class="ss-edit">✏️</div><div class="ss-del">🗑️</div>
+              </div>
+              <div class="saved-spot-item">
+                <div class="ss-ico">🌿</div>
+                <div style="flex:1"><div class="ss-nm">My Usual Spot 🌟</div><div class="ss-sub">Pioneer Hall Lot · Free · Renamed</div></div>
+                <div class="ss-edit">✏️</div><div class="ss-del">🗑️</div>
+              </div>
+            </div>
+          </div>
+          <div class="set-sec" style="margin-top:4px">
+            <div class="set-sec-lbl">Preferences</div>
+            <div class="set-row"><div class="set-ico b">🔔</div><div class="set-txt"><div class="set-lbl">Notifications</div></div><div class="tog"><div class="tok"></div></div></div>
+            <div class="set-row"><div class="set-ico gr">📍</div><div class="set-txt"><div class="set-lbl">Location Access</div></div><div class="tog"><div class="tok"></div></div></div>
+            <div class="set-row"><div class="set-ico m">🌙</div><div class="set-txt"><div class="set-lbl">Dark Mode</div></div><div class="tog off"><div class="tok"></div></div></div>
+            <div class="set-row"><div class="set-ico g">✅</div><div class="set-txt"><div class="set-lbl">Verified Spots Only</div></div><div class="tog off"><div class="tok"></div></div></div>
+          </div>
+          <button class="set-danger-btn">Sign Out</button>
+        </div>
+      </div>
+    </div>
+    <div class="pname">Settings — Pull-up Sheet</div>
+  </div>
+
+  <!-- ── SCREEN 4: ACTIVE NAVIGATION ── -->
+  <div class="pcard">
+    <div class="pframe">
+      <div class="notch"></div>
+      <div class="s-nav mapbg">
+        <div class="nav-route"></div>
+        <div class="nav-arrow"></div>
+        <div class="nav-top">
+          <div class="nav-dir-ico">↱</div>
+          <div style="flex:1"><div class="nav-dir-main">Turn right on Oak St SE</div><div class="nav-dir-sub">In 200 ft · toward University Ave</div></div>
+          <div class="nav-end">End</div>
+        </div>
+        <div class="nav-street"><div class="nav-street-nm">Oak Street SE</div><div class="nav-speed">30 mph</div></div>
+        <div class="nav-bottom">
+          <div class="nav-stats">
+            <div class="nav-sbox"><div class="nav-sl">Distance</div><div class="nav-sv m">0.4<span class="nav-su"> mi</span></div></div>
+            <div class="nav-sbox"><div class="nav-sl">ETA</div><div class="nav-sv">3<span class="nav-su"> min</span></div></div>
+            <div class="nav-sbox"><div class="nav-sl">Arrive</div><div class="nav-sv" style="font-size:13px;color:var(--text2)">2:47 PM</div></div>
+          </div>
+          <div class="nav-modes">
+            <div class="nav-mb ac">🚗 Driving</div>
+            <div class="nav-mb">🚶 Walking</div>
+          </div>
+          <div class="nav-see-row" onclick="var e=document.getElementById('nde1');e.classList.toggle('open');this.querySelector('.nav-see-arr').textContent=e.classList.contains('open')?'▲':'▼'">
+            <span class="nav-see-lbl">see details</span><span class="nav-see-arr">▼</span>
+          </div>
+          <div class="nav-det-exp" id="nde1">
+            <div class="nav-det-inner">
+              <div class="nav-det-ttl">Trip Details</div>
+              <div class="nav-det-row"><span class="nav-det-k">Destination</span><span class="nav-det-v">Oak Street Ramp</span></div>
+              <div class="nav-det-row"><span class="nav-det-k">Parking Cost</span><span class="nav-det-v m">$1.50 / hr</span></div>
+              <div class="nav-det-row"><span class="nav-det-k">Campus</span><span class="nav-det-v">East Bank</span></div>
+              <div class="nav-det-row"><span class="nav-det-k">Spot Score</span><span class="nav-det-v m">87 / 100</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pname">Active Navigation</div>
+  </div>
+
+</div><!-- /pgrid -->
+
+<!-- ══════════════════════════════════════════════
+  DESKTOP — APPLE MAPS STYLE
+══════════════════════════════════════════════ -->
+<div class="sec">
+  <div class="sec-hd">
+    <div class="sec-ico d">🖥</div>
+    <div><div class="sec-t">Desktop — Apple Maps Style</div><div class="sec-s">Frosted glass sidebar with tabbed Spots / Events · "See details" detail card · Settings modal with Saved Spots</div></div>
+  </div>
+</div>
+
+<!-- DESKTOP 1: Main — Spots tab -->
+<div class="dsec-wrap" style="padding-top:4px;">
+  <div class="dsec-lbl">Sidebar — Spots Tab (default view, detail card open, "see details" collapsed)</div>
+  <div class="dframe">
+    <div class="dtbar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><div class="dtbar-title"><span class="pt">Park</span><span class="pa">&</span><span class="pg">Go</span> — University of Minnesota Parking</div></div>
+    <!-- Sidebar -->
+    <div class="am-sb">
+      <div class="am-sb-top">
+        <div class="am-search"><span class="am-si">🔍</span><span class="am-st">Search parking spots…</span></div>
+        <div class="am-urow"><div class="am-uav">AJ</div><div><div class="am-unm">Alex Johnson</div><div class="am-udt">CS · Senior · East Bank</div></div><div class="am-uset">⚙️</div></div>
+      </div>
+      <!-- Filter pills -->
+      <div class="am-fps">
+        <div class="am-fp ac">All</div><div class="am-fp">🏢 Ramp</div><div class="am-fp">🛣 Street</div><div class="am-fp">🌿 Surface</div><div class="am-fp">🔑 Permit</div>
+      </div>
+      <!-- Cost slider -->
+      <div class="am-cost"><div class="am-clbl">Max Cost / hr — $3.00</div><div class="am-ctrack"><div class="am-cfill"></div><div class="am-cthumb"></div></div></div>
+      <!-- Tab switcher -->
+      <div class="am-sb-tabs">
+        <div class="am-sb-tab ac">🅿️ Spots</div>
+        <div class="am-sb-tab">🎉 Events</div>
+      </div>
+      <div class="am-sb-body">
+        <div class="am-res-hd">Suggested</div>
+        <div class="am-slist">
+          <div class="am-srow sel"><div class="am-sico gd">🏆</div><div class="am-sinf"><div class="am-snm">Oak Street Ramp</div><div class="am-smt">East Bank · Ramp · ✓ Verified</div></div><div class="am-srt"><div class="am-spr">$1.50/hr</div><div class="am-sds">0.2 mi</div></div></div>
+          <div class="am-srow"><div class="am-sico">🛣</div><div class="am-sinf"><div class="am-snm">University Ave Metered</div><div class="am-smt">East Bank · Street</div></div><div class="am-srt"><div class="am-spr">$2.00/hr</div><div class="am-sds">0.4 mi</div></div></div>
+          <div class="am-srow"><div class="am-sico">🌿</div><div class="am-sinf"><div class="am-snm">Washington Ave Garage</div><div class="am-smt">West Bank · Ramp</div></div><div class="am-srt"><div class="am-spr">$3.00/hr</div><div class="am-sds">0.6 mi</div></div></div>
+          <div class="am-srow"><div class="am-sico">🌿</div><div class="am-sinf"><div class="am-snm">Pioneer Hall Lot</div><div class="am-smt">East Bank · Surface</div></div><div class="am-srt"><div class="am-spr" style="color:var(--green)">Free</div><div class="am-sds">0.5 mi</div></div></div>
+          <div class="am-srow"><div class="am-sico">🏢</div><div class="am-sinf"><div class="am-snm">4th Street Ramp</div><div class="am-smt">West Bank · Ramp</div></div><div class="am-srt"><div class="am-spr">$2.50/hr</div><div class="am-sds">0.8 mi</div></div></div>
+        </div>
+        <div style="padding:8px">
+          <div class="am-addbtn"><div class="am-add-ico">➕</div><div><div class="am-add-nm">Suggest a Parking Spot</div><div class="am-add-sb">Help fellow students find parking</div></div></div>
+        </div>
+      </div>
+    </div>
+    <!-- Map -->
+    <div class="am-map">
+      <div class="am-map-inner mapbg">
+        <div class="am-mtbar">
+          <div class="am-mpill ac">🅿️ All Spots</div>
+          <div class="am-mpill">East Bank</div>
+          <div class="am-mpill">West Bank</div>
+        </div>
+        <div class="apin" style="top:40%;left:33%"><div class="apin-b sel"><span class="apd w"></span>#1 Oak St Ramp</div><div class="apin-tail"></div></div>
+        <div class="apin" style="top:29%;left:51%"><div class="apin-b"><span class="apd g"></span>$2.00/hr</div><div class="apin-tail"></div></div>
+        <div class="apin" style="top:54%;left:59%"><div class="apin-b"><span class="apd a"></span>$3.00</div><div class="apin-tail"></div></div>
+        <div class="apin" style="top:46%;left:67%"><div class="apin-b"><span class="apd g"></span>Free</div><div class="apin-tail"></div></div>
+        <div class="apin" style="top:22%;left:69%"><div class="apin-b"><span class="apd r"></span>$4.50</div><div class="apin-tail"></div></div>
+        <div class="am-ctrl" style="bottom:192px"><button class="am-cbtn">+</button><button class="am-cbtn">−</button></div>
+        <div class="am-locate" style="bottom:152px">📍</div>
+        <!-- Detail card -->
+        <div class="am-dc">
+          <div class="am-dc-top">
+            <div class="am-dc-sc"><div class="am-dc-scn">87</div><div class="am-dc-scl">SCORE</div></div>
+            <div><div class="am-dc-nm">Oak Street Ramp</div><div class="am-dc-sb">East Bank · Parking Ramp · 0.2 mi</div></div>
+          </div>
+          <div class="am-dc-chips">
+            <div class="am-dc-chip v">✓ Verified</div>
+            <div class="am-dc-chip">East Bank</div>
+            <div class="am-dc-chip">Ramp</div>
+            <div class="am-dc-chip">$1.50/hr</div>
+          </div>
+          <div class="am-dc-see" onclick="var e=document.getElementById('dcd1');e.classList.toggle('open');this.querySelector('.am-dc-see-arr').textContent=e.classList.contains('open')?'▲':'▼'">
+            <span class="am-dc-see-lbl">see details</span><span class="am-dc-see-arr">▼</span>
+          </div>
+          <div class="am-dc-expand" id="dcd1">
+            <div style="padding-top:8px">
+              <div class="brow"><div class="blbl">Cost (40pts)</div><div class="btrk"><div class="bfill" style="width:88%"></div></div><div class="bval">35</div></div>
+              <div class="brow"><div class="blbl">Distance (25)</div><div class="btrk"><div class="bfill" style="width:80%"></div></div><div class="bval">20</div></div>
+              <div class="brow"><div class="blbl">Preferences (15)</div><div class="btrk"><div class="bfill" style="width:67%"></div></div><div class="bval">10</div></div>
+              <div class="brow"><div class="blbl">Major (10)</div><div class="btrk"><div class="bfill" style="width:80%"></div></div><div class="bval">8</div></div>
+              <div class="brow" style="margin-bottom:10px"><div class="blbl">Verified (10)</div><div class="btrk"><div class="bfill" style="width:100%"></div></div><div class="bval">10</div></div>
+            </div>
+          </div>
+          <div class="am-dc-btns">
+            <button class="am-nav-btn">🗺 Navigate Here</button>
+            <button class="am-dir-btn">Directions</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DESKTOP 2: Sidebar — Local Events Tab -->
+<div class="dsec-wrap" style="padding-top:0">
+  <div class="dsec-lbl">Sidebar — Local Events Tab (🎉 tab clicked — events list replaces spots list, event pins appear on map)</div>
+  <div class="dframe">
+    <div class="dtbar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><div class="dtbar-title"><span class="pt">Park</span><span class="pa">&</span><span class="pg">Go</span> — Local Events</div></div>
+    <div class="am-sb">
+      <div class="am-sb-top">
+        <div class="am-search"><span class="am-si">🔍</span><span class="am-st">Search events…</span></div>
+        <div class="am-urow"><div class="am-uav">AJ</div><div><div class="am-unm">Alex Johnson</div><div class="am-udt">CS · Senior · East Bank</div></div><div class="am-uset">⚙️</div></div>
+      </div>
+      <!-- Event cats as filters -->
+      <div class="am-fps">
+        <div class="am-fp ac">All</div><div class="am-fp">Sports</div><div class="am-fp">Academic</div><div class="am-fp">Clubs</div><div class="am-fp">Social</div>
+      </div>
+      <!-- Tabs — events active -->
+      <div class="am-sb-tabs">
+        <div class="am-sb-tab">🅿️ Spots</div>
+        <div class="am-sb-tab ac">🎉 Events</div>
+      </div>
+      <div class="am-sb-body">
+        <div class="am-res-hd">Upcoming Events</div>
+        <div class="am-ev-list">
+          <div class="am-ev-item pinned">
+            <div class="am-ev-row">
+              <div class="am-ev-dc"><div class="am-ev-mo">MAR</div><div class="am-ev-dy">15</div></div>
+              <div><div class="am-ev-nm">Engineering Expo 2026</div><div class="am-ev-meta">📍 Keller Hall · 10 AM – 4 PM</div><span class="ev-badge">Academic</span></div>
+            </div>
+            <div class="am-ev-btns"><div class="am-ev-mb map">📍 Map</div><div class="am-ev-mb rem set">🔔 Set</div></div>
+          </div>
+          <div class="am-ev-item">
+            <div class="am-ev-row">
+              <div class="am-ev-dc"><div class="am-ev-mo">MAR</div><div class="am-ev-dy">18</div></div>
+              <div><div class="am-ev-nm">Gopher Hockey vs. Wisconsin</div><div class="am-ev-meta">📍 3M Arena · 7:00 PM</div><span class="ev-badge m">Sports</span></div>
+            </div>
+            <div class="am-ev-btns"><div class="am-ev-mb map">📍 Map</div><div class="am-ev-mb rem">🔔 Remind</div></div>
+          </div>
+          <div class="am-ev-item">
+            <div class="am-ev-row">
+              <div class="am-ev-dc"><div class="am-ev-mo">MAR</div><div class="am-ev-dy">22</div></div>
+              <div><div class="am-ev-nm">Spring Career Fair</div><div class="am-ev-meta">📍 McNamara Alumni · 9 AM</div><span class="ev-badge">Academic</span></div>
+            </div>
+            <div class="am-ev-btns"><div class="am-ev-mb map">📍 Map</div><div class="am-ev-mb rem">🔔 Remind</div></div>
+          </div>
+          <div class="am-ev-item">
+            <div class="am-ev-row">
+              <div class="am-ev-dc"><div class="am-ev-mo">MAR</div><div class="am-ev-dy">25</div></div>
+              <div><div class="am-ev-nm">CS Club Hackathon</div><div class="am-ev-meta">📍 Lind Hall 305 · 6 PM</div><span class="ev-badge cl">Clubs</span></div>
+            </div>
+            <div class="am-ev-btns"><div class="am-ev-mb map">📍 Map</div><div class="am-ev-mb rem">🔔 Remind</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Map with event pins -->
+    <div class="am-map">
+      <div class="am-map-inner mapbg">
+        <div class="am-mtbar">
+          <div class="am-mpill ac">🎉 Events View</div>
+          <div class="am-mpill">All Campuses</div>
+        </div>
+        <!-- Event pins -->
+        <div class="apin" style="top:36%;left:30%"><div class="apin-b" style="background:var(--gold-lt);border-color:var(--gold-dk);color:var(--gold-dk)"><span style="width:7px;height:7px;border-radius:50%;background:var(--gold-dk);display:inline-block"></span>Engineering Expo</div><div class="apin-tail" style="background:var(--gold-dk)"></div></div>
+        <div class="apin" style="top:48%;left:54%"><div class="apin-b" style="background:rgba(0,122,255,0.08);border-color:rgba(0,122,255,0.28);color:var(--blue)"><span style="width:7px;height:7px;border-radius:50%;background:var(--blue);display:inline-block"></span>Gopher Hockey</div><div class="apin-tail" style="background:var(--blue)"></div></div>
+        <div class="apin" style="top:26%;left:62%"><div class="apin-b"><span class="apd g"></span>Career Fair</div><div class="apin-tail"></div></div>
+        <div class="apin" style="top:58%;left:42%"><div class="apin-b" style="background:rgba(0,122,255,0.08);border-color:rgba(0,122,255,0.2);color:var(--blue)"><span style="width:7px;height:7px;border-radius:50%;background:var(--blue);display:inline-block"></span>CS Hackathon</div><div class="apin-tail" style="background:var(--blue)"></div></div>
+        <div class="am-ctrl" style="bottom:40px"><button class="am-cbtn">+</button><button class="am-cbtn">−</button></div>
+        <div class="am-locate" style="bottom:84px">📍</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DESKTOP 3: Settings modal with Saved Spots -->
+<div class="dsec-wrap" style="padding-top:0">
+  <div class="dsec-lbl">Settings Modal — with Saved Parking Spots (⚙️ gear icon in sidebar user row)</div>
+  <div class="dframe">
+    <div class="dtbar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><div class="dtbar-title"><span class="pt">Park</span><span class="pa">&</span><span class="pg">Go</span> — Settings</div></div>
+    <div class="am-sb" style="filter:blur(2px);opacity:0.5;pointer-events:none">
+      <div class="am-sb-top"><div class="am-search"><span class="am-si">🔍</span><span class="am-st">Search…</span></div></div>
+      <div class="am-fps"><div class="am-fp ac">All</div><div class="am-fp">🏢 Ramp</div></div>
+    </div>
+    <div class="am-map" style="filter:blur(2px);pointer-events:none">
+      <div class="am-map-inner mapbg"><div class="apin" style="top:40%;left:33%"><div class="apin-b sel"><span class="apd w"></span>Oak St</div><div class="apin-tail"></div></div></div>
+    </div>
+    <div class="am-set-ov">
+      <div class="am-set-modal">
+        <div class="am-sm-hd"><div class="am-sm-t">⚙️ Settings</div><div class="am-sm-x">✕</div></div>
+        <div class="am-sm-sec">
+          <div class="am-sm-sl">Account</div>
+          <div class="am-sm-row"><div class="am-sm-ico m">👤</div><div class="am-sm-lbl">Edit Profile — Alex Johnson · CS</div><div class="am-schev">›</div></div>
+          <div class="am-sm-row"><div class="am-sm-ico g">🅿️</div><div class="am-sm-lbl">Default Campus — East Bank</div><div class="am-schev">›</div></div>
+          <!-- Saved Spots -->
+          <div class="am-sm-row" style="padding-bottom:6px;border-bottom:none;"><div class="am-sm-ico m">🔖</div><div class="am-sm-lbl" style="font-weight:600">Saved Parking Spots <span style="font-size:10px;font-weight:400;color:var(--text2)">2 saved</span></div></div>
+        </div>
+        <!-- Saved list -->
+        <div class="am-saved-list">
+          <div class="am-saved-item">
+            <div class="am-ss-ico">🏢</div>
+            <div style="flex:1"><div class="am-ss-nm">Oak Street Ramp</div><div class="am-ss-sub">East Bank · $1.50/hr</div></div>
+            <div class="am-ss-edit">✏️</div>
+            <div class="am-ss-del">🗑️</div>
+          </div>
+          <div class="am-saved-item">
+            <div class="am-ss-ico">🌿</div>
+            <div style="flex:1"><div class="am-ss-nm">My Usual Spot 🌟</div><div class="am-ss-sub">Pioneer Hall Lot · Free · Renamed</div></div>
+            <div class="am-ss-edit">✏️</div>
+            <div class="am-ss-del">🗑️</div>
+          </div>
+        </div>
+        <div class="am-sm-sec" style="margin-top:4px">
+          <div class="am-sm-sl">Preferences</div>
+          <div class="am-sm-row"><div class="am-sm-ico b">🔔</div><div class="am-sm-lbl">Notifications</div><div class="am-stog"><div class="am-stok"></div></div></div>
+          <div class="am-sm-row"><div class="am-sm-ico" style="background:rgba(52,199,89,.1)">📍</div><div class="am-sm-lbl">Location Access</div><div class="am-stog"><div class="am-stok"></div></div></div>
+          <div class="am-sm-row"><div class="am-sm-ico m">🌙</div><div class="am-sm-lbl">Dark Mode</div><div class="am-stog off"><div class="am-stok"></div></div></div>
+          <div class="am-sm-row"><div class="am-sm-ico g">✅</div><div class="am-sm-lbl">Verified Spots Only</div><div class="am-stog off"><div class="am-stok"></div></div></div>
+          <div class="am-sm-row"><div class="am-sm-ico b">🗺</div><div class="am-sm-lbl">Default Travel — Driving</div><div class="am-schev">›</div></div>
+        </div>
+        <div class="am-sm-ft"><button class="am-sm-done">Done</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="pfoot">
+  <div><span class="pt" style="font-weight:700">Park</span><span class="pa" style="font-weight:700">&</span><span class="pg" style="font-weight:700">Go</span> V2</div>
+  <div>Mobile = Google Maps style · Desktop = Apple Maps style</div>
+  <div>#7A0019 · #FFCC33</div>
+</div>
+
+</body>
+</html>
