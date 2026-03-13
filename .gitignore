@@ -6,11 +6,20 @@
 # Python
 __pycache__/
 *.pyc
+venv/
+env/
+
+# Node modules
+node_modules/
 
 # Local development files
 parkandgo-admin-dashboard.html
 parkandgo-v2-UI-demo.html
 parkandgo version 2 planning document.txt
+map_planning_document_pngv2.txt
 
 # Local database
 parkandgo_db_postgres
+
+# Claude folder
+.claude/
