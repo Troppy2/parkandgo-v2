@@ -63,8 +63,10 @@ export default function EventList({ onEventMapClick }: EventListProps) {
                 )}
 
                 {isError && (
-                    <div className="py-6 text-center text-[12px] text-text2">
-                        Couldn't load events. Check back soon.
+                    <div className="py-8 text-center">
+                        <i className="bi bi-calendar-x text-text3 text-3xl mb-2 block" />
+                        <div className="text-[13px] font-semibold text-text1 mb-1">No upcoming events</div>
+                        <div className="text-[11px] text-text2">Check back soon for UMN events</div>
                     </div>
                 )}
 

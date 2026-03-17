@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useMediaQuery } from "../../hooks/useMediaQuery";
 import { useUIStore } from "../../store/uiStore";
 import Header from "./Header";
@@ -15,6 +16,8 @@ export default function ResponsiveContainer({
 }: ResponsiveContainerProps) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const setSettingsOpen = useUIStore((s) => s.setSettingsOpen);
+  const setSuggestSpotOpen = useUIStore((s) => s.setSuggestSpotOpen);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   if (isDesktop) {
     return (
@@ -22,14 +25,14 @@ export default function ResponsiveContainer({
       <div className="flex h-screen w-screen overflow-hidden">
         <Sidebar
           onSettingsClick={() => setSettingsOpen(true)}
-          onSuggestSpotClick={() => {
-            /* Phase 16 */
-          }}
+          onSuggestSpotClick={() => setSuggestSpotOpen(true)}
+          isCollapsed={sidebarCollapsed}
+          onToggleCollapse={() => setSidebarCollapsed((c) => !c)}
         >
           {spotResults}
         </Sidebar>
 
-        {/* Map area fills remaining space */}
+        {/* Map area fills remaining space — flex-1 auto-expands when sidebar collapses */}
         <div className="flex-1 relative">{mapContent}</div>
       </div>
     );
@@ -46,9 +49,7 @@ export default function ResponsiveContainer({
 
       {/* Bottom sheet floats above the map */}
       <MobileNav
-        onSuggestSpotClick={() => {
-          /* Phase 16 */
-        }}
+        onSuggestSpotClick={() => setSuggestSpotOpen(true)}
       >
         {spotResults}
       </MobileNav>

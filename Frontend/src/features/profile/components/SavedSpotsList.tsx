@@ -2,11 +2,13 @@ import { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { getSavedSpots, unsaveSpot, renameSpot } from "../services/profileApi"
 import { useUIStore } from "../../../store/uiStore"
+import { useAuthStore } from "../../../store/authStore"
 import type { SavedSpot } from "../../../types/saved_spot.types"
 import Skeleton from "../../../components/ui/Skeleton"
 
 export default function SavedSpotsList() {
   const showToast = useUIStore((s) => s.showToast)
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
   const queryClient = useQueryClient()
 
   // Which spot is currently being renamed (null = none)
@@ -16,6 +18,7 @@ export default function SavedSpotsList() {
   const { data: savedSpots, isLoading, isError } = useQuery({
     queryKey: ["saved-spots"],
     queryFn: getSavedSpots,
+    enabled: isAuthenticated,
   })
 
   // Delete mutation — use the optimistic update pattern from the example above

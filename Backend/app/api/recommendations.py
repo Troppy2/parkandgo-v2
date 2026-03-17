@@ -79,7 +79,7 @@ async def get_recommendations(
 
     try:
         if cache is not None:
-            await cache.setex(cache_key, 300, json.dumps([r.model_dump() for r in result]))
+            await cache.setex(cache_key, 300, json.dumps([r.model_dump(mode="json") for r in result]))
     except Exception:
         pass  # cache write failure is non-fatal
 

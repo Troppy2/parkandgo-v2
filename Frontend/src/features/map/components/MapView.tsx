@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState } from "react";
 import maplibregl from "maplibre-gl";
 import { useUIStore } from "../../../store/uiStore";
+import { useNavStore } from "../../../store/navStore";
 import {
     UMN_CENTER,
     UMN_DEFAULT_ZOOM,
@@ -68,9 +69,12 @@ export default function MapView() {
 
     const activeTab = useUIStore((s) => s.activeTab);
     const { data: events } = useEvents();
+    const destination = useNavStore((s) => s.destination);
 
     // Track event markers so we can remove them when tab switches
     const eventMarkersRef = useRef<maplibregl.Marker[]>([]);
+    // Track the single destination marker
+    const destinationMarkerRef = useRef<maplibregl.Marker | null>(null);
 
     // ── Effect 1: Initialize map ONCE on mount ──
     useEffect(() => {
@@ -90,7 +94,7 @@ export default function MapView() {
         if (navigator.geolocation) {
             watchIdRef.current = navigator.geolocation.watchPosition(
                 (pos) => setUserLocation([pos.coords.longitude, pos.coords.latitude]),
-                undefined,
+                () => {/* geolocation unavailable — map still works without it */},
                 { maximumAge: 10000, timeout: 5000, enableHighAccuracy: true },
             );
         }
@@ -145,7 +149,53 @@ export default function MapView() {
         });
     }, [activeTab, events]);
 
-    // ── Effect 3: React to style changes from uiStore ──
+    // ── Effect 3: Add/remove destination marker when navStore.destination changes ──
+    useEffect(() => {
+        // Remove previous destination marker
+        destinationMarkerRef.current?.remove();
+        destinationMarkerRef.current = null;
+
+        if (!destination || !mapRef.current) return;
+        if (!destination.longitude || !destination.latitude) return;
+
+        // Build the maroon pin element that matches the design (.pin-head style)
+        const el = document.createElement("div");
+        el.style.cssText = `
+            width: 34px;
+            height: 34px;
+            background: #7A0019;
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg);
+            box-shadow: 0 0 0 6px rgba(122,0,25,0.18);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        `;
+        const inner = document.createElement("div");
+        inner.style.cssText = `
+            width: 13px;
+            height: 13px;
+            background: #fff;
+            border-radius: 50%;
+            transform: rotate(45deg);
+        `;
+        el.appendChild(inner);
+
+        destinationMarkerRef.current = new maplibregl.Marker({ element: el, anchor: "bottom-left" })
+            .setLngLat([destination.longitude, destination.latitude])
+            .addTo(mapRef.current);
+
+        // Fly map to the destination
+        mapRef.current.flyTo({
+            center: [destination.longitude, destination.latitude],
+            zoom: 16,
+            duration: 1000,
+            essential: true,
+        });
+    }, [destination]);
+
+    // ── Effect 5: React to style changes from uiStore ──
     // This runs whenever the user changes the map style in Settings
     useEffect(() => {
         const map = mapRef.current;

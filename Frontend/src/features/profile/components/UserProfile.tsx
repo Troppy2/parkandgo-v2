@@ -13,7 +13,7 @@ const profileSchema = z.object({
     prefered_name: z.string().min(1).max(50).optional().or(z.literal("")),
     major: z.string().max(100).optional().or(z.literal("")),
     grade_level: z.enum(["Freshman", "Sophomore", "Junior", "Senior", "Graduate", "Other"]).optional(),
-    graduation_year: z.number().min(2024).max(2035).optional(),
+    graduation_year: z.coerce.number().min(2024).max(2035).optional().or(z.literal("")),
     housing_type: z.enum(["On Campus", "Off Campus", "Commuter"]).optional(),
 })
 
@@ -24,9 +24,12 @@ export default function UserProfile() {
     const showToast = useUIStore((s) => s.showToast)
     const queryClient = useQueryClient()
 
+    const initials = user
+        ? `${user.first_name[0]}${user.last_name[0]}`.toUpperCase()
+        : "?"
+
     const { register, handleSubmit, formState: { errors, isDirty } } = useForm<ProfileFormData>({
         resolver: zodResolver(profileSchema),
-        // Pre-fill with current user data from authStore
         defaultValues: {
             prefered_name: user?.prefered_name ?? "",
             major: user?.major ?? "",
@@ -46,35 +49,61 @@ export default function UserProfile() {
     })
 
     const onSubmit = (data: ProfileFormData) => {
-        // Strip empty strings before sending — don't send "" to the backend
         const cleaned = Object.fromEntries(
             Object.entries(data).filter(([_, v]) => v !== "" && v !== undefined)
         )
         mutation.mutate(cleaned)
     }
 
-    return (
-        <div className="px-5 pt-3 pb-4">
+    // Guest state — show placeholder account row only
+    if (!user) {
+        return (
+            <div className="px-5 pt-4 pb-4">
+                <div className="text-[10px] font-bold uppercase tracking-[0.9px] text-text3 mb-3">Account</div>
+                <div className="flex items-center gap-3 py-3 border-b border-black/8 mb-3">
+                    <div className="w-10 h-10 rounded-full bg-bg2 flex items-center justify-center flex-shrink-0">
+                        <i className="bi bi-person text-text2 text-xl" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <div className="text-[14px] font-semibold text-text1">Guest</div>
+                        <div className="text-[11px] text-text2">Guest</div>
+                    </div>
+                </div>
+            </div>
+        )
+    }
 
-            {/* Section label — matches .set-sec-lbl */}
+    return (
+        <div className="px-5 pt-4 pb-4">
+
+            {/* Section label */}
             <div className="text-[10px] font-bold uppercase tracking-[0.9px] text-text3 mb-3">
                 Account
             </div>
 
-            {/* Read-only email row — matches .set-row */}
-            <div className="flex items-center gap-3 py-2.5 border-b border-black/5">
-                <div className="w-[30px] h-[30px] rounded-[8px] bg-maroon-light flex items-center justify-center flex-shrink-0">
-                    <i className="bi bi-envelope-fill text-maroon text-sm" />
+            {/* User avatar + name + email header row — matches design */}
+            <div className="flex items-center gap-3 py-3 border-b border-black/8 mb-3">
+                <div className="w-10 h-10 rounded-full bg-maroon flex items-center justify-center text-white text-sm font-bold flex-shrink-0 overflow-hidden">
+                    {user?.profile_pic
+                        ? <img src={user.profile_pic} className="w-full h-full object-cover" alt="" />
+                        : initials
+                    }
                 </div>
-                <div className="flex-1">
-                    <div className="text-[13px] font-medium text-text1">Email</div>
-                    <div className="text-[11px] text-text2 mt-0.5">{user?.email ?? "—"}</div>
+                <div className="flex-1 min-w-0">
+                    <div className="text-[14px] font-semibold text-text1 truncate">
+                        {user?.prefered_name || `${user?.first_name} ${user?.last_name}`}
+                    </div>
+                    <div className="text-[11px] text-text2 truncate">{user?.email ?? "—"}</div>
+                </div>
+                {/* Google connected badge */}
+                <div className="flex items-center gap-1 bg-bg2 rounded-full px-2 py-1 flex-shrink-0">
+                    <i className="bi bi-google text-[11px] text-text2" />
+                    <span className="text-[10px] text-text2 font-medium">Google</span>
                 </div>
             </div>
 
             {/* Editable fields */}
-            {/* No HTML form tags — use div wrapper, call handleSubmit via button onClick */}
-            <div className="mt-3 space-y-3">
+            <div className="space-y-3">
 
                 <Input
                     label="Preferred name"
@@ -90,7 +119,7 @@ export default function UserProfile() {
                     error={errors.major?.message}
                 />
 
-                {/* Grade level — select dropdown, not a text input */}
+                {/* Grade level */}
                 <div>
                     <label className="block text-[11px] font-semibold text-text2 mb-1">
                         Grade Level
@@ -105,6 +134,15 @@ export default function UserProfile() {
                         ))}
                     </select>
                 </div>
+
+                {/* Graduation year */}
+                <Input
+                    label="Graduation Year"
+                    placeholder="e.g. 2027"
+                    type="number"
+                    {...register("graduation_year")}
+                    error={errors.graduation_year?.message}
+                />
 
                 {/* Housing type */}
                 <div>
@@ -126,7 +164,7 @@ export default function UserProfile() {
                     onClick={handleSubmit(onSubmit)}
                     isLoading={mutation.isPending}
                     disabled={!isDirty}
-                    className="w-full mt-1"
+                    className="w-full mt-1 min-h-[44px]"
                 >
                     Save Changes
                 </Button>

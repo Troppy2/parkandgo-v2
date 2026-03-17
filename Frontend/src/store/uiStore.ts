@@ -25,6 +25,10 @@ interface UIState {
   settingsOpen: boolean
   setSettingsOpen: (open: boolean) => void
 
+  // ── Suggest a Spot modal ──
+  suggestSpotOpen: boolean
+  setSuggestSpotOpen: (open: boolean) => void
+
   // ── Map style — persisted so user's preference survives refresh ──
   mapStyle: MapStyle
   setMapStyle: (style: MapStyle) => void
@@ -66,6 +70,10 @@ export const useUIStore = create<UIState>()(
       settingsOpen: false,
       setSettingsOpen: (open) => set({ settingsOpen: open }),
 
+      // Suggest a Spot
+      suggestSpotOpen: false,
+      setSuggestSpotOpen: (open) => set({ suggestSpotOpen: open }),
+
       // Map style
       mapStyle: "standard",
       setMapStyle: (style) => set({ mapStyle: style }),
@@ -82,12 +90,12 @@ export const useUIStore = create<UIState>()(
     }),
     {
       name: "parkandgo-ui",   // localStorage key
-      // Only persist these fields — not toasts or mapInstance
+      // Only persist these fields — not toasts, mapInstance, or activeTab
+      // activeTab is intentionally not persisted so the app always starts on "spots"
       partialize: (state) => ({
         mapStyle: state.mapStyle,
         verifiedOnly: state.verifiedOnly,
         darkMode: state.darkMode,
-        activeTab: state.activeTab,
       }),
     }
   )

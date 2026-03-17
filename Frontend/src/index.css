@@ -119,3 +119,174 @@
   from { transform: translateY(16px); opacity: 0; }
   to   { transform: translateY(0);    opacity: 1; }
 }
+
+/* ── Dark mode overrides ──────────────────────────────── */
+[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+[data-theme="dark"] body {
+  background: #1c1c1e;
+  color: #f5f5f7;
+}
+
+/* White surfaces → dark card surface */
+[data-theme="dark"] .bg-white             { background-color: #2c2c2e !important; }
+[data-theme="dark"] .bg-white\/85         { background-color: rgba(28,28,30,0.92) !important; }
+[data-theme="dark"] .bg-white\/60         { background-color: rgba(28,28,30,0.60) !important; }
+[data-theme="dark"] .bg-\[rgba\(246\,246\,246\,0\.97\)\] { background-color: rgba(28,28,30,0.97) !important; }
+[data-theme="dark"] .bg-\[\#fafafa\]      { background-color: #1c1c1e !important; }
+[data-theme="dark"] .bg-\[\#f2f2f7\]     { background-color: #3a3a3c !important; }
+[data-theme="dark"] .bg-bg2              { background-color: #3a3a3c !important; }
+
+/* Text */
+[data-theme="dark"] .text-text1          { color: #f5f5f7 !important; }
+[data-theme="dark"] .text-text2          { color: #ababab !important; }
+[data-theme="dark"] .text-text3          { color: #6b6b70 !important; }
+
+/* Borders */
+[data-theme="dark"] .border-black\/5     { border-color: rgba(255,255,255,0.05) !important; }
+[data-theme="dark"] .border-black\/6     { border-color: rgba(255,255,255,0.06) !important; }
+[data-theme="dark"] .border-black\/7     { border-color: rgba(255,255,255,0.07) !important; }
+[data-theme="dark"] .border-black\/8     { border-color: rgba(255,255,255,0.08) !important; }
+[data-theme="dark"] .border-black\/9     { border-color: rgba(255,255,255,0.09) !important; }
+[data-theme="dark"] .border-black\/10    { border-color: rgba(255,255,255,0.10) !important; }
+[data-theme="dark"] .border-black\/12    { border-color: rgba(255,255,255,0.12) !important; }
+
+/* Inputs and selects */
+[data-theme="dark"] input:not([type="range"]),
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  background-color: #3a3a3c !important;
+  color: #f5f5f7 !important;
+  border-color: rgba(255,255,255,0.15) !important;
+}
+
+/* Sidebar backdrop */
+[data-theme="dark"] .backdrop-blur-xl    { background-color: rgba(28,28,30,0.92) !important; }
+
+/* ── Additional dark mode overrides ────────────────────── */
+
+/* Chip / pill filters */
+[data-theme="dark"] .chip {
+  background: #3a3a3c !important;
+  border-color: rgba(255,255,255,0.12) !important;
+  color: #f5f5f7 !important;
+}
+[data-theme="dark"] .chip-ac {
+  background: #7A0019 !important;
+  border-color: #7A0019 !important;
+  color: #fff !important;
+}
+
+/* Navigation bottom panel */
+[data-theme="dark"] .bg-white.rounded-t-\[22px\] {
+  background-color: #2c2c2e !important;
+}
+
+/* Green gradient card header */
+[data-theme="dark"] .bg-green-gradient {
+  background: linear-gradient(135deg, rgba(52,199,89,0.08), rgba(52,199,89,0.04)) !important;
+}
+
+/* Border on cards and pills */
+[data-theme="dark"] .border-black\/9 { border-color: rgba(255,255,255,0.09) !important; }
+
+/* Maroon-light hover background needs to be slightly lighter in dark mode */
+[data-theme="dark"] .bg-maroon-light,
+[data-theme="dark"] .hover\:bg-maroon-light:hover {
+  background-color: rgba(122,0,25,0.15) !important;
+}
+
+/* Score circle in cards */
+[data-theme="dark"] .bg-white\/80 { background-color: rgba(44,44,46,0.80) !important; }
+
+/* Guest avatar bg */
+[data-theme="dark"] .bg-bg2 { background-color: #3a3a3c !important; }
+
+/* Dropdown results */
+[data-theme="dark"] .border-black\/9.bg-white.rounded-2xl {
+  background-color: #2c2c2e !important;
+  border-color: rgba(255,255,255,0.09) !important;
+}
+
+/* Map controls (zoom + locate buttons) — D12 — target the wrapper divs */
+[data-theme="dark"] .bg-white\/90 {
+  background-color: rgba(44,44,46,0.92) !important;
+}
+
+/* RecommendationCard bg-white border cards */
+[data-theme="dark"] .border.border-black\/9.rounded-2xl {
+  background-color: #2c2c2e !important;
+}
+
+/* Navigation bottom panel (RouteDisplay) */
+[data-theme="dark"] .rounded-t-\[22px\] {
+  background-color: #2c2c2e !important;
+}
+
+/* Settings modal desktop — already covered by rgba override, but ensure text is light */
+[data-theme="dark"] .bg-\[rgba\(246\,246\,246\,0\.97\)\] * {
+  color: #f5f5f7;
+}
+
+/* Toggle track "off" state — border2 (#d1d5db) in dark mode → dark grey */
+[data-theme="dark"] .bg-border2 {
+  background-color: #48484a !important;
+}
+
+/* bg-[#e8e8ed] settings sheet in dark mode */
+[data-theme="dark"] [style*="background: #e8e8ed"],
+[data-theme="dark"] [style*="background:#e8e8ed"] {
+  background: rgba(28,28,30,0.97) !important;
+}
+
+/* Stat boxes in navigation panel */
+[data-theme="dark"] .bg-\[\#f2f2f7\] {
+  background-color: #3a3a3c !important;
+}
+
+/* text-text1 on dark surfaces */
+[data-theme="dark"] .text-text1 { color: #f5f5f7 !important; }
+
+/* Search bar / search results dropdown in dark */
+[data-theme="dark"] .rounded-2xl.bg-white,
+[data-theme="dark"] .rounded-\[28px\].bg-white {
+  background-color: #2c2c2e !important;
+}
+
+/* hover:bg-gray-50 in search results */
+[data-theme="dark"] .hover\:bg-gray-50:hover {
+  background-color: #3a3a3c !important;
+}
+
+/* Settings modal (new #e8e8ed background) in dark mode */
+[data-theme="dark"] [style*="rgba(232,232,237"] {
+  background: rgba(40,40,45,0.97) !important;
+}
+
+/* Event cards in dark mode */
+[data-theme="dark"] .border-b.border-black\/9 {
+  border-color: rgba(255,255,255,0.09) !important;
+}
+
+/* Score breakdown bg-bg2 progress track in dark */
+[data-theme="dark"] .bg-bg2 {
+  background-color: #3a3a3c !important;
+}
+
+/* Empty state icons */
+[data-theme="dark"] .text-text3 { color: #6b6b70 !important; }
+
+/* ── Global hover / transition rules ─────────────────────── */
+/* All interactive rows get cursor:pointer if they don't have it */
+button, [role="button"], a {
+  cursor: pointer;
+}
+
+/* Active/pressed scale for all buttons */
+button:not(:disabled):active,
+[role="button"]:active {
+  transform: scale(0.97);
+  transition: transform 0.1s ease !important;
+}

@@ -6,6 +6,10 @@ interface NavState {
   // checks if the user is currently navigating
   isNavigating: boolean;
 
+  // Controls whether the navigation overlay (TurnByTurn + RouteDisplay) is shown.
+  // Set to false via "Back/Cancel" to hide the overlay without ending navigation.
+  navOverlayVisible: boolean;
+
   // The destination spot — null when not navigating
   destination: ParkingSpot | null;
 
@@ -20,9 +24,10 @@ interface NavState {
   // Actions
   startNavigation: (spot: ParkingSpot) => void;
   endNavigation: () => void;
+  setNavOverlayVisible: (v: boolean) => void;
   updateStats: (distanceMiles: number, etaMinutes: number) => void;
   setTravelMode: (mode: "walking" | "driving" | "cycling") => void;
-  
+
   // routing
   route: RouteResult | null;
   currentStepIndex: number;
@@ -32,8 +37,9 @@ interface NavState {
 
 
 export const useNavStore = create<NavState>((set) => ({
-  // intial state
+  // initial state
   isNavigating: false,
+  navOverlayVisible: false,
   destination: null,
   distanceRemainingMiles: null,
   etaMinutes: null,
@@ -45,12 +51,14 @@ export const useNavStore = create<NavState>((set) => ({
   startNavigation: (spot) =>
     set({
       isNavigating: true,
+      navOverlayVisible: true,
       destination: spot,
     }),
 
   endNavigation: () =>
     set({
       isNavigating: false,
+      navOverlayVisible: false,
       destination: null,
       distanceRemainingMiles: null,
       etaMinutes: null,
@@ -58,6 +66,8 @@ export const useNavStore = create<NavState>((set) => ({
       route: null,
       currentStepIndex: 0,
     }),
+
+  setNavOverlayVisible: (v) => set({ navOverlayVisible: v }),
 
   // updateStats It receives distanceMiles and etaMinutes
   // Calculate arrivalTime by adding etaMinutes to the current time

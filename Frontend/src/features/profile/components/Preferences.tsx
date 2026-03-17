@@ -1,12 +1,56 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import clsx from "clsx"
 import { useUIStore } from "../../../store/uiStore"
 
 export default function Preferences() {
-    const { verifiedOnly, setVerifiedOnly, darkMode, setDarkMode } = useUIStore()
-    // Notifications toggle is UI-only — real push notifications are a Phase 20+ concern
-    const [notificationsEnabled, setNotificationsEnabled] = useState(false)
+    const { verifiedOnly, setVerifiedOnly, darkMode, setDarkMode, showToast } = useUIStore()
+
+    // ── Notification permission state ──
+    const [notificationsEnabled, setNotificationsEnabled] = useState(() => {
+        if (typeof Notification === "undefined") return false
+        return Notification.permission === "granted"
+    })
+
+    const handleNotificationsToggle = async () => {
+        if (typeof Notification === "undefined") return
+        if (notificationsEnabled) {
+            // Can't revoke programmatically — inform user
+            setNotificationsEnabled(false)
+            showToast("To fully disable, revoke in browser site settings", "error")
+            return
+        }
+        if (Notification.permission === "denied") {
+            showToast("Notifications blocked — enable in browser site settings", "error")
+            return
+        }
+        const result = await Notification.requestPermission()
+        setNotificationsEnabled(result === "granted")
+    }
+
+    // ── Location permission state ──
     const [locationEnabled, setLocationEnabled] = useState(false)
+
+    useEffect(() => {
+        if (!navigator.permissions) return
+        navigator.permissions.query({ name: "geolocation" }).then((status) => {
+            setLocationEnabled(status.state === "granted")
+            status.onchange = () => setLocationEnabled(status.state === "granted")
+        })
+    }, [])
+
+    const handleLocationToggle = () => {
+        if (locationEnabled) {
+            setLocationEnabled(false)
+            showToast("To fully revoke, use browser site settings", "error")
+            return
+        }
+        // Always call with timeout — avoids UI freeze if browser hangs on permission prompt
+        navigator.geolocation.getCurrentPosition(
+            () => setLocationEnabled(true),
+            () => showToast("Location access denied — check browser site settings", "error"),
+            { timeout: 8000, maximumAge: 60000 }
+        )
+    }
 
     return (
         <div className="px-5 pt-3">
@@ -25,18 +69,16 @@ export default function Preferences() {
                 </div>
                 <button
                     type="button"
-                    onClick={() => setNotificationsEnabled(!notificationsEnabled)}
+                    onClick={handleNotificationsToggle}
                     className={clsx(
                         "w-11 h-6 rounded-full transition-colors flex items-center px-0.5",
                         notificationsEnabled ? "bg-maroon" : "bg-border2"
                     )}
                 >
-                    <div
-                        className={clsx(
-                            "w-5 h-5 bg-white rounded-full shadow-sm transition-transform",
-                            notificationsEnabled ? "translate-x-5" : "translate-x-0"
-                        )}
-                    />
+                    <div className={clsx(
+                        "w-5 h-5 bg-white rounded-full shadow-sm transition-transform",
+                        notificationsEnabled ? "translate-x-5" : "translate-x-0"
+                    )} />
                 </button>
             </div>
 
@@ -51,25 +93,20 @@ export default function Preferences() {
                 </div>
                 <button
                     type="button"
-                    onClick={() => {
-                        setLocationEnabled(!locationEnabled)
-                        navigator.geolocation.getCurrentPosition(() => {})
-                    }}
+                    onClick={handleLocationToggle}
                     className={clsx(
                         "w-11 h-6 rounded-full transition-colors flex items-center px-0.5",
                         locationEnabled ? "bg-maroon" : "bg-border2"
                     )}
                 >
-                    <div
-                        className={clsx(
-                            "w-5 h-5 bg-white rounded-full shadow-sm transition-transform",
-                            locationEnabled ? "translate-x-5" : "translate-x-0"
-                        )}
-                    />
+                    <div className={clsx(
+                        "w-5 h-5 bg-white rounded-full shadow-sm transition-transform",
+                        locationEnabled ? "translate-x-5" : "translate-x-0"
+                    )} />
                 </button>
             </div>
 
-            {/* Dark Mode Row */}
+            {/* Dark Mode */}
             <div className="flex items-center gap-3 py-2.5 border-b border-black/5">
                 <div className="w-[30px] h-[30px] rounded-[8px] bg-maroon-light flex items-center justify-center flex-shrink-0">
                     <i className="bi bi-moon-fill text-maroon text-sm" />
@@ -85,16 +122,14 @@ export default function Preferences() {
                         darkMode ? "bg-maroon" : "bg-border2"
                     )}
                 >
-                    <div
-                        className={clsx(
-                            "w-5 h-5 bg-white rounded-full shadow-sm transition-transform",
-                            darkMode ? "translate-x-5" : "translate-x-0"
-                        )}
-                    />
+                    <div className={clsx(
+                        "w-5 h-5 bg-white rounded-full shadow-sm transition-transform",
+                        darkMode ? "translate-x-5" : "translate-x-0"
+                    )} />
                 </button>
             </div>
 
-            {/* Verified Parking spots row */}
+            {/* Verified Spots Only */}
             <div className="flex items-center gap-3 py-2.5 border-b border-black/5">
                 <div className="w-[30px] h-[30px] rounded-[8px] bg-gold-light flex items-center justify-center flex-shrink-0">
                     <i className="bi bi-patch-check-fill text-gold-dark text-sm" />
@@ -110,15 +145,12 @@ export default function Preferences() {
                         verifiedOnly ? "bg-maroon" : "bg-border2"
                     )}
                 >
-                    <div
-                        className={clsx(
-                            "w-5 h-5 bg-white rounded-full shadow-sm transition-transform",
-                            verifiedOnly ? "translate-x-5" : "translate-x-0"
-                        )}
-                    />
+                    <div className={clsx(
+                        "w-5 h-5 bg-white rounded-full shadow-sm transition-transform",
+                        verifiedOnly ? "translate-x-5" : "translate-x-0"
+                    )} />
                 </button>
             </div>
-
         </div>
     )
 }

@@ -26,7 +26,7 @@ async def get_all_spots(db: AsyncSession = Depends(get_db)):
         return json.loads(cached)
 
     result = await ParkingRepository(db).get_all()
-    serialized = [ParkingSpotResponse.model_validate(s).model_dump() for s in result]
+    serialized = [ParkingSpotResponse.model_validate(s).model_dump(mode="json") for s in result]
     await cache.setex(cache_key, 300, json.dumps(serialized))
     return serialized
 
@@ -44,7 +44,7 @@ async def search_spots(
         return json.loads(cached)
 
     result = await ParkingRepository(db).search(q)
-    serialized = [ParkingSpotResponse.model_validate(s).model_dump() for s in result]
+    serialized = [ParkingSpotResponse.model_validate(s).model_dump(mode="json") for s in result]
     await cache.setex(cache_key, 300, json.dumps(serialized))
     return serialized
 

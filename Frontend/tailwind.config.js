@@ -46,7 +46,7 @@ export default {
           DEFAULT: "#f59e0b",
         },
         red: {
-          DEFAULT: "#ef4444",
+          DEFAULT: "#ff3b30",
         },
         blue: {
           DEFAULT: "#3b82f6",

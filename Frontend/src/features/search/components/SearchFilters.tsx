@@ -5,13 +5,14 @@ interface SearchFiltersProps {
     filters: SpotFilters
     onChange: (updated: SpotFilters) => void
     isOpen: boolean
+    sliderMax?: number
 }
 
 // Chip options — match your backend's allowed values exactly
 const PARKING_TYPES = ["Parking Garage", "Surface Lot", "Street Parking"] as const
 const CAMPUSES = ["East Bank", "West Bank", "St. Paul"] as const
 
-export default function SearchFilters({ filters, onChange, isOpen }: SearchFiltersProps) {
+export default function SearchFilters({ filters, onChange, isOpen, sliderMax = 20 }: SearchFiltersProps) {
     // Helper to toggle a chip value
     // If already selected = clear it (set to undefined)
     // If not selected = set it
@@ -77,24 +78,23 @@ export default function SearchFilters({ filters, onChange, isOpen }: SearchFilte
             {/* Cost slider — matches .cslide-row */}
             <div className="mb-3">
                 <div className="text-[10px] font-bold uppercase tracking-[0.7px] text-text3 mb-1.5">
-                    Max Cost
+                    MAX COST / HR
                 </div>
                 <div className="flex items-center gap-2.5">
                     <input
                         type="range"
                         min={0}
-                        max={20}
-                        step={1}
-                        value={filters.max_cost ?? 20}
+                        max={sliderMax}
+                        step={0.5}
+                        value={filters.max_cost ?? sliderMax}
                         onChange={(e) => onChange({ ...filters, max_cost: Number(e.target.value) })}
-                        // Tailwind can't style range inputs easily — use accent-color via style
                         style={{ accentColor: "#7A0019" }}
                         className="flex-1"
                     />
                     <span className="text-[11px] font-bold text-maroon whitespace-nowrap">
-                        {filters.max_cost === 20 || filters.max_cost === undefined
+                        {(filters.max_cost ?? sliderMax) >= sliderMax
                             ? "Any"
-                            : `$${filters.max_cost}/hr`}
+                            : `$${(filters.max_cost ?? sliderMax).toFixed(2)}/hr`}
                     </span>
                 </div>
             </div>

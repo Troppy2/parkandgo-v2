@@ -6,9 +6,10 @@ interface SearchResultsProps {
     spots: ParkingSpot[] | undefined
     isLoading: boolean
     query: string
+    onReset?: () => void
 }
 
-export default function SearchResults({ spots, isLoading, query }: SearchResultsProps) {
+export default function SearchResults({ spots, isLoading, query, onReset }: SearchResultsProps) {
     const startNavigation = useNavStore((s) => s.startNavigation)
 
     if (isLoading) {
@@ -21,7 +22,25 @@ export default function SearchResults({ spots, isLoading, query }: SearchResults
         )
     }
 
-    if (!spots || spots.length === 0) return null
+    // Empty state — no spots match active filters
+    if (!spots || spots.length === 0) {
+        return (
+            <div className="px-3.5 py-8 text-center">
+                <i className="bi bi-p-square text-text3 text-3xl mb-2 block" />
+                <div className="text-[13px] font-semibold text-text1 mb-1">No spots match your filters</div>
+                <div className="text-[11px] text-text2 mb-4">Try adjusting your filters</div>
+                {onReset && (
+                    <button
+                        onClick={onReset}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 bg-maroon text-white rounded-full text-[12px] font-semibold transition-colors hover:bg-maroon-hover active:scale-95"
+                    >
+                        <i className="bi bi-x-circle text-sm" />
+                        Reset Filters
+                    </button>
+                )}
+            </div>
+        )
+    }
 
     return (
         <div>
@@ -29,7 +48,7 @@ export default function SearchResults({ spots, isLoading, query }: SearchResults
                 <span className="text-[13px] font-bold text-text1">
                     {query ? `Results for "${query}"` : "Filtered spots"}
                 </span>
-                <span className="text-[11px] font-medium text-text2 bg-bg rounded-full px-2.5 py-1">
+                <span className="text-[11px] font-medium text-text2 bg-bg2 rounded-full px-2.5 py-1">
                     {spots.length} spot{spots.length !== 1 ? "s" : ""}
                 </span>
             </div>
@@ -40,7 +59,7 @@ export default function SearchResults({ spots, isLoading, query }: SearchResults
                     return (
                         <div
                           key={spot.spot_id}
-                          className="bg-white border border-black/8 rounded-2xl p-3.5 shadow-sm transition-all duration-200 hover:-translate-y-[1px] hover:shadow-md"
+                          className="bg-white border border-black/8 rounded-2xl p-3.5 shadow-sm transition-all duration-200 hover:-translate-y-[1px] hover:shadow-md cursor-pointer"
                         >
                             <div className="flex items-start justify-between gap-2">
                                 <div>
@@ -57,8 +76,8 @@ export default function SearchResults({ spots, isLoading, query }: SearchResults
                                 onClick={() => startNavigation(spot)}
                                 className="mt-2.5 w-full bg-maroon text-white rounded-[10px] py-2.5 text-sm font-semibold flex items-center justify-center gap-2 transition-transform duration-200 hover:-translate-y-[1px]"
                             >
-                                <i className="bi bi-arrow-up-circle-fill" />
-                                Navigate
+                                <i className="bi bi-map-fill" />
+                                Navigate Here
                             </button>
                         </div>
                     )

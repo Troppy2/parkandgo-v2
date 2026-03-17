@@ -3,11 +3,26 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.api.deps import get_current_user
 from app.models.user import User
+from app.schemas.user import UserProfileUpdate, UserResponse
 from app.schemas.saved_spot import SavedSpotCreate, SavedSpotRename, SavedSpotResponse
 from app.repositories.saved_spot_repository import SavedSpotRepository
 from app.repositories.parking_repository import ParkingRepository
 
 router = APIRouter(prefix="/users", tags=["users"])
+
+
+@router.patch("/me", response_model=UserResponse)
+async def update_profile(
+    body: UserProfileUpdate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Update the current user's profile fields. Only provided fields are changed."""
+    update_data = body.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(current_user, field, value)
+    await db.flush()
+    return current_user
 
 
 @router.get("/me/saved", response_model=list[SavedSpotResponse])

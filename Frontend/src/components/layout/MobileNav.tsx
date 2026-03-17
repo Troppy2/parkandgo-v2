@@ -17,16 +17,31 @@ export default function MobileNav({ children, onSuggestSpotClick }: MobileNavPro
   const [isExpanded, setIsExpanded] = useState(false)
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [filters, setFilters] = useState<SpotFilters>({})
-  const { data: filterResults, isLoading: filterLoading } = useDebouncedSearch(filters)
-
-  const hasActiveFilters =
-    !!filters.parking_type ||
-    !!filters.campus_location ||
-    (filters.max_cost !== undefined && filters.max_cost < 20)
 
   const activeTab = useUIStore((s) => s.activeTab)
   const setActiveTab = useUIStore((s) => s.setActiveTab)
   const mapInstance = useUIStore((s) => s.mapInstance)
+  const verifiedOnly = useUIStore((s) => s.verifiedOnly)
+
+  // Merge global verifiedOnly preference into local filters before querying
+  const effectiveFilters: SpotFilters = {
+    ...filters,
+    ...(verifiedOnly ? { verified_only: true } : {}),
+  }
+  const { data: filterResults, isLoading: filterLoading } = useDebouncedSearch(effectiveFilters)
+
+  const hasActiveFilters =
+    !!filters.parking_type ||
+    !!filters.campus_location ||
+    (filters.max_cost !== undefined && filters.max_cost < 20) ||
+    !!verifiedOnly
+
+  const resetFilters = () => setFilters({})
+
+  // Dynamic slider max — compute from filter results, fallback to 10
+  const sliderMax = filterResults && filterResults.length > 0
+    ? Math.max(10, Math.ceil(Math.max(...filterResults.map((s) => s.cost ?? 0))))
+    : 10
 
   const handleEventMapClick = (event: CampusEvent) => {
     if (!mapInstance || event.longitude == null || event.latitude == null) return
@@ -38,14 +53,14 @@ export default function MobileNav({ children, onSuggestSpotClick }: MobileNavPro
   }
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-[22px] shadow-lg z-20">
+    <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-[22px] shadow-[0_-2px_24px_rgba(0,0,0,0.13)] z-20">
 
       {/* Drag handle - tap to expand/collapse */}
       <div
         className="flex justify-center pt-2.5 pb-1 cursor-pointer"
         onClick={() => setIsExpanded(!isExpanded)}
       >
-        <div className="w-9 h-1 bg-gray-300 rounded" />
+        <div className="w-9 h-1 bg-[#d1d1d6] rounded" />
       </div>
 
       {/* Tab switcher - always visible; tapping a tab also expands the sheet */}
@@ -72,35 +87,59 @@ export default function MobileNav({ children, onSuggestSpotClick }: MobileNavPro
         </button>
       </div>
 
-      {/* Content - only shown when expanded */}
-      {isExpanded && (
-        <div className="max-h-[55vh] overflow-y-auto pb-4 scrollbar-none animate-slide-up">
+      {/* "See Filters" row — always visible when on spots tab, not inside the isExpanded gate */}
+      {activeTab === "spots" && (
+        <button
+          onClick={() => {
+            setFiltersOpen(!filtersOpen)
+            // Opening filters should also expand the sheet
+            if (!filtersOpen) setIsExpanded(true)
+          }}
+          className="flex items-center justify-between px-3.5 py-2.5 cursor-pointer w-full"
+        >
+          <span className="text-[12px] font-semibold text-maroon flex items-center gap-1.5">
+            <i className="bi bi-sliders text-xs" />
+            {hasActiveFilters ? "Filters active" : "See Filters"}
+          </span>
+          <div className="flex items-center gap-1.5 ml-auto">
+            {verifiedOnly && (
+              <span className="flex items-center gap-0.5 text-[9px] font-bold text-maroon bg-maroon-light rounded-full px-1.5 py-0.5">
+                <i className="bi bi-patch-check-fill" />
+              </span>
+            )}
+            <i
+              className={clsx(
+                "bi bi-chevron-down text-[11px] text-maroon transition-transform duration-300",
+                filtersOpen ? "rotate-180" : ""
+              )}
+            />
+          </div>
+        </button>
+      )}
+
+      {/* Filter panel — always rendered, transitions via max-height */}
+      {activeTab === "spots" && (
+        <SearchFilters filters={filters} onChange={setFilters} isOpen={filtersOpen} sliderMax={sliderMax} />
+      )}
+
+      {/* Content — CSS max-height transition for open/close animation (no abrupt DOM removal) */}
+      <div
+        className={clsx(
+          "overflow-hidden transition-[max-height] duration-300 ease-in-out",
+          isExpanded ? "max-h-[55vh]" : "max-h-0"
+        )}
+      >
+        <div className="overflow-y-auto max-h-[55vh] pb-4 scrollbar-none">
           {activeTab === "events" ? (
             <EventList onEventMapClick={handleEventMapClick} />
           ) : (
             <>
-              <button
-                onClick={() => setFiltersOpen(!filtersOpen)}
-                className="flex items-center justify-between px-3.5 py-2.5 cursor-pointer w-full"
-              >
-                <span className="text-[12px] font-semibold text-maroon flex items-center gap-1.5">
-                  <i className="bi bi-sliders text-xs" />
-                  {hasActiveFilters ? "Filters active" : "See Filters"}
-                </span>
-                <i
-                  className={clsx(
-                    "bi bi-chevron-down text-[11px] text-maroon transition-transform",
-                    filtersOpen ? "rotate-180" : ""
-                  )}
-                />
-              </button>
-              <SearchFilters filters={filters} onChange={setFilters} isOpen={filtersOpen} />
               {hasActiveFilters
-                ? <SearchResults spots={filterResults} isLoading={filterLoading} query="" />
+                ? <SearchResults spots={filterResults} isLoading={filterLoading} query="" onReset={resetFilters} />
                 : children
               }
 
-              {/* Suggest a Spot card - matches mobile prototype */}
+              {/* Suggest a Spot card */}
               <div className="px-3.5 pt-1">
                 <button
                   onClick={() => onSuggestSpotClick?.()}
@@ -122,7 +161,7 @@ export default function MobileNav({ children, onSuggestSpotClick }: MobileNavPro
             </>
           )}
         </div>
-      )}
+      </div>
 
     </div>
   )

@@ -40,7 +40,7 @@ export default function Button({
       className={clsx(
         // Base styles always applied
         "inline-flex items-center justify-center gap-2",
-        "font-semibold rounded-full",  
+        "font-semibold rounded-full min-h-[44px]",
         "transition-all duration-150",
         "disabled:opacity-50 disabled:cursor-not-allowed",
         variantMap[variant],

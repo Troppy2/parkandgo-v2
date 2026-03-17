@@ -4,30 +4,104 @@ import { useState } from "react";
 import clsx from "clsx";
 import SearchBar from "../../features/search/components/SearchBar";
 import EventList from "../../features/events/components/EventList";
+import SearchResults from "../../features/search/components/SearchResults";
+import { useDebouncedSearch } from "../../features/search/hooks/useDebouncedSearch";
 import type { CampusEvent } from "../../types/campus_event.types";
+import type { SpotFilters, ParkingType } from "../../types/parking.types";
 
 interface SidebarProps {
   children: React.ReactNode;
   onSettingsClick: () => void;
   onSuggestSpotClick: () => void;
+  isCollapsed: boolean;
+  onToggleCollapse: () => void;
+}
+
+// Filter chip options — values match backend exactly
+const PARKING_TYPE_FILTERS: { label: string; value: ParkingType | "All"; icon: string | null }[] = [
+  { label: "All",     value: "All",             icon: null },
+  { label: "Garage",  value: "Parking Garage",  icon: "bi-building" },
+  { label: "Surface", value: "Surface Lot",     icon: "bi-tree" },
+  { label: "Street",  value: "Street Parking",  icon: "bi-signpost-fill" },
+]
+
+// Icon-only rail shown when sidebar is collapsed (D3)
+function CollapsedRail({
+  onToggleCollapse,
+  onSettingsClick,
+  setActiveTab,
+}: {
+  onToggleCollapse: () => void;
+  onSettingsClick: () => void;
+  setActiveTab: (tab: "spots" | "events") => void;
+}) {
+  const railItems = [
+    { icon: "bi-p-square-fill",      label: "Spots",    onClick: () => { setActiveTab("spots"); onToggleCollapse(); } },
+    { icon: "bi-calendar-event-fill", label: "Events",   onClick: () => { setActiveTab("events"); onToggleCollapse(); } },
+    { icon: "bi-gear-fill",           label: "Settings", onClick: onSettingsClick },
+    { icon: "bi-person-circle",       label: "Profile",  onClick: onSettingsClick },
+  ]
+
+  return (
+    <div className="w-[52px] flex-shrink-0 h-screen bg-white/85 backdrop-blur-xl border-r border-black/10 flex flex-col items-center pt-3 pb-4 gap-1 overflow-hidden">
+      {/* Re-expand button */}
+      <button
+        onClick={onToggleCollapse}
+        title="Expand sidebar"
+        className="w-10 h-10 flex items-center justify-center hover:bg-maroon-light rounded-[10px] transition-colors duration-150 mb-1"
+      >
+        <i className="bi bi-layout-sidebar text-text2 text-lg" />
+      </button>
+      <div className="w-6 h-px bg-black/10 mb-1" />
+      {railItems.map(({ icon, label, onClick }) => (
+        <button
+          key={label}
+          onClick={onClick}
+          title={label}
+          className="w-10 h-10 flex items-center justify-center hover:bg-maroon-light rounded-[10px] transition-colors duration-150"
+        >
+          <i className={`bi ${icon} text-text2 text-base`} />
+        </button>
+      ))}
+    </div>
+  )
 }
 
 export default function Sidebar({
   children,
   onSettingsClick,
   onSuggestSpotClick,
+  isCollapsed,
+  onToggleCollapse,
 }: SidebarProps) {
   const user = useAuthStore((s) => s.user);
   const activeTab = useUIStore((s) => s.activeTab);
   const setActiveTab = useUIStore((s) => s.setActiveTab);
   const mapInstance = useUIStore((s) => s.mapInstance);
-  const [activeFilter, setActiveFilter] = useState("All");
-  const [maxCost, setMaxCost] = useState(20);
 
-  const filters = ["All", "Garage", "Surface Lot", "Street"];
+  const verifiedOnly = useUIStore((s) => s.verifiedOnly);
+  const [filters, setFilters] = useState<SpotFilters>({});
+
+  // Merge verifiedOnly global pref into filters so the API receives it
+  const mergedFilters: SpotFilters = { ...filters, verified_only: verifiedOnly || undefined };
+  const { data: filterResults, isLoading: filterLoading } = useDebouncedSearch(mergedFilters);
+
+  const hasActiveFilters =
+    !!filters.parking_type ||
+    (filters.max_cost !== undefined && filters.max_cost < 20) ||
+    !!verifiedOnly;
+
+  const resetFilters = () => setFilters({});
+
+  // Dynamic max cost — compute from current filter results, fallback to 20
+  const maxCostInData = filterResults && filterResults.length > 0
+    ? Math.ceil(Math.max(...filterResults.map((s) => s.cost ?? 0)))
+    : 20
+  const sliderMax = Math.max(maxCostInData, 20)
+
   const initials = user
     ? `${user.first_name[0]}${user.last_name[0]}`.toUpperCase()
-    : "??";
+    : null;
 
   const handleEventMapClick = (event: CampusEvent) => {
     if (!mapInstance || event.longitude == null || event.latitude == null) return;
@@ -38,118 +112,199 @@ export default function Sidebar({
     });
   };
 
+  const activeTypeFilter = filters.parking_type ?? "All"
+
+  const toggleType = (value: ParkingType | "All") => {
+    setFilters((prev) => ({
+      ...prev,
+      parking_type: value === "All" ? undefined : value,
+    }))
+  }
+
+  // Show icon rail when collapsed
+  if (isCollapsed) {
+    return (
+      <CollapsedRail
+        onToggleCollapse={onToggleCollapse}
+        onSettingsClick={onSettingsClick}
+        setActiveTab={setActiveTab}
+      />
+    )
+  }
+
   return (
-    <div className="w-[340px] flex-shrink-0 bg-white/85 backdrop-blur-xl border-r border-black/10 flex flex-col overflow-hidden pt-9">
-      {/* -- TOP SECTION: search + user row */}
-      <div className="px-3.5 pb-2.5 border-b border-black/8">
+    <div className="w-[340px] flex-shrink-0 bg-white/85 backdrop-blur-xl border-r border-black/10 flex flex-col overflow-hidden h-screen">
+
+      {/* ── LOGO ROW ── (D2) */}
+      <div className="flex items-center justify-between px-3.5 py-2.5 border-b border-black/8 flex-shrink-0">
+        <div className="flex items-center gap-0.5">
+          <span className="text-[15px] font-black text-maroon">Park</span>
+          <span className="text-[15px] font-black text-gold mx-0.5">&amp;</span>
+          <span className="text-[15px] font-black text-maroon">Go</span>
+        </div>
+        <button
+          onClick={onToggleCollapse}
+          title="Collapse sidebar"
+          className="w-8 h-8 flex items-center justify-center rounded-[8px] hover:bg-maroon-light transition-colors duration-150"
+        >
+          <i className="bi bi-layout-sidebar text-text2 text-base" />
+        </button>
+      </div>
+
+      {/* ── SEARCH + USER ROW ── (D2) */}
+      <div className="px-3.5 pb-2.5 pt-2.5 border-b border-black/8 flex-shrink-0">
         {/* Search bar */}
         <div className="mb-2.5">
           <SearchBar />
         </div>
 
         {/* User row: avatar + name/email + gear */}
-        <div className="flex items-center gap-2 px-2 py-1.5 bg-white/60 rounded-[10px]">
-          <div className="w-7 h-7 rounded-full bg-maroon flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 overflow-hidden">
+        <div className="flex items-center gap-2 px-2 py-1.5 bg-white/60 rounded-[10px] hover:bg-maroon-light transition-colors duration-150 cursor-pointer" onClick={onSettingsClick}>
+          {/* Avatar */}
+          <div className={clsx(
+            "w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden",
+            user ? "bg-maroon" : "bg-bg2"
+          )}>
             {user?.profile_pic
               ? <img src={user.profile_pic} className="w-full h-full object-cover" alt="" />
-              : initials
+              : user
+                ? <span className="text-white text-[10px] font-bold">{initials}</span>
+                : <i className="bi bi-person text-text2 text-sm" />
             }
           </div>
-          <div className="flex-1">
-            <div className="text-xs font-semibold">
-              {user?.prefered_name || user?.first_name}
+          <div className="flex-1 min-w-0">
+            <div className="text-xs font-semibold text-text1 truncate">
+              {user ? (user.prefered_name || user.first_name) : "Guest"}
             </div>
-            <div className="text-[10px] text-text2">{user?.email}</div>
+            <div className="text-[10px] text-text2 truncate">
+              {user ? user.email : "Guest"}
+            </div>
           </div>
-          <button onClick={onSettingsClick}>
-            <i className="bi bi-gear-fill text-text2 text-sm" />
-          </button>
+          <i className="bi bi-gear-fill text-text2 text-sm hover:text-maroon transition-colors flex-shrink-0" />
         </div>
       </div>
 
-      {/* -- FILTER PILLS -- */}
-      <div className="px-3.5 py-2 flex gap-1.5 overflow-x-auto border-b border-black/6 scrollbar-none">
-        {filters.map((filter) => (
-          <button
-            key={filter}
-            onClick={() => setActiveFilter(filter)}
-            className={clsx("flex-shrink-0", activeFilter === filter ? "chip chip-ac" : "chip")}
-          >
-            {filter}
-          </button>
-        ))}
-      </div>
-
-      {/* -- COST SLIDER -- */}
-      <div className="px-3.5 py-2.5 border-b border-black/6">
-        <div className="text-[10px] font-semibold text-text2 uppercase tracking-wider mb-1.5">
-          Max Cost
+      {/* ── PARKING TYPE FILTER PILLS ── (D4) */}
+      {activeTab === "spots" && (
+        <div className="px-3.5 py-2 flex gap-1.5 overflow-x-auto border-b border-black/6 scrollbar-none flex-shrink-0 items-center">
+          {PARKING_TYPE_FILTERS.map(({ label, value, icon }) => (
+            <button
+              key={value}
+              onClick={() => toggleType(value)}
+              className={clsx(
+                "flex-shrink-0 flex items-center gap-1",
+                activeTypeFilter === value ? "chip chip-ac" : "chip"
+              )}
+            >
+              {icon && <i className={`bi ${icon} text-[10px]`} />}
+              {label}
+            </button>
+          ))}
+          {/* Reset button — only when filters are active */}
+          {hasActiveFilters && (
+            <button
+              onClick={resetFilters}
+              className="flex-shrink-0 flex items-center gap-1 chip border-maroon/50 text-maroon ml-auto hover:bg-maroon-light"
+              title="Reset all filters"
+            >
+              <i className="bi bi-x-circle text-[10px]" />
+              Reset
+            </button>
+          )}
         </div>
-        <div className="flex items-center gap-2.5">
+      )}
+
+      {/* ── COST SLIDER ── (D5) */}
+      {activeTab === "spots" && (
+        <div className="px-3.5 py-2.5 border-b border-black/6 flex-shrink-0">
+          <div className="flex items-center justify-between mb-1.5">
+            <div className="text-[10px] font-semibold text-text2 uppercase tracking-wider">
+              MAX COST / HR
+            </div>
+            <div className="text-xs font-bold text-maroon">
+              {(filters.max_cost ?? sliderMax) >= sliderMax ? "Any" : `$${filters.max_cost?.toFixed(2)}/hr`}
+            </div>
+          </div>
           <input
             type="range"
             min={0}
-            max={20}
-            step={1}
-            value={maxCost}
-            onChange={(e) => setMaxCost(Number(e.target.value))}
+            max={sliderMax}
+            step={0.5}
+            value={filters.max_cost ?? sliderMax}
+            onChange={(e) =>
+              setFilters((prev) => ({ ...prev, max_cost: Number(e.target.value) }))
+            }
             style={{ accentColor: "#7A0019" }}
-            className="flex-1"
+            className="w-full"
           />
-          <div className="text-xs font-bold text-maroon whitespace-nowrap">
-            {maxCost >= 20 ? "Any" : `$${maxCost}/hr`}
-          </div>
         </div>
-      </div>
-      {/* -- TAB SWITCHER -- */}
-      <div className="flex border-b border-black/6 flex-shrink-0">
+      )}
+
+      {/* ── TAB SWITCHER ── (D6) */}
+      <div className="flex border-b border-black/6 flex-shrink-0 relative">
         <button
           onClick={() => setActiveTab("spots")}
-          className={`flex-1 py-2 text-xs font-semibold text-center border-b-2 -mb-px cursor-pointer ${
-            activeTab === "spots"
-              ? "text-maroon border-maroon"
-              : "text-text3 border-transparent"
-          }`}
+          className={clsx(
+            "flex-1 py-2 text-xs font-semibold text-center border-b-2 -mb-px cursor-pointer transition-colors duration-150",
+            activeTab === "spots" ? "text-maroon border-maroon" : "text-text3 border-transparent"
+          )}
         >
-          <i className="bi bi-car-front-fill mr-1" />
-          Suggested Spots
+          <i className="bi bi-p-square-fill mr-1" />
+          Spots
         </button>
         <button
           onClick={() => setActiveTab("events")}
-          className={`flex-1 py-2 text-xs font-semibold text-center border-b-2 -mb-px cursor-pointer ${
-            activeTab === "events"
-              ? "text-maroon border-maroon"
-              : "text-text3 border-transparent"
-          }`}
+          className={clsx(
+            "flex-1 py-2 text-xs font-semibold text-center border-b-2 -mb-px cursor-pointer transition-colors duration-150",
+            activeTab === "events" ? "text-maroon border-maroon" : "text-text3 border-transparent"
+          )}
         >
           <i className="bi bi-calendar-event-fill mr-1" />
-          Local Events
+          Events
         </button>
       </div>
-      {/* -- RESULTS BODY (scrollable) -- */}
-      <div className="flex-1 overflow-y-auto">
+
+      {/* ── SPOT COUNT ROW — always visible on spots tab (Bug 19) ── */}
+      {activeTab === "spots" && hasActiveFilters && (
+        <div className="px-3.5 py-1.5 flex items-center gap-2 border-b border-black/5 flex-shrink-0">
+          <span className="text-[11px] font-semibold text-text1">Filtered spots</span>
+          <span className="text-[10px] font-medium text-text2 bg-bg2 rounded-full px-2 py-0.5 ml-auto">
+            {(filterResults ?? []).length} spots
+          </span>
+          {verifiedOnly && (
+            <span className="flex items-center gap-0.5 text-[9px] font-bold text-maroon bg-maroon-light rounded-full px-1.5 py-0.5">
+              <i className="bi bi-patch-check-fill" />
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* ── RESULTS BODY (scrollable) ── (D7) */}
+      <div className="flex-1 overflow-y-auto scrollbar-none">
         {activeTab === "events"
           ? <EventList onEventMapClick={handleEventMapClick} />
-          : children
+          : hasActiveFilters
+            ? <SearchResults spots={filterResults} isLoading={filterLoading} query="" onReset={resetFilters} />
+            : children
         }
       </div>
 
-      {/* -- FOOTER: Suggest a Spot -- */}
+      {/* ── FOOTER: Suggest a Spot ── (D8) */}
       {activeTab === "spots" && (
         <div className="p-2.5 border-t border-black/8 flex-shrink-0">
           <button
             onClick={onSuggestSpotClick}
-            className="w-full flex items-center gap-2 px-2.5 py-2.5 border-[1.5px] border-dashed border-maroon/30 rounded-[10px] bg-maroon-light transition-all duration-200 hover:-translate-y-[1px]"
+            className="w-full flex items-center gap-2 px-2.5 py-2.5 border-[1.5px] border-dashed border-maroon/30 rounded-[10px] bg-maroon-light hover:bg-maroon-light2 hover:border-maroon transition-all duration-150 cursor-pointer"
           >
             <div className="w-7 h-7 bg-maroon rounded-[7px] flex items-center justify-center flex-shrink-0">
               <i className="bi bi-plus-lg text-white text-sm" />
             </div>
             <div className="text-left">
               <div className="text-xs font-semibold text-maroon">
-                Suggest a Spot
+                Suggest a Parking Spot
               </div>
               <div className="text-[10px] text-maroon/60 mt-0.5">
-                Help the community
+                Help fellow students find parking
               </div>
             </div>
           </button>

@@ -19,17 +19,9 @@ export default function SearchBar({ onSettingsClick }: SearchBarProps) {
     // Relative wrapper so the dropdown positions against it
     <div className="relative w-full">
       {/* Search pill - matches .gm-bar */}
-      <div className="flex items-center gap-2.5 bg-white rounded-[28px] h-12 px-3.5 shadow-md">
-        {onSettingsClick ? (
-          <button
-            onClick={onSettingsClick}
-            className="w-8 h-8 rounded-full bg-gradient-to-br from-maroon to-maroon-hover flex items-center justify-center flex-shrink-0 transition-transform duration-200 hover:-translate-y-[1px]"
-          >
-            <i className="bi bi-gear-fill text-white text-sm" />
-          </button>
-        ) : (
-          <i className="bi bi-search text-text3 text-base flex-shrink-0" />
-        )}
+      <div className="flex items-center gap-2.5 bg-white rounded-[28px] h-12 px-3.5 shadow-[0_2px_8px_rgba(0,0,0,0.12)] border-[1.5px] border-transparent focus-within:border-maroon transition-[border-color] duration-150">
+        {/* Search icon — always visible on the left */}
+        <i className="bi bi-search text-text3 text-base flex-shrink-0" />
         <input
           type="text"
           value={query}
@@ -49,6 +41,16 @@ export default function SearchBar({ onSettingsClick }: SearchBarProps) {
             className="text-text3 flex-shrink-0"
           >
             <i className="bi bi-x-circle-fill text-base" />
+          </button>
+        )}
+        {/* Gear icon — only on mobile (when onSettingsClick provided), on the right */}
+        {onSettingsClick && (
+          <button
+            onClick={onSettingsClick}
+            className="text-text2 flex-shrink-0 hover:text-maroon transition-colors duration-150"
+            aria-label="Open settings"
+          >
+            <i className="bi bi-gear-fill text-lg" />
           </button>
         )}
       </div>
@@ -88,7 +90,7 @@ export default function SearchBar({ onSettingsClick }: SearchBarProps) {
                   <div className="text-xs text-text2">
                     {[spot.campus_location, spot.parking_type]
                       .filter(Boolean)
-                      .join(" � ")}
+                      .join(" \u00B7 ")}
                   </div>
                 </div>
               </button>

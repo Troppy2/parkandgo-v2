@@ -16,7 +16,7 @@ export const ENDPOINTS = {
   USERS: {
     ME:     "/users/me",
     SAVED:  (spotId?: number) => spotId !== undefined ? `/users/me/saved/${spotId}` : "/users/me/saved",
-    RENAME: (spotId: number) => `/users/me/saved/${spotId}/rename`,
+    RENAME: (spotId: number) => `/users/me/saved/${spotId}`,
   },
   EVENTS: {
     LIST:   "/events/",

@@ -36,4 +36,5 @@ export interface SpotFilters {
   parking_type?: ParkingType
   campus_location?: CampusLocation
   max_cost?: number
+  verified_only?: boolean
 }
