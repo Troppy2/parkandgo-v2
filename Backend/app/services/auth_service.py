@@ -9,11 +9,14 @@ GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo"
 
 
 async def verify_google_token(access_token: str) -> dict:
-    async with httpx.AsyncClient() as client:
-        response = await client.get(
-            GOOGLE_USERINFO_URL,
-            headers={"Authorization": f"Bearer {access_token}"},
-        )
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(
+                GOOGLE_USERINFO_URL,
+                headers={"Authorization": f"Bearer {access_token}"},
+            )
+    except httpx.HTTPError as exc:
+        raise ValueError(f"Could not reach Google to verify token: {exc}") from exc
     if response.status_code != 200:
         raise ValueError("Invalid Google token")
     return response.json()

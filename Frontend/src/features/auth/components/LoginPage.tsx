@@ -38,6 +38,11 @@ export default function LoginPage() {
   }
 
   const handleGoogleLogin = () => {
+    if (!window.google?.accounts?.oauth2) {
+      setLoginError("Google sign-in isn't ready yet — please wait a moment and try again.")
+      return
+    }
+
     const client = window.google.accounts.oauth2.initTokenClient({
       client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
       scope: "email profile",
@@ -48,10 +53,16 @@ export default function LoginPage() {
           navigate("/")
         } catch (error: unknown) {
           console.error("Login failed", error)
-          // Surface the real reason so we can debug
-          if (error && typeof error === "object" && "code" in error && error.code === "ERR_NETWORK") {
-            setLoginError("Sorry our servers are currently not working come back later!")
-          } else if (error && typeof error === "object" && "response" in error) {
+          if (error && typeof error === "object" && "code" in error) {
+            const code = (error as { code: string }).code
+            // ERR_NETWORK = CORS block or server unreachable
+            // ECONNABORTED = axios request timeout
+            if (code === "ERR_NETWORK" || code === "ECONNABORTED") {
+              setLoginError("Couldn't reach the server. It may be starting up — please wait 30 seconds and try again.")
+              return
+            }
+          }
+          if (error && typeof error === "object" && "response" in error) {
             const res = (error as { response: { status: number; data?: { detail?: string } } }).response
             setLoginError(`Server error ${res.status}: ${res.data?.detail ?? "Unknown error"}`)
           } else {
