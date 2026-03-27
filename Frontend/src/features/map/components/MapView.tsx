@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect } from "react";
 import maplibregl from "maplibre-gl";
 import { useUIStore } from "../../../store/uiStore";
 import { useNavStore } from "../../../store/navStore";
@@ -12,6 +12,12 @@ import {
 import MapControls from "./MapControls";
 import RouteLayer from "./RouteLayer";
 import { useEvents } from "../../events/hooks/useEvents";
+
+const MAP_GEOLOCATION_OPTIONS = {
+    maximumAge: 30000,
+    timeout: 15000,
+    enableHighAccuracy: false,
+} as const;
 
 function add3DBuildings(map: maplibregl.Map) {
     // Find the first text label layer so we insert buildings BELOW labels
@@ -63,20 +69,31 @@ export default function MapView() {
     const mapContainer = useRef<HTMLDivElement>(null);
     const mapRef = useRef<maplibregl.Map | null>(null);
     const watchIdRef = useRef<number | null>(null);
+    const wasNavigatingRef = useRef(false);
+    const wasStartedNavigationRef = useRef(false);
+    const userLocationRef = useRef<{ coords: [number, number]; heading: number } | null>(null);
     const mapStyle = useUIStore((s) => s.mapStyle);
     const setMapInstance = useUIStore((s) => s.setMapInstance);
-    const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
 
     const activeTab = useUIStore((s) => s.activeTab);
     const { data: events } = useEvents();
     const destination = useNavStore((s) => s.destination);
+    const isNavigating = useNavStore((s) => s.isNavigating);
+    const hasStartedNavigation = useNavStore((s) => s.hasStartedNavigation);
+    const userLocation = useNavStore((s) => s.currentUserLocation);
+    const setCurrentUserLocation = useNavStore((s) => s.setCurrentUserLocation);
+
+    // All spots visible on the map — public endpoint, no auth required
 
     // Track event markers so we can remove them when tab switches
     const eventMarkersRef = useRef<maplibregl.Marker[]>([]);
     // Track the single destination marker
     const destinationMarkerRef = useRef<maplibregl.Marker | null>(null);
+    // Track the user location marker
+    const userLocationMarkerRef = useRef<maplibregl.Marker | null>(null);
+    // Track parking spot markers
 
-    // ── Effect 1: Initialize map ONCE on mount ──
+    // Effect 1: Initialize map ONCE on mount
     useEffect(() => {
         if (!mapContainer.current) return;
 
@@ -93,9 +110,12 @@ export default function MapView() {
         // Watch user geolocation for the locate-me button
         if (navigator.geolocation) {
             watchIdRef.current = navigator.geolocation.watchPosition(
-                (pos) => setUserLocation([pos.coords.longitude, pos.coords.latitude]),
-                () => {/* geolocation unavailable — map still works without it */},
-                { maximumAge: 10000, timeout: 5000, enableHighAccuracy: true },
+                (pos) => setCurrentUserLocation({
+                    coords: [pos.coords.longitude, pos.coords.latitude],
+                    heading: pos.coords.heading ?? 0,
+                }),
+                () => {/* geolocation unavailable - map still works without it */},
+                MAP_GEOLOCATION_OPTIONS,
             );
         }
 
@@ -106,9 +126,9 @@ export default function MapView() {
             map.remove();
         };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [setCurrentUserLocation]);
 
-    // ── Effect 2: Add/remove event pins when tab or events data changes ──
+    // Effect 2: Add/remove event pins when tab or events data changes
     useEffect(() => {
         if (!mapRef.current) return;
 
@@ -120,69 +140,77 @@ export default function MapView() {
         if (activeTab !== "events" || !events) return;
 
         events.forEach((event) => {
-            if (!event.latitude || !event.longitude) return;
+            if (event.latitude == null || event.longitude == null) return;
+            const eventCenter: [number, number] = [event.longitude, event.latitude];
 
             // Build a custom gold event pin element
             const el = document.createElement("div");
             el.className = "event-pin";
-            el.innerHTML = `<i class="bi bi-calendar-event-fill"></i>`;
             el.style.cssText = `
                 background: #FFCC33;
                 color: #7A0019;
                 border-radius: 50%;
                 width: 28px;
                 height: 28px;
+                min-width: 28px;
+                min-height: 28px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                flex-shrink: 0;
                 font-size: 13px;
                 box-shadow: 0 2px 8px rgba(0,0,0,0.2);
                 border: 2px solid #fff;
                 cursor: pointer;
+                box-sizing: border-box;
             `;
+            el.innerHTML = `<i class="bi bi-calendar-event-fill" style="pointer-events: none;"></i>`;
+
+            el.addEventListener("click", () => {
+                mapRef.current?.flyTo({
+                    center: eventCenter,
+                    zoom: 17,
+                    duration: 600,
+                    essential: true,
+                });
+            });
 
             const marker = new maplibregl.Marker({ element: el })
-                .setLngLat([event.longitude, event.latitude])
+                .setLngLat(eventCenter)
+                .setPopup(
+                    new maplibregl.Popup({ offset: 16, closeButton: false })
+                        .setHTML(`<strong style="font-size:12px">${event.title}</strong><br/><span style="font-size:11px;color:#666">${event.location_name ?? ""}</span>`)
+                )
                 .addTo(mapRef.current!);
 
             eventMarkersRef.current.push(marker);
         });
     }, [activeTab, events]);
 
-    // ── Effect 3: Add/remove destination marker when navStore.destination changes ──
+    // Effect 3: Add/remove destination marker when navStore.destination changes
     useEffect(() => {
         // Remove previous destination marker
         destinationMarkerRef.current?.remove();
         destinationMarkerRef.current = null;
 
         if (!destination || !mapRef.current) return;
-        if (!destination.longitude || !destination.latitude) return;
+        if (destination.longitude == null || destination.latitude == null) return;
 
-        // Build the maroon pin element that matches the design (.pin-head style)
+        // SVG teardrop pin - points straight down, no rotation tricks
         const el = document.createElement("div");
         el.style.cssText = `
-            width: 34px;
-            height: 34px;
-            background: #7A0019;
-            border-radius: 50% 50% 50% 0;
-            transform: rotate(-45deg);
-            box-shadow: 0 0 0 6px rgba(122,0,25,0.18);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 32px;
+            height: 44px;
             cursor: pointer;
+            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.35));
         `;
-        const inner = document.createElement("div");
-        inner.style.cssText = `
-            width: 13px;
-            height: 13px;
-            background: #fff;
-            border-radius: 50%;
-            transform: rotate(45deg);
-        `;
-        el.appendChild(inner);
+        el.innerHTML = `<svg viewBox="0 0 32 44" width="32" height="44" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="16" cy="16" r="19" fill="rgba(122,0,25,0.18)"/>
+            <path d="M16 2 C8.27 2 2 8.27 2 16 C2 25.5 16 44 16 44 C16 44 30 25.5 30 16 C30 8.27 23.73 2 16 2 Z" fill="#7A0019"/>
+            <circle cx="16" cy="16" r="5" fill="white"/>
+        </svg>`;
 
-        destinationMarkerRef.current = new maplibregl.Marker({ element: el, anchor: "bottom-left" })
+        destinationMarkerRef.current = new maplibregl.Marker({ element: el, anchor: "bottom" })
             .setLngLat([destination.longitude, destination.latitude])
             .addTo(mapRef.current);
 
@@ -195,7 +223,125 @@ export default function MapView() {
         });
     }, [destination]);
 
-    // ── Effect 5: React to style changes from uiStore ──
+    // Effect 4: Add/remove user location marker when userLocation changes
+    useEffect(() => {
+        // Remove previous user location marker
+        userLocationMarkerRef.current?.remove();
+        userLocationMarkerRef.current = null;
+
+        if (!userLocation || !mapRef.current) return;
+
+        // Build the yellow arrow marker (UMN Gold) with fixed size
+        const el = document.createElement("div");
+        el.style.cssText = `
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+        `;
+
+        // Create SVG arrow that points north (up) with fixed dimensions
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("viewBox", "0 0 40 40");
+        svg.setAttribute("width", "40");
+        svg.setAttribute("height", "40");
+        svg.style.cssText = `
+            display: block;
+            filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+            transform: rotate(${userLocation.heading}deg);
+            flex-shrink: 0;
+        `;
+
+        // Outer circle (white border)
+        const outerCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        outerCircle.setAttribute("cx", "20");
+        outerCircle.setAttribute("cy", "20");
+        outerCircle.setAttribute("r", "18");
+        outerCircle.setAttribute("fill", "#FFCC33");
+        outerCircle.setAttribute("stroke", "#fff");
+        outerCircle.setAttribute("stroke-width", "2");
+        svg.appendChild(outerCircle);
+
+        // Arrow pointing up
+        const arrow = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+        arrow.setAttribute("points", "20,8 28,24 20,20 12,24");
+        arrow.setAttribute("fill", "#fff");
+        svg.appendChild(arrow);
+
+        el.appendChild(svg);
+
+        userLocationMarkerRef.current = new maplibregl.Marker({ element: el, anchor: "center" })
+            .setLngLat(userLocation.coords)
+            .addTo(mapRef.current);
+    }, [userLocation]);
+
+    // Keep userLocationRef in sync so the navigation effects can read it without a stale closure.
+    useEffect(() => {
+        userLocationRef.current = userLocation;
+    }, [userLocation]);
+
+    // Effect 5: Fly to the user's position when the Start button begins active guidance.
+    useEffect(() => {
+        const navigationJustStarted =
+            !wasStartedNavigationRef.current && isNavigating && hasStartedNavigation;
+
+        if (navigationJustStarted) {
+            const loc = userLocationRef.current;
+
+            if (loc && mapRef.current) {
+                mapRef.current.flyTo({
+                    center: loc.coords,
+                    zoom: 16,
+                    duration: 900,
+                    essential: true,
+                });
+            } else if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        const nextLocation = {
+                            coords: [pos.coords.longitude, pos.coords.latitude] as [number, number],
+                            heading: pos.coords.heading ?? 0,
+                        };
+
+                        setCurrentUserLocation(nextLocation);
+                        mapRef.current?.flyTo({
+                            center: nextLocation.coords,
+                            zoom: 16,
+                            duration: 900,
+                            essential: true,
+                        });
+                    },
+                    () => {
+                        // Keep the destination centered if user location is unavailable.
+                    },
+                    MAP_GEOLOCATION_OPTIONS,
+                );
+            }
+        }
+
+        wasStartedNavigationRef.current = hasStartedNavigation;
+    }, [hasStartedNavigation, isNavigating, setCurrentUserLocation]);
+
+    // Effect 5a: Fly back to user location when navigation ends
+    useEffect(() => {
+        if (wasNavigatingRef.current && !isNavigating) {
+            const loc = userLocationRef.current;
+            if (loc && mapRef.current) {
+                mapRef.current.flyTo({
+                    center: loc.coords,
+                    zoom: 16,
+                    duration: 800,
+                    essential: true,
+                });
+            }
+        }
+        wasNavigatingRef.current = isNavigating;
+    }, [isNavigating]);
+
+    // Effect 6: React to style changes from uiStore
     // This runs whenever the user changes the map style in Settings
     useEffect(() => {
         const map = mapRef.current;
@@ -218,34 +364,36 @@ export default function MapView() {
 
     return (
         <div className="relative w-full h-full">
-            {/* The div MapLibre renders into — must have explicit dimensions */}
+            {/* The div MapLibre renders into - must have explicit dimensions */}
             <div ref={mapContainer} className="w-full h-full" />
-            <RouteLayer map={mapRef.current} userLocation={userLocation} />
+            <RouteLayer map={mapRef.current} userLocation={userLocation?.coords ?? null} />
 
-            {/* Controls float on top of the map */}
-            <MapControls
-                onZoomIn={() => mapRef.current?.zoomIn()}
-                onZoomOut={() => mapRef.current?.zoomOut()}
-                onLocate={() => {
-                    if (userLocation) {
-                        mapRef.current?.flyTo({ center: userLocation, zoom: 16, essential: true })
-                        return
-                    }
-                    navigator.geolocation.getCurrentPosition(
-                        (pos) => {
-                            mapRef.current?.flyTo({
-                                center: [pos.coords.longitude, pos.coords.latitude],
-                                zoom: 16,
-                                essential: true,
-                            })
-                        },
-                        () => {
-                            mapRef.current?.flyTo({ center: UMN_CENTER, zoom: UMN_DEFAULT_ZOOM, essential: true })
-                        },
-                        { maximumAge: 10000, timeout: 5000, enableHighAccuracy: true },
-                    )
-                }}
-            />
+            {/* Controls float on top of the map - hide during navigation */}
+            {!isNavigating && (
+                <MapControls
+                    onZoomIn={() => mapRef.current?.zoomIn()}
+                    onZoomOut={() => mapRef.current?.zoomOut()}
+                    onLocate={() => {
+                        if (userLocation) {
+                            mapRef.current?.flyTo({ center: userLocation.coords, zoom: 16, essential: true })
+                            return;
+                        }
+                        navigator.geolocation.getCurrentPosition(
+                            (pos) => {
+                                mapRef.current?.flyTo({
+                                    center: [pos.coords.longitude, pos.coords.latitude],
+                                    zoom: 16,
+                                    essential: true,
+                                });
+                            },
+                            () => {
+                                mapRef.current?.flyTo({ center: UMN_CENTER, zoom: UMN_DEFAULT_ZOOM, essential: true });
+                            },
+                            MAP_GEOLOCATION_OPTIONS,
+                        );
+                    }}
+                />
+            )}
         </div>
     );
 }

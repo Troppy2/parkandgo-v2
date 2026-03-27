@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
+  <rect width="192" height="192" rx="32" fill="#7A0019"/>
+  <text x="96" y="78" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="800" font-size="56" fill="#FFCC33">P&amp;G</text>
+  <text x="96" y="130" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="600" font-size="22" fill="white">PARK &amp; GO</text>
+  <rect x="36" y="148" width="120" height="4" rx="2" fill="#FFCC33" opacity="0.6"/>
+</svg>

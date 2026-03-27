@@ -2,7 +2,7 @@ from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.repositories.base import BaseRepository
 from app.models.campus_event import CampusEvent
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 
 
 
@@ -14,13 +14,21 @@ class EventRepository(BaseRepository):
     
     def __init__(self, session: AsyncSession):
         super().__init__(session, CampusEvent)
+
+    @staticmethod
+    def _utc_now_naive() -> datetime:
+        # campus_events uses TIMESTAMP WITHOUT TIME ZONE, so bind naive UTC values.
+        return datetime.now(timezone.utc).replace(tzinfo=None)
     
     async def get_upcoming(self, limit: int = 20) -> list[CampusEvent]: 
         """
         This function gets upcomming events, orders them from ascending roder, and only limits it to 20 event
         """
         results = await self.session.execute(
-            select(CampusEvent).where(CampusEvent.starts_at > datetime.now(timezone.utc)).order_by(CampusEvent.starts_at.asc()).limit(limit)
+            select(CampusEvent)
+            .where(CampusEvent.starts_at > self._utc_now_naive())
+            .order_by(CampusEvent.starts_at.asc())
+            .limit(limit)
         )
         return results.scalars().all() 
     
@@ -31,7 +39,7 @@ class EventRepository(BaseRepository):
             select(CampusEvent)
             .where(
                 CampusEvent.category == category,
-                CampusEvent.starts_at > datetime.now(timezone.utc),
+                CampusEvent.starts_at > self._utc_now_naive(),
             )
             .order_by(CampusEvent.starts_at.asc())
             .limit(limit)
@@ -41,7 +49,7 @@ class EventRepository(BaseRepository):
     async def delete_older_than(self, cutoff: datetime) -> int:
         # Automatically deletes a campus event if its older than 24hrs
         result = await self.session.execute(
-        delete(CampusEvent).where(CampusEvent.starts_at < cutoff)
+            delete(CampusEvent).where(CampusEvent.starts_at < cutoff)
         )
         await self.session.flush()
 

@@ -11,8 +11,13 @@ async def run_event_sync():
     async with AsyncSessionLocal() as session:
         config_repo = AppConfigRepository(session)
 
-        # check the pause switch before doing anything
+        # Initialize missing config on first run so fresh databases ingest events.
         enabled = await config_repo.get_value("event_sync_enabled")
+        if enabled is None:
+            await config_repo.set_value("event_sync_enabled", "true")
+            enabled = "true"
+
+        # check the pause switch before doing anything
         if enabled != "true":
             print("Event sync is paused — skipping")
             return
@@ -26,14 +31,12 @@ async def run_event_sync():
         sync_service = EventSyncService(session)
         count = await sync_service.sync_events()
         print(f"Event sync complete — {count} events inserted")
-        await session.commit()
 
 async def run_event_cleanup():
     async with AsyncSessionLocal() as session:
         sync_service = EventSyncService(session)
         deleted = await sync_service.cleanup_old_events()
         print(f"Event cleanup complete: {deleted} events deleted.")
-        await session.commit()
 
 def start_scheduler():
     scheduler.add_job(

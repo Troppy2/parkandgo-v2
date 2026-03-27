@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Park &amp; Go</string>
+    <string name="title_activity_main">Park &amp; Go</string>
+    <string name="package_name">com.parkandgo.umn</string>
+    <string name="custom_url_scheme">com.parkandgo.umn</string>
+</resources>

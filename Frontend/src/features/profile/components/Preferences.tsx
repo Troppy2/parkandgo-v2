@@ -3,7 +3,15 @@ import clsx from "clsx"
 import { useUIStore } from "../../../store/uiStore"
 
 export default function Preferences() {
-    const { verifiedOnly, setVerifiedOnly, darkMode, setDarkMode, showToast } = useUIStore()
+    const {
+        verifiedOnly,
+        setVerifiedOnly,
+        directionsOnly,
+        setDirectionsOnly,
+        darkMode,
+        setDarkMode,
+        showToast,
+    } = useUIStore()
 
     // ── Notification permission state ──
     const [notificationsEnabled, setNotificationsEnabled] = useState(() => {
@@ -54,7 +62,7 @@ export default function Preferences() {
 
     return (
         <div className="px-5 pt-3">
-            <div className="text-[10px] font-bold uppercase tracking-[0.9px] text-text3 mb-2">
+            <div className="text-[10px] font-bold uppercase tracking-[0.9px] text-text2 mb-2">
                 Preferences
             </div>
 
@@ -72,7 +80,7 @@ export default function Preferences() {
                     onClick={handleNotificationsToggle}
                     className={clsx(
                         "w-11 h-6 rounded-full transition-colors flex items-center px-0.5",
-                        notificationsEnabled ? "bg-maroon" : "bg-border2"
+                        notificationsEnabled ? "bg-maroon" : "bg-[var(--color-toggle-off)]"
                     )}
                 >
                     <div className={clsx(
@@ -96,7 +104,7 @@ export default function Preferences() {
                     onClick={handleLocationToggle}
                     className={clsx(
                         "w-11 h-6 rounded-full transition-colors flex items-center px-0.5",
-                        locationEnabled ? "bg-maroon" : "bg-border2"
+                        locationEnabled ? "bg-maroon" : "bg-[var(--color-toggle-off)]"
                     )}
                 >
                     <div className={clsx(
@@ -119,7 +127,7 @@ export default function Preferences() {
                     onClick={() => setDarkMode(!darkMode)}
                     className={clsx(
                         "w-11 h-6 rounded-full transition-colors flex items-center px-0.5",
-                        darkMode ? "bg-maroon" : "bg-border2"
+                        darkMode ? "bg-maroon" : "bg-[var(--color-toggle-off)]"
                     )}
                 >
                     <div className={clsx(
@@ -142,12 +150,36 @@ export default function Preferences() {
                     onClick={() => setVerifiedOnly(!verifiedOnly)}
                     className={clsx(
                         "w-11 h-6 rounded-full transition-colors flex items-center px-0.5",
-                        verifiedOnly ? "bg-maroon" : "bg-border2"
+                        verifiedOnly ? "bg-maroon" : "bg-[var(--color-toggle-off)]"
                     )}
                 >
                     <div className={clsx(
                         "w-5 h-5 bg-white rounded-full shadow-sm transition-transform",
                         verifiedOnly ? "translate-x-5" : "translate-x-0"
+                    )} />
+                </button>
+            </div>
+
+            {/* Spots With Directions Only */}
+            <div className="flex items-center gap-3 py-2.5 border-b border-black/5">
+                <div className="w-[30px] h-[30px] rounded-[8px] bg-maroon-light flex items-center justify-center flex-shrink-0">
+                    <i className="bi bi-sign-turn-right-fill text-maroon text-sm" />
+                </div>
+                <div className="flex-1">
+                    <div className="text-[13px] font-medium text-text1">Spots With Directions Only</div>
+                    <div className="text-[11px] text-text2 mt-0.5">Hide spots that cannot start navigation</div>
+                </div>
+                <button
+                    type="button"
+                    onClick={() => setDirectionsOnly(!directionsOnly)}
+                    className={clsx(
+                        "w-11 h-6 rounded-full transition-colors flex items-center px-0.5",
+                        directionsOnly ? "bg-maroon" : "bg-[var(--color-toggle-off)]"
+                    )}
+                >
+                    <div className={clsx(
+                        "w-5 h-5 bg-white rounded-full shadow-sm transition-transform",
+                        directionsOnly ? "translate-x-5" : "translate-x-0"
                     )} />
                 </button>
             </div>

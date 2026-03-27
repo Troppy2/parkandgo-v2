@@ -13,7 +13,7 @@ class SavedSpot(Base, TimestampMixin):
     spot_id: Mapped[int] = mapped_column(Integer, ForeignKey("parking_spots.spot_id"), nullable=False)
     custom_name: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
 
-    spot = relationship("ParkingSpot", lazy="joined")
+    spot = relationship("ParkingSpot", lazy="selectin")
 
     __table_args__ = (
         UniqueConstraint("user_id", "spot_id", name="uq_user_spot"),

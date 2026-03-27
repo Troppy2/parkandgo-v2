@@ -82,13 +82,13 @@ export default function SavedSpotsList() {
     <div>
       {/* Section label */}
       <div className="px-5 pt-3">
-        <div className="text-[10px] font-bold uppercase tracking-[0.9px] text-text3 mb-1">
+        <div className="text-[10px] font-bold uppercase tracking-[0.9px] text-text2 mb-1">
           Saved Spots
         </div>
       </div>
 
       {/* Matches .saved-spots-list */}
-      <div className="px-5 pb-1 bg-[#fafafa] border-b border-black/5">
+      <div className="px-5 pb-1 bg-white border-y border-black/8">
 
         {(!savedSpots || savedSpots.length === 0) && (
           <div className="py-4 text-center text-[12px] text-text3">

@@ -12,11 +12,9 @@ env/
 # Node modules
 node_modules/
 
-# Local development files
-parkandgo-admin-dashboard.html
-parkandgo-v2-UI-demo.html
-parkandgo version 2 planning document.txt
-map_planning_document_pngv2.txt
+# Planning docs and local dev files
+project-planning-docs/
+dev-utilities/
 
 # Local database
 parkandgo_db_postgres

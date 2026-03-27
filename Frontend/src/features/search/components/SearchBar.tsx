@@ -19,7 +19,7 @@ export default function SearchBar({ onSettingsClick }: SearchBarProps) {
     // Relative wrapper so the dropdown positions against it
     <div className="relative w-full">
       {/* Search pill - matches .gm-bar */}
-      <div className="flex items-center gap-2.5 bg-white rounded-[28px] h-12 px-3.5 shadow-[0_2px_8px_rgba(0,0,0,0.12)] border-[1.5px] border-transparent focus-within:border-maroon transition-[border-color] duration-150">
+      <div className="flex items-center gap-2.5 bg-white rounded-[28px] h-12 px-3.5 shadow-[0_2px_8px_rgba(0,0,0,0.12)] border-[1.5px] border-transparent focus-within:shadow-[0_0_0_3px_rgba(122,0,25,0.12)] focus-within:border-maroon transition-[border-color,box-shadow] duration-150">
         {/* Search icon — always visible on the left */}
         <i className="bi bi-search text-text3 text-base flex-shrink-0" />
         <input

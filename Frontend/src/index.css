@@ -7,6 +7,11 @@
   --color-maroon-dark: #5a0012;
   --color-maroon-light: #9a1a2a;
   --color-gold-dark: #e6b800;
+  --color-button-disabled-bg: #aeaeb2;
+  --color-button-disabled-text: #ffffff;
+  --color-toggle-off: #aeaeb2;
+  --color-sheet-handle: #d1d1d6;
+  --color-modal-surface: #ffffff;
   --color-green: #34c759;
   --color-green-light: rgba(52,199,89,0.12);
   --color-green-lighter: rgba(52,199,89,0.06);
@@ -68,6 +73,18 @@
 }
 
 @layer components {
+  /* Maroon solid fills — anchored here because Tailwind v4's CSS-variable
+     chain for the DEFAULT key can produce a transparent bg in light mode */
+  .bg-maroon {
+    background-color: #7A0019;
+  }
+  .hover\:bg-maroon-hover:hover {
+    background-color: #91253b;
+  }
+  .border-maroon {
+    border-color: #7A0019;
+  }
+
   .chip {
     font-size: 11px;
     font-weight: 500;
@@ -120,9 +137,24 @@
   to   { transform: translateY(0);    opacity: 1; }
 }
 
+/* Google Sign In button — always renders in light mode per Google brand guidelines */
+[data-theme="dark"] .google-sign-in-btn {
+  background-color: #ffffff !important;
+  color: #3c4043 !important;
+  border-color: #dadce0 !important;
+}
+[data-theme="dark"] .google-sign-in-btn:hover {
+  background-color: #f8f9fa !important;
+}
+
 /* ── Dark mode overrides ──────────────────────────────── */
 [data-theme="dark"] {
   color-scheme: dark;
+  --color-button-disabled-bg: #4b5563;
+  --color-button-disabled-text: #e5e7eb;
+  --color-toggle-off: #636366;
+  --color-sheet-handle: #636366;
+  --color-modal-surface: #2c2c2e;
 }
 
 [data-theme="dark"] body {
@@ -153,8 +185,8 @@
 [data-theme="dark"] .border-black\/10    { border-color: rgba(255,255,255,0.10) !important; }
 [data-theme="dark"] .border-black\/12    { border-color: rgba(255,255,255,0.12) !important; }
 
-/* Inputs and selects */
-[data-theme="dark"] input:not([type="range"]),
+/* Inputs and selects — exclude bg-transparent inputs (e.g. search bar inner input) */
+[data-theme="dark"] input:not([type="range"]):not(.bg-transparent),
 [data-theme="dark"] select,
 [data-theme="dark"] textarea {
   background-color: #3a3a3c !important;
@@ -197,6 +229,10 @@
 [data-theme="dark"] .hover\:bg-maroon-light:hover {
   background-color: rgba(122,0,25,0.15) !important;
 }
+[data-theme="dark"] .bg-maroon-light2,
+[data-theme="dark"] .hover\:bg-maroon-light2:hover {
+  background-color: rgba(122,0,25,0.22) !important;
+}
 
 /* Score circle in cards */
 [data-theme="dark"] .bg-white\/80 { background-color: rgba(44,44,46,0.80) !important; }
@@ -235,11 +271,9 @@
   background-color: #48484a !important;
 }
 
-/* bg-[#e8e8ed] settings sheet in dark mode */
-[data-theme="dark"] [style*="background: #e8e8ed"],
-[data-theme="dark"] [style*="background:#e8e8ed"] {
-  background: rgba(28,28,30,0.97) !important;
-}
+/* Settings modal — now uses var(--color-modal-surface) inline; dark handled via CSS var */
+/* bg-[#e8e8ed] bookmark unsaved / misc surfaces in dark mode */
+[data-theme="dark"] .bg-\[\#e8e8ed\] { background-color: #3a3a3c !important; }
 
 /* Stat boxes in navigation panel */
 [data-theme="dark"] .bg-\[\#f2f2f7\] {
@@ -255,15 +289,18 @@
   background-color: #2c2c2e !important;
 }
 
+
 /* hover:bg-gray-50 in search results */
 [data-theme="dark"] .hover\:bg-gray-50:hover {
   background-color: #3a3a3c !important;
 }
 
-/* Settings modal (new #e8e8ed background) in dark mode */
-[data-theme="dark"] [style*="rgba(232,232,237"] {
-  background: rgba(40,40,45,0.97) !important;
-}
+/* Admin dashboard page background */
+[data-theme="dark"] .bg-\[\#f5f5f7\] { background-color: #1c1c1e !important; }
+
+/* Admin/stat card borders (updated opacity class) */
+[data-theme="dark"] .border-black\/\[0\.12\]  { border-color: rgba(255,255,255,0.12) !important; }
+[data-theme="dark"] .border-black\/\[0\.15\]  { border-color: rgba(255,255,255,0.15) !important; }
 
 /* Event cards in dark mode */
 [data-theme="dark"] .border-b.border-black\/9 {
@@ -278,6 +315,12 @@
 /* Empty state icons */
 [data-theme="dark"] .text-text3 { color: #6b6b70 !important; }
 
+/* Maroon text on dark backgrounds — #7A0019 is too dark to read; use a bright readable variant */
+[data-theme="dark"] .text-maroon       { color: #e8697d !important; }
+[data-theme="dark"] .text-maroon\/60   { color: rgba(232,105,125,0.72) !important; }
+[data-theme="dark"] .border-maroon\/30 { border-color: rgba(232,105,125,0.35) !important; }
+[data-theme="dark"] .border-maroon\/50 { border-color: rgba(232,105,125,0.55) !important; }
+
 /* ── Global hover / transition rules ─────────────────────── */
 /* All interactive rows get cursor:pointer if they don't have it */
 button, [role="button"], a {
@@ -289,4 +332,12 @@ button:not(:disabled):active,
 [role="button"]:active {
   transform: scale(0.97);
   transition: transform 0.1s ease !important;
+}
+
+/* ── MapLibre Marker Fixes ─────────────────────── */
+/* Prevent custom pin inner elements from scaling — but NOT .maplibregl-marker
+   itself, which MapLibre positions via translate3d() inline transforms. */
+.event-pin {
+  transform: none !important;
+  transition: none !important;
 }

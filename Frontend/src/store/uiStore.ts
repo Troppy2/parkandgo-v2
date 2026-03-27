@@ -1,5 +1,6 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"  // ← new import
+import type { Map as MaplibreMap } from "maplibre-gl"
 
 // Toast type (already exists from Phase 11)
 interface Toast {
@@ -36,12 +37,14 @@ interface UIState {
   // ── Preferences (from Phase 17) ──
   verifiedOnly: boolean
   setVerifiedOnly: (v: boolean) => void
+  directionsOnly: boolean
+  setDirectionsOnly: (v: boolean) => void
   darkMode: boolean
   setDarkMode: (v: boolean) => void
 
   // ── Map instance (from Phase 18) ──
-  mapInstance: any | null   // maplibregl.Map — using any avoids circular import
-  setMapInstance: (map: any) => void
+  mapInstance: MaplibreMap | null
+  setMapInstance: (map: MaplibreMap) => void
 }
 
 // persist middleware wraps create() and saves specified fields to localStorage
@@ -81,6 +84,8 @@ export const useUIStore = create<UIState>()(
       // Preferences
       verifiedOnly: false,
       setVerifiedOnly: (v) => set({ verifiedOnly: v }),
+      directionsOnly: false,
+      setDirectionsOnly: (v) => set({ directionsOnly: v }),
       darkMode: false,
       setDarkMode: (v) => set({ darkMode: v }),
 
@@ -95,6 +100,7 @@ export const useUIStore = create<UIState>()(
       partialize: (state) => ({
         mapStyle: state.mapStyle,
         verifiedOnly: state.verifiedOnly,
+        directionsOnly: state.directionsOnly,
         darkMode: state.darkMode,
       }),
     }

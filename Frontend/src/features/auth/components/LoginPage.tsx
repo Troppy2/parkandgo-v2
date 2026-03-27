@@ -69,17 +69,17 @@ export default function LoginPage() {
 
         {/* Logo + wordmark */}
         <div className="flex flex-col items-center gap-3">
-          <div className="w-16 h-16 bg-maroon rounded-[16px] flex items-center justify-center shadow-md">
-            <span className="text-gold font-bold text-3xl leading-none">P</span>
+          <div className="w-16 h-16 bg-[#7A0019] rounded-[16px] flex items-center justify-center shadow-md">
+            <span className="text-[#FFCC33] font-bold text-3xl leading-none">P</span>
           </div>
 
           <div className="text-center">
             <h1 className="text-2xl font-bold tracking-tight">
-              <span className="text-maroon">Park</span>
-              <span className="text-text2"> &amp; </span>
-              <span className="text-gold-dark">Go</span>
+              <span className="text-[#7A0019]">Park</span>
+              <span className="text-[#6b7280]"> &amp; </span>
+              <span className="text-[#c9a200]">Go</span>
             </h1>
-            <p className="text-text2 text-sm mt-1">UMN Campus Parking</p>
+            <p className="text-[#6b7280] text-sm mt-1">UMN Campus Parking</p>
           </div>
           
         </div>
@@ -94,7 +94,7 @@ export default function LoginPage() {
         {/* Google sign-in button */}
         <button
           onClick={handleGoogleLogin}
-          className="w-full flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-[#3c4043] font-medium text-sm py-3 px-5 rounded-sm border border-[#dadce0] shadow-sm transition-all duration-200 min-h-[44px] hover:-translate-y-[1px]"
+          className="google-sign-in-btn w-full flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-[#3c4043] font-medium text-sm py-3 px-5 rounded-sm border border-[#dadce0] shadow-sm transition-all duration-200 min-h-[44px] hover:-translate-y-[1px]"
         >
           <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
             <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4"/>

@@ -7,9 +7,10 @@ interface ScoreBreakdownProps {
 const SCORE_CONFIG: { key: keyof ScoreBreakdownType; label: string; max: number }[] = [
   { key: "cost",        label: "Cost savings",            max: 40 },
   { key: "distance",    label: "Distance to campus",      max: 25 },
-  { key: "preferences", label: "Matches your preferences", max: 15 },
-  { key: "major",       label: "Near your major",         max: 10 },
-  { key: "verified",    label: "Community verified",       max: 10 },
+  { key: "travel_time", label: "Travel time to spot",     max: 15 },
+  { key: "preferences", label: "Matches your preferences", max: 10 },
+  { key: "major",       label: "Near your major",         max: 5 },
+  { key: "verified",    label: "Community verified",       max: 5 },
   { key: "event",       label: "Near your event",         max: 15 },
 ];
 

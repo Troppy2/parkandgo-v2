@@ -38,7 +38,7 @@ class ParkingRepository(BaseRepository):
         )
         return result.scalars().all()
 
-    async def filter_spots(self, campus: str = None, parking_type: str = None, max_cost: float = None):
+    async def filter_spots(self, campus: str = None, parking_type: str = None, max_cost: float = None, verified_only: bool = None):
         query = select(ParkingSpot)
 
         # Each filter is optional, only applied if the caller provides it
@@ -49,6 +49,8 @@ class ParkingRepository(BaseRepository):
             query = query.where(ParkingSpot.parking_type == parking_type)
         if max_cost is not None:
             query = query.where(ParkingSpot.cost <= max_cost)
+        if verified_only:
+            query = query.where(ParkingSpot.is_verified == True)
 
         result = await self.session.execute(query)
         return result.scalars().all()

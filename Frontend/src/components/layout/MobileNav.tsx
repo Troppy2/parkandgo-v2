@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from "react"
 import clsx from "clsx"
+import { useAuthStore } from "../../store/authStore"
 import { useUIStore } from "../../store/uiStore"
 import SearchFilters from "../../features/search/components/SearchFilters"
 import SearchResults from "../../features/search/components/SearchResults"
@@ -22,6 +23,8 @@ export default function MobileNav({ children, onSuggestSpotClick }: MobileNavPro
   const setActiveTab = useUIStore((s) => s.setActiveTab)
   const mapInstance = useUIStore((s) => s.mapInstance)
   const verifiedOnly = useUIStore((s) => s.verifiedOnly)
+  const directionsOnly = useUIStore((s) => s.directionsOnly)
+  const isGuest = useAuthStore((s) => s.isGuest)
 
   // Merge global verifiedOnly preference into local filters before querying
   const effectiveFilters: SpotFilters = {
@@ -34,7 +37,8 @@ export default function MobileNav({ children, onSuggestSpotClick }: MobileNavPro
     !!filters.parking_type ||
     !!filters.campus_location ||
     (filters.max_cost !== undefined && filters.max_cost < 20) ||
-    !!verifiedOnly
+    !!verifiedOnly ||
+    !!directionsOnly
 
   const resetFilters = () => setFilters({})
 
@@ -107,6 +111,11 @@ export default function MobileNav({ children, onSuggestSpotClick }: MobileNavPro
                 <i className="bi bi-patch-check-fill" />
               </span>
             )}
+            {directionsOnly && (
+              <span className="flex items-center gap-0.5 text-[9px] font-bold text-maroon bg-maroon-light rounded-full px-1.5 py-0.5">
+                <i className="bi bi-sign-turn-right-fill" />
+              </span>
+            )}
             <i
               className={clsx(
                 "bi bi-chevron-down text-[11px] text-maroon transition-transform duration-300",
@@ -140,24 +149,26 @@ export default function MobileNav({ children, onSuggestSpotClick }: MobileNavPro
               }
 
               {/* Suggest a Spot card */}
-              <div className="px-3.5 pt-1">
-                <button
-                  onClick={() => onSuggestSpotClick?.()}
-                  className="w-full flex items-center gap-2.5 px-3 py-2.5 border-[1.5px] border-dashed border-maroon/30 rounded-[12px] bg-maroon-light transition-all duration-200 hover:-translate-y-[1px]"
-                >
-                  <div className="w-8 h-8 bg-maroon rounded-[8px] flex items-center justify-center flex-shrink-0">
-                    <i className="bi bi-plus-lg text-white text-sm" />
-                  </div>
-                  <div className="text-left">
-                    <div className="text-[12px] font-semibold text-maroon">
-                      Suggest a Spot
+              {!isGuest && (
+                <div className="px-3.5 pt-1">
+                  <button
+                    onClick={() => onSuggestSpotClick?.()}
+                    className="w-full flex items-center gap-2.5 px-3 py-2.5 border-[1.5px] border-dashed border-maroon/30 rounded-[12px] bg-maroon-light transition-all duration-200 hover:-translate-y-[1px]"
+                  >
+                    <div className="w-8 h-8 bg-maroon rounded-[8px] flex items-center justify-center flex-shrink-0">
+                      <i className="bi bi-plus-circle-fill text-white text-sm" />
                     </div>
-                    <div className="text-[10px] text-maroon/60 mt-0.5">
-                      Help the community
+                    <div className="text-left">
+                      <div className="text-[12px] font-semibold text-maroon">
+                        Suggest a Spot
+                      </div>
+                      <div className="text-[10px] text-maroon/60 mt-0.5">
+                        Help the community
+                      </div>
                     </div>
-                  </div>
-                </button>
-              </div>
+                  </button>
+                </div>
+              )}
             </>
           )}
         </div>

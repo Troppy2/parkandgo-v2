@@ -1,22 +1,69 @@
 import { useState } from "react"
 import { useNavStore } from "../../../store/navStore"
 
+const START_GEOLOCATION_OPTIONS = {
+  enableHighAccuracy: false,
+  timeout: 12000,
+  maximumAge: 30000,
+} as const
+
 export default function RouteDisplay() {
   const {
     isNavigating,
-    navOverlayVisible,
+    hasStartedNavigation,
     destination,
     distanceRemainingMiles,
     etaMinutes,
     arrivalTime,
     travelMode,
     setTravelMode,
+    beginNavigation,
+    endNavigation,
+    currentUserLocation,
+    setCurrentUserLocation,
+    setRouteError,
   } = useNavStore()
 
   const [detailsOpen, setDetailsOpen] = useState(false)
+  const [isStarting, setIsStarting] = useState(false)
 
-  if (!isNavigating || !destination || !navOverlayVisible) return null
+  const handleStart = () => {
+    if (isStarting || hasStartedNavigation) return
 
+    if (currentUserLocation) {
+      beginNavigation()
+      return
+    }
+
+    if (!navigator.geolocation) {
+      beginNavigation()
+      setRouteError("Geolocation is unavailable on this device.")
+      return
+    }
+
+    setIsStarting(true)
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setCurrentUserLocation({
+          coords: [pos.coords.longitude, pos.coords.latitude],
+          heading: pos.coords.heading ?? 0,
+        })
+        beginNavigation()
+        setIsStarting(false)
+      },
+      () => {
+        beginNavigation()
+        setRouteError("We couldn't get your location. Move somewhere with GPS access and retry.")
+        setIsStarting(false)
+      },
+      START_GEOLOCATION_OPTIONS
+    )
+  }
+
+  // Show the panel only during preview (before Start)
+  // After Start is tapped, hasStartedNavigation becomes true and stats populate
+  if (!isNavigating || !destination) return null
+  
   // Format distance: show feet when < 0.1 mi, otherwise X.X mi
   const distanceValue = distanceRemainingMiles
     ? distanceRemainingMiles < 0.1
@@ -76,11 +123,12 @@ export default function RouteDisplay() {
           return (
             <button
               key={mode}
+              type="button"
               onClick={() => setTravelMode(mode)}
               className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full border-[1.5px] text-xs font-medium transition-colors ${
                 active
                   ? "bg-maroon border-maroon text-white"
-                  : "bg-white border-black/9 text-text2"
+                  : "bg-white border-black/9 text-text1"
               }`}
             >
               <i className={`bi ${icon} text-sm`} />
@@ -90,8 +138,30 @@ export default function RouteDisplay() {
         })}
       </div>
 
+      {!hasStartedNavigation && (
+        <div className="px-3.5 pb-2.5 flex gap-2">
+          <button
+            type="button"
+            onClick={endNavigation}
+            className="flex-1 bg-white border border-black/15 text-text1 rounded-full py-2.5 text-sm font-semibold"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleStart}
+            disabled={isStarting}
+            className="flex-[1.6] bg-maroon text-white rounded-full py-2.5 text-sm font-semibold flex items-center justify-center gap-1.5 disabled:opacity-70 disabled:cursor-not-allowed"
+          >
+            <i className={`bi ${isStarting ? "bi-arrow-repeat animate-spin" : "bi-play-fill"} text-base`} />
+            {isStarting ? "Starting..." : "Start"}
+          </button>
+        </div>
+      )}
+
       {/* "see details" toggle row — .nav-see-row */}
       <button
+        type="button"
         onClick={() => setDetailsOpen(!detailsOpen)}
         className="w-full border-t border-black/9 flex items-center justify-center gap-1 py-2.5"
       >

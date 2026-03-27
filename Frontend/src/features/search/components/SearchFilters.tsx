@@ -30,6 +30,18 @@ export default function SearchFilters({ filters, onChange, isOpen, sliderMax = 2
         })
     }
 
+    // Check if any filters are active
+    const hasActiveFilters = !!(filters.parking_type || filters.campus_location || (filters.max_cost && filters.max_cost < sliderMax))
+
+    const resetFilters = () => {
+        onChange({
+            parking_type: undefined,
+            campus_location: undefined,
+            max_cost: undefined,
+            verified_only: undefined,
+        })
+    }
+
     return (
         // Matches .filters-expand — max-height animation for open/close
         <div
@@ -98,6 +110,17 @@ export default function SearchFilters({ filters, onChange, isOpen, sliderMax = 2
                     </span>
                 </div>
             </div>
+
+            {/* Reset button — only when filters are active */}
+            {hasActiveFilters && (
+                <button
+                    onClick={resetFilters}
+                    className="w-full chip border-maroon/50 text-maroon hover:bg-maroon/5 font-semibold text-[11px] flex items-center justify-center gap-1.5 py-2"
+                >
+                    <i className="bi bi-x-circle text-sm" />
+                    Reset Filters
+                </button>
+            )}
         </div>
     )
 }

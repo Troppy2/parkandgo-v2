@@ -23,6 +23,12 @@ export const ENDPOINTS = {
     DETAIL: (id: number) => `/events/${id}`,
   },
   ADMIN: {
+    STATS: "/admin/stats",
+    UNVERIFIED: "/admin/spots/unverified",
     VERIFY_SPOT: (id: number) => `/admin/spots/${id}/verify`,
+    DELETE_SPOT: (id: number) => `/admin/spots/${id}`,
+    SYNC_EVENTS: "/admin/events/sync",
+    CONFIG: "/admin/config",
+    CONFIG_KEY: (key: string) => `/admin/config/${key}`,
   },
 } as const

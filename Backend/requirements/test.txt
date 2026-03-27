@@ -1,5 +1,5 @@
 -r base.txt
-# Pytest (planning doc: Testing: Pytest)
-pytest==7.4.4
-pytest-asyncio==0.23.3
-pytest-cov==4.1.0
+# Testing
+pytest==8.3.4
+pytest-asyncio==0.24.0
+pytest-cov==6.0.0

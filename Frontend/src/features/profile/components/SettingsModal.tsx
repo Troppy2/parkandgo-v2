@@ -19,7 +19,7 @@ function PrivacyPolicyModal({ onClose }: { onClose: () => void }) {
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-[18px] w-full max-w-[360px] max-h-[70vh] overflow-y-auto p-5 shadow-xl"
+        className="bg-[var(--color-modal-surface)] rounded-[18px] w-full max-w-[360px] max-h-[70vh] overflow-y-auto p-5 shadow-xl"
         style={{ scrollbarWidth: "none" }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -76,7 +76,7 @@ export default function SettingsModal() {
     <div>
       {/* Handle bar - mobile only */}
       {!isDesktop && (
-        <div className="w-9 h-1 bg-[#d1d1d6] rounded-full mx-auto mt-3" />
+        <div className="w-9 h-1 bg-[var(--color-sheet-handle)] rounded-full mx-auto mt-3" />
       )}
 
       {/* Title bar — matches .set-tbar / .am-sm-hd */}
@@ -107,7 +107,7 @@ export default function SettingsModal() {
 
         {/* Map Style picker — the main new thing in Phase 19 */}
         <div className="px-5 pt-3 pb-2">
-          <div className="text-[10px] font-bold uppercase tracking-[0.9px] text-text3 mb-3">
+          <div className="text-[10px] font-bold uppercase tracking-[0.9px] text-text2 mb-3">
             Map Style
           </div>
 
@@ -142,7 +142,7 @@ export default function SettingsModal() {
 
         {/* App info row — version + build */}
         <div className="px-5 pt-2 pb-1">
-          <div className="text-[10px] font-bold uppercase tracking-[0.9px] text-text3 mb-2">
+          <div className="text-[10px] font-bold uppercase tracking-[0.9px] text-text2 mb-2">
             About
           </div>
           <div className="flex items-center gap-3 py-2">
@@ -166,7 +166,7 @@ export default function SettingsModal() {
         <button
           onClick={handleSignOut}
           style={{ width: "calc(100% - 40px)" }}
-          className="flex items-center justify-center gap-2 bg-[#ff3b30] text-white rounded-[10px] py-2.5 mx-5 mb-4 mt-2 min-h-[44px] font-semibold transition-all duration-150 hover:bg-[#d93025] active:scale-[0.97]"
+          className="flex items-center justify-center gap-2 bg-maroon text-white rounded-[10px] py-2.5 mx-5 mb-4 mt-2 min-h-[44px] font-semibold transition-all duration-150 hover:bg-maroon-hover active:bg-[var(--color-maroon-dark)] active:scale-[0.97]"
         >
           <i className="bi bi-box-arrow-right" />
           Sign Out
@@ -189,7 +189,7 @@ export default function SettingsModal() {
         >
           <div
             className="backdrop-blur-xl border border-black/12 rounded-[18px] w-[380px] shadow-lg overflow-hidden max-h-[520px] overflow-y-auto"
-            style={{ background: "rgba(232,232,237,0.97)", scrollbarWidth: "none" }}
+            style={{ background: "var(--color-modal-surface)", scrollbarWidth: "none" }}
             onClick={(e) => e.stopPropagation()}
           >
             {content}
@@ -203,7 +203,7 @@ export default function SettingsModal() {
         >
           <div
             className="w-full max-h-[90vh] overflow-y-auto rounded-t-[24px] shadow-2xl pb-7"
-            style={{ background: "#e8e8ed", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}
+            style={{ background: "var(--color-modal-surface)", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}
             onClick={(e) => e.stopPropagation()}
           >
             {content}

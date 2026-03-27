@@ -1,6 +1,7 @@
 import { useAuthStore } from "../../store/authStore";
 import { useUIStore } from "../../store/uiStore";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import clsx from "clsx";
 import SearchBar from "../../features/search/components/SearchBar";
 import EventList from "../../features/events/components/EventList";
@@ -30,14 +31,16 @@ function CollapsedRail({
   onToggleCollapse,
   onSettingsClick,
   setActiveTab,
+  isGuest,
 }: {
   onToggleCollapse: () => void;
   onSettingsClick: () => void;
   setActiveTab: (tab: "spots" | "events") => void;
+  isGuest: boolean;
 }) {
   const railItems = [
     { icon: "bi-p-square-fill",      label: "Spots",    onClick: () => { setActiveTab("spots"); onToggleCollapse(); } },
-    { icon: "bi-calendar-event-fill", label: "Events",   onClick: () => { setActiveTab("events"); onToggleCollapse(); } },
+    ...(!isGuest ? [{ icon: "bi-calendar-event-fill", label: "Events", onClick: () => { setActiveTab("events"); onToggleCollapse(); } }] : []),
     { icon: "bi-gear-fill",           label: "Settings", onClick: onSettingsClick },
     { icon: "bi-person-circle",       label: "Profile",  onClick: onSettingsClick },
   ]
@@ -75,11 +78,14 @@ export default function Sidebar({
   onToggleCollapse,
 }: SidebarProps) {
   const user = useAuthStore((s) => s.user);
+  const isGuest = useAuthStore((s) => s.isGuest);
+  const navigate = useNavigate();
   const activeTab = useUIStore((s) => s.activeTab);
   const setActiveTab = useUIStore((s) => s.setActiveTab);
   const mapInstance = useUIStore((s) => s.mapInstance);
 
   const verifiedOnly = useUIStore((s) => s.verifiedOnly);
+  const directionsOnly = useUIStore((s) => s.directionsOnly);
   const [filters, setFilters] = useState<SpotFilters>({});
 
   // Merge verifiedOnly global pref into filters so the API receives it
@@ -89,7 +95,8 @@ export default function Sidebar({
   const hasActiveFilters =
     !!filters.parking_type ||
     (filters.max_cost !== undefined && filters.max_cost < 20) ||
-    !!verifiedOnly;
+    !!verifiedOnly ||
+    !!directionsOnly;
 
   const resetFilters = () => setFilters({});
 
@@ -128,6 +135,7 @@ export default function Sidebar({
         onToggleCollapse={onToggleCollapse}
         onSettingsClick={onSettingsClick}
         setActiveTab={setActiveTab}
+        isGuest={isGuest}
       />
     )
   }
@@ -252,23 +260,25 @@ export default function Sidebar({
           <i className="bi bi-p-square-fill mr-1" />
           Spots
         </button>
-        <button
-          onClick={() => setActiveTab("events")}
-          className={clsx(
-            "flex-1 py-2 text-xs font-semibold text-center border-b-2 -mb-px cursor-pointer transition-colors duration-150",
-            activeTab === "events" ? "text-maroon border-maroon" : "text-text3 border-transparent"
-          )}
-        >
-          <i className="bi bi-calendar-event-fill mr-1" />
-          Events
-        </button>
+        {!isGuest && (
+          <button
+            onClick={() => setActiveTab("events")}
+            className={clsx(
+              "flex-1 py-2 text-xs font-semibold text-center border-b-2 -mb-px cursor-pointer transition-colors duration-150",
+              activeTab === "events" ? "text-maroon border-maroon" : "text-text3 border-transparent"
+            )}
+          >
+            <i className="bi bi-calendar-event-fill mr-1" />
+            Events
+          </button>
+        )}
       </div>
 
-      {/* ── SPOT COUNT ROW — always visible on spots tab (Bug 19) ── */}
-      {activeTab === "spots" && hasActiveFilters && (
+      {/* ── SPOT COUNT ROW — always visible on spots tab ── */}
+      {activeTab === "spots" && (filterResults?.length ?? 0) > 0 && (
         <div className="px-3.5 py-1.5 flex items-center gap-2 border-b border-black/5 flex-shrink-0">
           <span className="text-[11px] font-semibold text-text1">Filtered spots</span>
-          <span className="text-[10px] font-medium text-text2 bg-bg2 rounded-full px-2 py-0.5 ml-auto">
+          <span className="text-[10px] font-medium text-text1 bg-bg2 rounded-full px-2 py-0.5 ml-auto">
             {(filterResults ?? []).length} spots
           </span>
           {verifiedOnly && (
@@ -276,12 +286,17 @@ export default function Sidebar({
               <i className="bi bi-patch-check-fill" />
             </span>
           )}
+          {directionsOnly && (
+            <span className="flex items-center gap-0.5 text-[9px] font-bold text-maroon bg-maroon-light rounded-full px-1.5 py-0.5">
+              <i className="bi bi-sign-turn-right-fill" />
+            </span>
+          )}
         </div>
       )}
 
       {/* ── RESULTS BODY (scrollable) ── (D7) */}
       <div className="flex-1 overflow-y-auto scrollbar-none">
-        {activeTab === "events"
+        {activeTab === "events" && !isGuest
           ? <EventList onEventMapClick={handleEventMapClick} />
           : hasActiveFilters
             ? <SearchResults spots={filterResults} isLoading={filterLoading} query="" onReset={resetFilters} />
@@ -289,25 +304,37 @@ export default function Sidebar({
         }
       </div>
 
-      {/* ── FOOTER: Suggest a Spot ── (D8) */}
+      {/* ── FOOTER: Suggest a Spot + Admin link ── (D8) */}
       {activeTab === "spots" && (
-        <div className="p-2.5 border-t border-black/8 flex-shrink-0">
-          <button
-            onClick={onSuggestSpotClick}
-            className="w-full flex items-center gap-2 px-2.5 py-2.5 border-[1.5px] border-dashed border-maroon/30 rounded-[10px] bg-maroon-light hover:bg-maroon-light2 hover:border-maroon transition-all duration-150 cursor-pointer"
-          >
-            <div className="w-7 h-7 bg-maroon rounded-[7px] flex items-center justify-center flex-shrink-0">
-              <i className="bi bi-plus-lg text-white text-sm" />
-            </div>
-            <div className="text-left">
-              <div className="text-xs font-semibold text-maroon">
-                Suggest a Parking Spot
+        <div className="p-2.5 border-t border-black/8 flex-shrink-0 space-y-2">
+          {!isGuest && (
+            <button
+              onClick={onSuggestSpotClick}
+              className="w-full flex items-center gap-2 px-2.5 py-2.5 rounded-[10px] bg-maroon hover:bg-maroon-hover transition-all duration-150 cursor-pointer"
+            >
+              <div className="w-7 h-7 bg-white/20 rounded-[7px] flex items-center justify-center flex-shrink-0">
+                <i className="bi bi-plus-lg text-white text-sm" />
               </div>
-              <div className="text-[10px] text-maroon/60 mt-0.5">
-                Help fellow students find parking
+              <div className="text-left">
+                <div className="text-xs font-semibold text-white">
+                  Suggest a Parking Spot
+                </div>
+                <div className="text-[10px] text-white/70 mt-0.5">
+                  Help fellow students find parking
+                </div>
               </div>
-            </div>
-          </button>
+            </button>
+          )}
+
+          {user?.is_admin && (
+            <button
+              onClick={() => navigate("/admin")}
+              className="w-full flex items-center gap-2 px-2.5 py-2 rounded-[10px] bg-maroon text-white hover:bg-maroon-hover transition-colors duration-150 cursor-pointer"
+            >
+              <i className="bi bi-shield-lock-fill text-sm" />
+              <span className="text-xs font-semibold">Admin Dashboard</span>
+            </button>
+          )}
         </div>
       )}
     </div>

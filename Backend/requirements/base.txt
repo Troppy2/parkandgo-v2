@@ -1,48 +1,52 @@
-#Top-level Notes: use pip install -r requirements/base.txt to install all dependencies
+# Park & Go V2 — Base Dependencies (Python 3.13+)
+# Install: pip install -r requirements/base.txt
+
 # Framework
-fastapi==0.109.0
+fastapi==0.115.6
+starlette==0.41.3
+
+# ASGI server
+uvicorn[standard]==0.34.0
 
 # Database & ORM (PostgreSQL + PostGIS)
-sqlalchemy==2.0.23
-alembic==1.13.1
-asyncpg==0.29.0
-psycopg2-binary==2.9.9
+sqlalchemy==2.0.36
+asyncpg==0.30.0
+psycopg2-binary==2.9.10
 GeoAlchemy2==0.14.3
 
+# Migrations
+alembic==1.14.1
+
 # Config & validation
-pydantic==2.5.3
-pydantic-settings==2.1.0
-python-dotenv==1.0.0
+pydantic==2.10.3
+pydantic-settings==2.7.0
+python-dotenv==1.0.1
 
-# HTTP client (async + sync for services/geocoding)
-httpx==0.26.0
-requests==2.31.0
-
-# Production ASGI server
-gunicorn==21.2.0
+# HTTP clients
+httpx==0.28.1
+requests==2.32.3
 
 # Auth: JWT, password hashing, OAuth2
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 oauthlib==3.2.2
-cryptography==41.0.7
+cryptography==44.0.0
 
-# Caching (Redis) – core/caching.py
-redis
+# Caching (Redis)
+redis>=5.0.0
 
-# Task queue (Celery) – tasks/worker.py
-celery[redis]==5.3.6
+# Task queue (Celery)
+celery[redis]==5.4.0
 
-# Observability – utils/metrics.py
-prometheus-client==0.19.0
-
-# Database migrations
-alembic
-psycopg2-binary
-
-# Campus Event Ical dependency
-icalendar
-apscheduler
+# Observability / metrics
+prometheus-client==0.21.1
+prometheus-fastapi-instrumentator==7.0.2
 
 # Rate limiting
-slowapi
+slowapi==0.1.9
+
+# Campus event iCal
+icalendar>=7.0.0
+
+# Scheduling
+apscheduler>=3.10.0

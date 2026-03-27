@@ -52,7 +52,7 @@ export default function EventList({ onEventMapClick }: EventListProps) {
             </div>
 
             {/* List body */}
-            <div className="overflow-y-auto max-h-[280px] px-3.5 pt-1.5 pb-3.5 scrollbar-none">
+            <div className="px-3.5 pt-1.5 pb-3.5">
 
                 {isLoading && (
                     <div className="space-y-2 pt-1">

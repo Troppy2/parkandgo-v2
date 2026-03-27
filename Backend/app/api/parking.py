@@ -12,6 +12,7 @@ from app.repositories.parking_repository import ParkingRepository
 from app.schemas.parking_spot import ParkingSpotCreate, ParkingSpotResponse
 from app.utils.geo import is_within_campus_bounds
 from app.core.limiter import limiter
+from app.utils.metrics import spot_submissions_total, search_queries_total
 
 router = APIRouter(prefix="/parking", tags=["parking"])
 
@@ -37,6 +38,7 @@ async def search_spots(
     db: AsyncSession = Depends(get_db),
 ):
     """Full-text search across spot name, campus, nearby buildings, and address. Cached per query."""
+    search_queries_total.inc()
     cache = await get_redis()
     cache_key = f"parking:search:{q}"
     cached = await cache.get(cache_key)
@@ -54,10 +56,11 @@ async def filter_spots(
     campus: str | None = Query(default=None),
     parking_type: str | None = Query(default=None),
     max_cost: float | None = Query(default=None),
+    verified_only: bool | None = Query(default=None),
     db: AsyncSession = Depends(get_db),
 ):
-    """Filter spots by any combination of campus, parking type, and max cost."""
-    return await ParkingRepository(db).filter_spots(campus, parking_type, max_cost)
+    """Filter spots by any combination of campus, parking type, max cost, and verified status."""
+    return await ParkingRepository(db).filter_spots(campus, parking_type, max_cost, verified_only)
 
 
 @router.post("/", response_model=ParkingSpotResponse, status_code=201)
@@ -78,6 +81,7 @@ async def create_spot(
     data["submitted_by"] = current_user.user_id
 
     spot = await ParkingRepository(db).create(data)
+    spot_submissions_total.inc()
 
     # Bust the recommendations cache so the new spot is eligible immediately
     await invalidate_recommendation_cache(await get_redis())

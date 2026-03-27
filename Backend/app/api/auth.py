@@ -19,7 +19,7 @@ class GoogleLoginRequest(BaseModel):
     access_token: str
 
 
-@router.post("/google", response_model=TokenResponse)
+@router.post("/google", response_model=TokenResponse, status_code=201)
 @limiter.limit("30/minute")
 async def login_with_google(
     request: Request,
@@ -44,8 +44,10 @@ async def get_me(user: User = Depends(get_current_user)):
     return user
 
 
-@router.post("/refresh", response_model=dict)
+@router.post("/refresh", response_model=dict, status_code=201)
+@limiter.limit("10/minute")
 async def refresh_access_token(
+    request: Request,
     body: RefreshTokenRequest,
     db: AsyncSession = Depends(get_db),
 ):

@@ -1,6 +1,7 @@
 from fastapi import Depends, HTTPException, status, Header
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
+from app.core.config import settings
 from app.models.user import User
 from app.core.security import decode_access_token
 from sqlalchemy import select
@@ -49,7 +50,11 @@ async def get_optional_user(
 async def get_admin_user(
     current_user: User = Depends(get_current_user)
 ) -> User:
-    if not current_user.is_admin:
+    """Authorize admin access by checking the user's email against the
+    ADMIN_EMAILS env var. The DB is_admin column alone is NOT sufficient —
+    the env var is the single source of truth."""
+    email = (current_user.email or "").lower()
+    if email not in settings.admin_email_set:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You do not have administrative privileges."

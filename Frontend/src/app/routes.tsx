@@ -10,6 +10,8 @@ import RouteDisplay from "../features/navigation/components/RouteDisplay";
 import ETAIndicator from "../features/navigation/components/ETAIndicator";
 import SettingsModal from "../features/profile/components/SettingsModal";
 import SuggestSpotModal from "../features/parking/components/SuggestSpotModal";
+import AdminRoute from "../features/admin/components/AdminRoute";
+import AdminDashboard from "../features/admin/components/AdminDashboard";
 import { useAuthStore } from "../store/authStore";
 import { useUIStore } from "../store/uiStore";
 import { getMe } from "../features/auth/services/authApi";
@@ -75,6 +77,16 @@ export default function AppRoutes() {
             <ProtectedRoute>
               <AppShell />
             </ProtectedRoute>
+          }
+        />
+
+        {/* Admin — requires is_admin */}
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
           }
         />
 

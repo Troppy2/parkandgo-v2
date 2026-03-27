@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
+from app.api.deps import get_current_user
+from app.models.user import User
 from app.repositories.event_repository import EventRepository
 from app.schemas.campus_event import CampusEventResponse
 from app.utils.ical_feeds import CATEGORY_FEEDS
@@ -18,7 +20,8 @@ async def get_events(
     # but we still perform a manual membership check to give a clean 400 response.
     category: str | None = Query(default=None, description="Filter by category"),
     limit: int = Query(default=20),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    _user: User = Depends(get_current_user),
 ):
     repo = EventRepository(db)
 
@@ -38,7 +41,8 @@ async def get_events(
 @router.get("/{event_id}", response_model=CampusEventResponse)
 async def get_event(
     event_id: int,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    _user: User = Depends(get_current_user),
 ):
     repo = EventRepository(db)
     event = await repo.get_by_id(event_id)

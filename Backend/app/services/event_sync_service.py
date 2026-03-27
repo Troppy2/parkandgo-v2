@@ -1,4 +1,5 @@
-from datetime import datetime, timezone, timedelta
+import asyncio
+from datetime import datetime, timedelta
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -15,20 +16,35 @@ class EventSyncService:
         self.session = session
 
     async def sync_events(self) -> int:
-        """Fetch all iCal feeds, deduplicate, and insert events not already in the DB.
+        """Fetch all iCal feeds in parallel, deduplicate, and insert events not already in the DB.
         Returns the number of newly inserted events."""
         event_repo = EventRepository(self.session)
-        all_events: list[dict] = []
 
-        for category, urls in CATEGORY_FEEDS.items():
-            for url in urls:
-                try:
-                    raw = await fetch_feed(url)
-                    parsed = parse_feed(raw, category)
-                    all_events.extend(parsed)
-                except Exception as e:
-                    # Log but don't crash — one bad feed shouldn't stop the rest
-                    print(f"Failed to fetch {url}: {e}")
+        # Build a flat list of (category, url) pairs so we can fan-out all fetches at once.
+        # Sequential fetching (old approach) summed every feed's latency; parallel reduces it
+        # to the slowest single feed, keeping the total well under the client's 30s timeout.
+        feed_tasks = [
+            (category, url)
+            for category, urls in CATEGORY_FEEDS.items()
+            for url in urls
+        ]
+
+        raw_results = await asyncio.gather(
+            *[fetch_feed(url) for _, url in feed_tasks],
+            return_exceptions=True,
+        )
+
+        all_events: list[dict] = []
+        for (category, url), result in zip(feed_tasks, raw_results):
+            if isinstance(result, Exception):
+                # Log but don't crash — one bad feed shouldn't stop the rest
+                print(f"Failed to fetch {url}: {result}")
+                continue
+            try:
+                parsed = parse_feed(result, category)
+                all_events.extend(parsed)
+            except Exception as e:
+                print(f"Failed to parse {url}: {e}")
 
         # Deduplicate in-memory first (two feeds can share the same event UID)
         seen: set[str] = set()
@@ -53,5 +69,5 @@ class EventSyncService:
     async def cleanup_old_events(self) -> int:
         """Delete all events whose starts_at is more than 24 hours in the past."""
         event_repo = EventRepository(self.session)
-        cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
+        cutoff = datetime.utcnow() - timedelta(hours=24)
         return await event_repo.delete_older_than(cutoff)
