@@ -3,12 +3,14 @@
 import axios from "axios"
 
 const apiUrl = import.meta.env.VITE_API_URL
-if (!apiUrl && import.meta.env.PROD) {
+const resolvedApiUrl = apiUrl || (import.meta.env.DEV ? "http://localhost:8000/api" : "")
+
+if (!resolvedApiUrl) {
   throw new Error("VITE_API_URL is not set. Configure it before building for production.")
 }
 
 const client = axios.create({
-  baseURL: apiUrl || "http://localhost:8000/api",
+  baseURL: resolvedApiUrl,
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
@@ -37,7 +39,7 @@ client.interceptors.response.use(
       if (refreshToken) {
         try {
           const res = await axios.post(
-            `${apiUrl || "http://localhost:8000/api"}/auth/refresh`,
+            `${resolvedApiUrl}/auth/refresh`,
             { refresh_token: refreshToken }
           )
           localStorage.setItem("access_token", res.data.access_token)

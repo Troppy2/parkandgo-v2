@@ -50,7 +50,7 @@ export default function LoginPage() {
           console.error("Login failed", error)
           // Surface the real reason so we can debug
           if (error && typeof error === "object" && "code" in error && error.code === "ERR_NETWORK") {
-            setLoginError("Cannot reach the server. Is the backend running on port 8000?")
+            setLoginError("Sorry our servers are currently not working come back later!")
           } else if (error && typeof error === "object" && "response" in error) {
             const res = (error as { response: { status: number; data?: { detail?: string } } }).response
             setLoginError(`Server error ${res.status}: ${res.data?.detail ?? "Unknown error"}`)
