@@ -23,37 +23,8 @@ class Settings(BaseSettings):
     environment: str = "development"
     debug: bool = True
 
-    # CORS — allowed origins for frontend requests
-    allowed_origins: list[str] = ["http://localhost:3000"]
-
-    @field_validator("allowed_origins", mode="before")
-    @classmethod
-    def coerce_allowed_origins(cls, value):
-        """Accept CORS origins from env as JSON list or comma-separated string."""
-        if value is None:
-            return ["http://localhost:3000"]
-
-        if isinstance(value, list):
-            return [str(origin).strip() for origin in value if str(origin).strip()]
-
-        if isinstance(value, str):
-            normalized = value.strip()
-            if not normalized:
-                return []
-
-            # Support JSON-style env value: ["https://site.netlify.app","http://localhost:3000"]
-            if normalized.startswith("["):
-                try:
-                    parsed = json.loads(normalized)
-                    if isinstance(parsed, list):
-                        return [str(origin).strip() for origin in parsed if str(origin).strip()]
-                except json.JSONDecodeError:
-                    pass
-
-            # Support comma-separated env value
-            return [origin.strip() for origin in normalized.split(",") if origin.strip()]
-
-        return value
+    # CORS — stored as a plain env string so pydantic-settings won't try to JSON-decode it first
+    allowed_origins: str = "http://localhost:3000"
 
     @property
     def admin_email_set(self) -> set[str]:
@@ -73,6 +44,23 @@ class Settings(BaseSettings):
     @property
     def is_testing(self) -> bool:
         return self.environment == "testing"
+
+    @property
+    def allowed_origins_list(self) -> list[str]:
+        """Accept CORS origins from env as JSON list or comma-separated string."""
+        normalized = self.allowed_origins.strip()
+        if not normalized:
+            return []
+
+        if normalized.startswith("["):
+            try:
+                parsed = json.loads(normalized)
+                if isinstance(parsed, list):
+                    return [str(origin).strip() for origin in parsed if str(origin).strip()]
+            except json.JSONDecodeError:
+                pass
+
+        return [origin.strip() for origin in normalized.split(",") if origin.strip()]
 
     @field_validator("debug", mode="before")
     @classmethod
