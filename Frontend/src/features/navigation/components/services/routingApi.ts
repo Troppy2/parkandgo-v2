@@ -198,7 +198,7 @@ function buildCacheKey(
 
 function normalizeRoute(route: OSRMRoute): Pick<RouteResult, "coordinates" | "steps" | "totalDistanceMeters" | "totalDurationSeconds"> {
   const decoded = polyline.decode(route.geometry, 5);
-  const coordinates: [number, number][] = decoded.map(([lat, lng]) => [lng, lat]);
+  const coordinates: [number, number][] = decoded.map(([lat, lng]: [number, number]) => [lng, lat]);
 
   const steps: RouteStep[] = route.legs[0].steps.map((step) => {
     const type = step.maneuver.type;
