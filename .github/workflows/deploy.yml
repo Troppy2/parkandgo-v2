@@ -6,10 +6,14 @@ on:
 
 jobs:
   deploy:
-    name: Trigger Render Deploy
     runs-on: ubuntu-latest
     steps:
-    - name: Trigger deploy hook
-      env:
-        RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
-      run: curl -fsSL -X POST "$RENDER_DEPLOY_HOOK_URL"
+      - name: Trigger Render Deploy
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
+            echo "Missing RENDER_DEPLOY_HOOK_URL secret"
+            exit 1
+          fi
+          curl -fsSL -X POST "$RENDER_DEPLOY_HOOK_URL"
