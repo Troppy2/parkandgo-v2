@@ -239,15 +239,20 @@ npx vitest run
 ---
 
 ## Roadmap
+### V2 — Current (Stable)
+Core parking finder. Heuristic recommendation engine, Google OAuth, MapLibre map with 2D/Satellite/3D modes, OSRM turn-by-turn navigation, campus events from UMN iCal feeds, search and filters, saved spots, community spot submissions, and admin dashboard.
 
-### V2 — Current
-Core parking finder with heuristic scoring, event awareness, Google OAuth, navigation, and map view.
+### V2.1 — Quality of Life + Data Foundation
+Bug fixes for the recommendation engine preference scoring, suggest-a-spot submission flow, and 3D map mode. Adds TTS turn-by-turn navigation, community safety ratings and spot notes, iCal event geocoding so the map button actually works, user parking history with an explicit data consent prompt, and offline/degraded state handling so the app stays usable without a connection.
 
-### V2.5 — ML Features *(coming soon)*
-The recommendation engine scoring weights (cost, travel time, etc.) are currently hand-tuned. V2.5 replaces these with weights learned from real user behavior — which spots people actually choose. Weather impact scoring also lands here.
+### V2.2 — Navigation Polish + Campus Buildings Mode
+OSRM route caching so repeat routes load instantly. Re-routing detection when the user goes off course. Campus buildings mode lets users switch from parking directions to walking directions to a specific UMN building once they are parked. UI and marker pin polish pass.
 
-### V2.6 — AI Assistant *(planned)*
-A natural language chat interface that lets you describe what you need ("I have a game at Williams Arena at 7pm, what's the closest cheap spot?") and get a direct answer with map integration.
+### V2.5 — ML-Powered Recommendations
+Replaces the hand-tuned scoring weights with weights learned from real user behavior collected in V2.1. Weather impact scoring via OpenWeatherMap adjusts recommendations based on current conditions.
+
+### V2.6 — AI Parking Assistant
+Natural language chat interface. Describe what you need and get a direct recommendation with map integration. Resolves UMN venue names to coordinates, calls the existing recommendation engine under the hood, and falls back to the standard results list if confidence is low.
 
 ---
 
