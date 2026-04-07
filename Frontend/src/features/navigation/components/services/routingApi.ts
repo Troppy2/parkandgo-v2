@@ -70,13 +70,13 @@ function getManeuverIcon(type: string, modifier: string): string {
   if (type === "depart") return "bi-arrow-up-circle-fill";
   if (type === "arrive") return "bi-p-circle-fill";
 
-  if (modifier === "right") return "bi-arrow-turn-right";
-  if (modifier === "left") return "bi-arrow-turn-left";
+  if (modifier === "right") return "bi-arrow-90deg-right";
+  if (modifier === "left") return "bi-arrow-90deg-left";
   if (modifier === "straight") return "bi-arrow-up";
   if (modifier === "slight right") return "bi-arrow-up-right";
   if (modifier === "slight left") return "bi-arrow-up-left";
-  if (modifier === "sharp right") return "bi-arrow-turn-right";
-  if (modifier === "sharp left") return "bi-arrow-turn-left";
+  if (modifier === "sharp right") return "bi-arrow-90deg-right";
+  if (modifier === "sharp left") return "bi-arrow-90deg-left";
   if (modifier === "uturn") return "bi-arrow-return-left";
   return "bi-arrow-up";
 }
@@ -229,6 +229,106 @@ export function clearRouteCache() {
 }
 
 // Main function - call this when navigation starts
+/**
+ * Find which step in the route the user is closest to
+ * Returns the index of the current step
+ */
+export function getNextStep(
+  userLng: number,
+  userLat: number,
+  steps: RouteStep[]
+): number {
+  let closestIdx = 0;
+  let closestDistance = Infinity;
+
+  for (let i = 0; i < steps.length; i++) {
+    const stepLoc = steps[i].location;
+    const dist = haversineDistanceMiles(userLat, userLng, stepLoc[1], stepLoc[0]);
+    if (dist < closestDistance) {
+      closestDistance = dist;
+      closestIdx = i;
+    }
+  }
+
+  return closestIdx;
+}
+
+/**
+ * Check if user is within arrival threshold (15 meters)
+ * Returns true if user is close enough to destination to auto-end
+ */
+export function isUserNearArrival(
+  userLng: number,
+  userLat: number,
+  destLng: number,
+  destLat: number,
+  thresholdMeters: number = 15
+): boolean {
+  const distanceMiles = haversineDistanceMiles(userLat, userLng, destLat, destLng);
+  const distanceMeters = distanceMiles * 1609.34;
+  return distanceMeters <= thresholdMeters;
+}
+
+/**
+ * Slice a route to only include remaining steps from user's current position
+ * Returns new RouteResult with remaining geometry and steps
+ */
+export function getRemainingRouteGeometry(
+  route: RouteResult,
+  userLng: number,
+  userLat: number,
+): RouteResult {
+  const currentStepIdx = getNextStep(userLng, userLat, route.steps);
+
+  // If already past all instructional steps, return route as-is
+  if (currentStepIdx >= route.steps.length - 1) {
+    return route;
+  }
+
+  // Find the coordinates closest to user location
+  let closestCoordIdx = 0;
+  let closestCoordDistance = Infinity;
+  for (let i = 0; i < route.coordinates.length; i++) {
+    const [lng, lat] = route.coordinates[i];
+    const dist = haversineDistanceMiles(userLat, userLng, lat, lng);
+    if (dist < closestCoordDistance) {
+      closestCoordDistance = dist;
+      closestCoordIdx = i;
+    }
+  }
+
+  // Slice coordinates from closest point onward, prepend user location
+  const remainingCoordinates = [
+    [userLng, userLat] as [number, number],
+    ...route.coordinates.slice(closestCoordIdx),
+  ];
+
+  // Include current step + all remaining steps
+  const remainingSteps = route.steps.slice(currentStepIdx);
+
+  // Recalculate distance and duration for remaining route
+  let totalRemainingMeters = 0;
+  let totalRemainingSeconds = 0;
+
+  for (let i = currentStepIdx; i < route.steps.length; i++) {
+    totalRemainingMeters += route.steps[i].distanceMeters;
+    if (i < route.steps.length - 1) {
+      // Estimate duration based on step distance
+      const stepDurationSec = (route.steps[i].distanceMeters / route.totalDistanceMeters) * route.totalDurationSeconds;
+      totalRemainingSeconds += stepDurationSec;
+    }
+  }
+
+  return {
+    coordinates: remainingCoordinates,
+    steps: remainingSteps,
+    totalDistanceMeters: totalRemainingMeters,
+    totalDurationSeconds: Math.round(totalRemainingSeconds),
+    source: route.source,
+    notice: route.notice,
+  };
+}
+
 export async function fetchRoute(
   userLng: number,
   userLat: number,

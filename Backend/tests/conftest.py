@@ -4,7 +4,6 @@ Shared test fixtures for the Park & Go backend test suite.
 Uses an in-memory SQLite database so tests are fast and isolated.
 Mocks Redis with the existing _NullRedis stub so no Redis server is needed.
 """
-import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
@@ -18,9 +17,10 @@ from app.core.caching import _NullRedis, get_redis
 settings.admin_emails = "admin@umn.edu"
 from app.models.user import User
 from app.models.parking_spot import ParkingSpot
-from app.models.saved_spot import SavedSpot
-from app.models.campus_event import CampusEvent
-from app.models.app_config import AppConfig
+from app.models.spot_reviews import SpotReview
+from app.models.parking_history import ParkingHistory
+from app.models.recommendation_context_log import RecommendationContextLog
+from app.models.user_private_spots import UserPrivateSpot
 from app.main import app
 
 # ── In-memory SQLite engine (async via aiosqlite) ──

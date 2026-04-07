@@ -38,6 +38,15 @@ class ParkingRepository(BaseRepository):
         )
         return result.scalars().all()
 
+    async def update(self, spot_id: int, updates: dict):
+        spot = await self.get_by_id(spot_id)
+        if not spot:
+            return None
+        for key, value in updates.items():
+            setattr(spot, key, value)
+        await self.session.flush()
+        return spot
+
     async def filter_spots(self, campus: str = None, parking_type: str = None, max_cost: float = None, verified_only: bool = None):
         query = select(ParkingSpot)
 

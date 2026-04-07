@@ -1,5 +1,10 @@
 import { useState } from "react"
+
 import { useNavStore } from "../../../store/navStore"
+import { useUIStore } from "../../../store/uiStore"
+import { createParkingHistory, logContextEvent } from "../services/navigationApi"
+import { formatEta } from "../utils/formatEta"
+import { formatParkingCost } from "../../../lib/parking/formatters"
 
 const START_GEOLOCATION_OPTIONS = {
   enableHighAccuracy: false,
@@ -23,20 +28,51 @@ export default function RouteDisplay() {
     setCurrentUserLocation,
     setRouteError,
   } = useNavStore()
+  const dataConsent = useUIStore((s) => s.dataConsent)
+  const campusRoutingEnabled = useUIStore((s) => s.campusRoutingEnabled)
 
   const [detailsOpen, setDetailsOpen] = useState(false)
   const [isStarting, setIsStarting] = useState(false)
+
+  if (!isNavigating || !destination) return null
+
+  const writeNavigationHistory = async () => {
+    try {
+      await createParkingHistory({
+        spot_id: destination.spot_id,
+        start_time: new Date().toISOString(),
+        consent_flag: dataConsent,
+      })
+    } catch {
+      // Keep navigation non-blocking if history logging fails.
+    }
+  }
+
+  const logNavigationStart = (source: "cached_location" | "gps" | "manual_fallback") => {
+    void logContextEvent("navigation_start", {
+      spot_id: destination.spot_id,
+      travel_mode: campusRoutingEnabled ? travelMode : "walking",
+      campus_routing_enabled: campusRoutingEnabled,
+      source,
+    }).catch(() => undefined)
+  }
+
+  const startNavigationFlow = (source: "cached_location" | "gps" | "manual_fallback") => {
+    beginNavigation()
+    void writeNavigationHistory()
+    logNavigationStart(source)
+  }
 
   const handleStart = () => {
     if (isStarting || hasStartedNavigation) return
 
     if (currentUserLocation) {
-      beginNavigation()
+      startNavigationFlow("cached_location")
       return
     }
 
     if (!navigator.geolocation) {
-      beginNavigation()
+      startNavigationFlow("manual_fallback")
       setRouteError("Geolocation is unavailable on this device.")
       return
     }
@@ -48,11 +84,11 @@ export default function RouteDisplay() {
           coords: [pos.coords.longitude, pos.coords.latitude],
           heading: pos.coords.heading ?? 0,
         })
-        beginNavigation()
+        startNavigationFlow("gps")
         setIsStarting(false)
       },
       () => {
-        beginNavigation()
+        startNavigationFlow("manual_fallback")
         setRouteError("We couldn't get your location. Move somewhere with GPS access and retry.")
         setIsStarting(false)
       },
@@ -60,11 +96,6 @@ export default function RouteDisplay() {
     )
   }
 
-  // Show the panel only during preview (before Start)
-  // After Start is tapped, hasStartedNavigation becomes true and stats populate
-  if (!isNavigating || !destination) return null
-  
-  // Format distance: show feet when < 0.1 mi, otherwise X.X mi
   const distanceValue = distanceRemainingMiles
     ? distanceRemainingMiles < 0.1
       ? `${Math.round(distanceRemainingMiles * 5280)}`
@@ -72,21 +103,14 @@ export default function RouteDisplay() {
     : "--"
   const distanceUnit = distanceRemainingMiles && distanceRemainingMiles < 0.1 ? "ft" : "mi"
 
-  // Price display
-  const priceLabel = destination.cost === null || destination.cost === undefined
-    ? "N/A"
-    : destination.cost === 0
-      ? "Free"
-      : `$${destination.cost.toFixed(2)} / hr`
+  const formattedCost = formatParkingCost(destination.cost)
+  const priceLabel = formattedCost === "N/A" || formattedCost === "Free"
+    ? formattedCost
+    : `${formattedCost} / hr`
 
   return (
-    // Fixed bottom panel — .nav-bottom
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-[22px] shadow-[0_-4px_20px_rgba(0,0,0,0.12)] overflow-hidden">
-
-      {/* Stats grid — .nav-stats */}
       <div className="grid grid-cols-3 gap-2 p-4 pb-0">
-
-        {/* Distance — maroon value */}
         <div className="bg-[#f2f2f7] rounded-[10px] p-2.5 text-center">
           <div className="text-[9px] text-text3 uppercase tracking-[0.5px] mb-0.5">Distance</div>
           <div className="text-[18px] font-black leading-none text-maroon">
@@ -95,36 +119,57 @@ export default function RouteDisplay() {
           </div>
         </div>
 
-        {/* ETA */}
-        <div className="bg-[#f2f2f7] rounded-[10px] p-2.5 text-center">
-          <div className="text-[9px] text-text3 uppercase tracking-[0.5px] mb-0.5">ETA</div>
-          <div className="text-[18px] font-black leading-none text-text1">
-            {etaMinutes ?? "--"}
-            <span className="text-[10px] font-normal text-text2 ml-0.5">min</span>
-          </div>
-        </div>
+        {(() => {
+          const eta = etaMinutes != null ? formatEta(etaMinutes) : null
+          return (
+            <div className="bg-[#f2f2f7] rounded-[10px] p-2.5 text-center">
+              <div className="text-[9px] text-text3 uppercase tracking-[0.5px] mb-0.5">ETA</div>
+              <div className="text-[18px] font-black leading-none text-text1">
+                {eta ? (
+                  <>
+                    {eta.primary}
+                    {eta.secondary && (
+                      <span className="text-[10px] font-normal text-text2 ml-0.5">{eta.secondary}</span>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {"--"}
+                    <span className="text-[10px] font-normal text-text2 ml-0.5">min</span>
+                  </>
+                )}
+              </div>
+            </div>
+          )
+        })()}
 
-        {/* Arrival time */}
         <div className="bg-[#f2f2f7] rounded-[10px] p-2.5 text-center">
           <div className="text-[9px] text-text3 uppercase tracking-[0.5px] mb-0.5">Arrive</div>
-          <div className="text-[13px] font-black leading-none text-text2">
-            {arrivalTime ?? "--"}
-          </div>
+          <div className="text-[13px] font-black leading-none text-text2">{arrivalTime ?? "--"}</div>
         </div>
-
       </div>
 
-      {/* Travel mode pills — .nav-modes: only Driving + Walking per demo */}
-      <div className="flex gap-2 px-3.5 py-2.5">
+      <div className="flex gap-2 px-3.5 py-2.5 flex-wrap">
+        {!campusRoutingEnabled && (
+          <div className="w-full rounded-[10px] bg-maroon-light px-3 py-2 text-[11px] text-maroon">
+            Campus routing is off. Walking is used for campus directions.
+          </div>
+        )}
         {(["driving", "walking"] as const).map((mode) => {
           const icon = { driving: "bi-car-front-fill", walking: "bi-person-walking" }[mode]
           const label = { driving: "Driving", walking: "Walking" }[mode]
-          const active = travelMode === mode
+          const active = (campusRoutingEnabled ? travelMode : "walking") === mode
+          const disabled = !campusRoutingEnabled && mode !== "walking"
           return (
             <button
               key={mode}
               type="button"
-              onClick={() => setTravelMode(mode)}
+              disabled={disabled}
+              onClick={() => {
+                if (!disabled) {
+                  setTravelMode(mode)
+                }
+              }}
               className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full border-[1.5px] text-xs font-medium transition-colors ${
                 active
                   ? "bg-maroon border-maroon text-white"
@@ -142,7 +187,13 @@ export default function RouteDisplay() {
         <div className="px-3.5 pb-2.5 flex gap-2">
           <button
             type="button"
-            onClick={endNavigation}
+            onClick={() => {
+              void logContextEvent("navigation_cancelled", {
+                spot_id: destination.spot_id,
+                reason: "pre_navigation",
+              }).catch(() => undefined)
+              endNavigation()
+            }}
             className="flex-1 bg-white border border-black/15 text-text1 rounded-full py-2.5 text-sm font-semibold"
           >
             Cancel
@@ -159,7 +210,6 @@ export default function RouteDisplay() {
         </div>
       )}
 
-      {/* "see details" toggle row — .nav-see-row */}
       <button
         type="button"
         onClick={() => setDetailsOpen(!detailsOpen)}
@@ -169,21 +219,18 @@ export default function RouteDisplay() {
         <i className={`bi bi-chevron-${detailsOpen ? "up" : "down"} text-[11px] text-maroon`} />
       </button>
 
-      {/* Collapsible trip details — .nav-det-exp */}
       <div
         className={`overflow-hidden transition-[max-height] duration-300 ease-in-out ${
           detailsOpen ? "max-h-[200px]" : "max-h-0"
         }`}
       >
         <div className="px-3.5 pt-2.5 pb-4 border-t border-black/9">
-          <div className="text-[10px] font-bold uppercase tracking-[0.8px] text-text3 mb-2">
-            Trip Details
-          </div>
+          <div className="text-[10px] font-bold uppercase tracking-[0.8px] text-text3 mb-2">Trip Details</div>
           {[
-            { k: "Destination",   v: destination.spot_name,                    maroon: false },
-            { k: "Parking Cost",  v: priceLabel,                               maroon: true  },
-            { k: "Campus",        v: destination.campus_location ?? "--",       maroon: false },
-            { k: "Parking Type",  v: destination.parking_type ?? "--",          maroon: false },
+            { k: "Destination", v: destination.spot_name, maroon: false },
+            { k: "Parking Cost", v: priceLabel, maroon: true },
+            { k: "Campus", v: destination.campus_location ?? "--", maroon: false },
+            { k: "Parking Type", v: destination.parking_type ?? "--", maroon: false },
           ].map(({ k, v, maroon }) => (
             <div key={k} className="flex justify-between py-1.5 border-b border-black/5 last:border-b-0">
               <span className="text-[12px] text-text2">{k}</span>
@@ -192,7 +239,6 @@ export default function RouteDisplay() {
           ))}
         </div>
       </div>
-
     </div>
   )
 }

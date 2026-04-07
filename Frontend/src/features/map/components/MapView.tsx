@@ -223,59 +223,81 @@ export default function MapView() {
         });
     }, [destination]);
 
-    // Effect 4: Add/remove user location marker when userLocation changes
+    // Effect 4: Update user location marker when userLocation changes
+    // Uses .setLngLat() + DOM updates instead of full marker recreation
     useEffect(() => {
-        // Remove previous user location marker
-        userLocationMarkerRef.current?.remove();
-        userLocationMarkerRef.current = null;
-
         if (!userLocation || !mapRef.current) return;
 
-        // Build the yellow arrow marker (UMN Gold) with fixed size
-        const el = document.createElement("div");
-        el.style.cssText = `
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            flex-shrink: 0;
-        `;
+        // If marker doesn't exist, create it once
+        if (!userLocationMarkerRef.current) {
+            // Build the yellow arrow marker (UMN Gold) with fixed size
+            const el = document.createElement("div");
+            el.style.cssText = `
+                width: 40px;
+                height: 40px;
+                min-width: 40px;
+                min-height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                flex-shrink: 0;
+            `;
+            el.setAttribute("data-user-location-marker", "true");
 
-        // Create SVG arrow that points north (up) with fixed dimensions
-        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        svg.setAttribute("viewBox", "0 0 40 40");
-        svg.setAttribute("width", "40");
-        svg.setAttribute("height", "40");
-        svg.style.cssText = `
-            display: block;
-            filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
-            transform: rotate(${userLocation.heading}deg);
-            flex-shrink: 0;
-        `;
+            // Create SVG arrow that points north (up) with fixed dimensions
+            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.setAttribute("viewBox", "0 0 40 40");
+            svg.setAttribute("width", "40");
+            svg.setAttribute("height", "40");
+            svg.setAttribute("data-heading-transform", "true");
+            svg.style.cssText = `
+                display: block;
+                filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+                flex-shrink: 0;
+                transition: transform 60ms linear;
+                transform-origin: center center;
+                transform-box: fill-box;
+            `;
 
-        // Outer circle (white border)
-        const outerCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-        outerCircle.setAttribute("cx", "20");
-        outerCircle.setAttribute("cy", "20");
-        outerCircle.setAttribute("r", "18");
-        outerCircle.setAttribute("fill", "#FFCC33");
-        outerCircle.setAttribute("stroke", "#fff");
-        outerCircle.setAttribute("stroke-width", "2");
-        svg.appendChild(outerCircle);
+            // Outer circle (white border)
+            const outerCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            outerCircle.setAttribute("cx", "20");
+            outerCircle.setAttribute("cy", "20");
+            outerCircle.setAttribute("r", "18");
+            outerCircle.setAttribute("fill", "#FFCC33");
+            outerCircle.setAttribute("stroke", "#fff");
+            outerCircle.setAttribute("stroke-width", "2");
+            svg.appendChild(outerCircle);
 
-        // Arrow pointing up
-        const arrow = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-        arrow.setAttribute("points", "20,8 28,24 20,20 12,24");
-        arrow.setAttribute("fill", "#fff");
-        svg.appendChild(arrow);
+            // Arrow pointing up
+            const arrow = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+            arrow.setAttribute("points", "20,8 28,24 20,20 12,24");
+            arrow.setAttribute("fill", "#fff");
+            svg.appendChild(arrow);
 
-        el.appendChild(svg);
+            el.appendChild(svg);
 
-        userLocationMarkerRef.current = new maplibregl.Marker({ element: el, anchor: "center" })
-            .setLngLat(userLocation.coords)
-            .addTo(mapRef.current);
+            userLocationMarkerRef.current = new maplibregl.Marker({ element: el, anchor: "center" })
+                .setLngLat(userLocation.coords)
+                .addTo(mapRef.current);
+
+            // Initial rotation
+            svg.style.transform = `rotate(${userLocation.heading}deg)`;
+        } else {
+            // Marker exists: update position + rotation only (no DOM recreation)
+            userLocationMarkerRef.current.setLngLat(userLocation.coords);
+
+            // Update rotation via DOM query (avoids full element recreation)
+            const markerEl = userLocationMarkerRef.current.getElement?.() ||
+                document.querySelector('[data-user-location-marker="true"]');
+            if (markerEl) {
+                const svg = markerEl.querySelector('[data-heading-transform="true"]') as SVGElement;
+                if (svg) {
+                    svg.style.transform = `rotate(${userLocation.heading}deg)`;
+                }
+            }
+        }
     }, [userLocation]);
 
     // Keep userLocationRef in sync so the navigation effects can read it without a stale closure.
@@ -346,19 +368,39 @@ export default function MapView() {
     useEffect(() => {
         const map = mapRef.current;
         if (!map) return;
-        if (mapStyle === "standard") {
-            map.setStyle(STANDARD_STYLE);
-            map.setPitch(0);
-            map.setBearing(0);
-        } else if (mapStyle === "satellite") {
-            map.setStyle(SATELLITE_STYLE as maplibregl.StyleSpecification);
-            map.setPitch(0);
-            map.setBearing(0);
-        } else if (mapStyle === "3d") {
-            map.setStyle(BUILDINGS_3D_STYLE);
-            map.setPitch(45);
-            map.setBearing(-17.6);
-            map.once("style.load", () => add3DBuildings(map));
+        
+        try {
+            if (mapStyle === "standard") {
+                map.setStyle(STANDARD_STYLE);
+                map.setPitch(0);
+                map.setBearing(0);
+            } else if (mapStyle === "satellite") {
+                map.setStyle(SATELLITE_STYLE as maplibregl.StyleSpecification);
+                map.setPitch(0);
+                map.setBearing(0);
+            } else if (mapStyle === "3d") {
+                map.setStyle(BUILDINGS_3D_STYLE);
+                // Wrap 3D-specific features in try/catch to handle unsupported browsers gracefully
+                try {
+                    map.setPitch(45);
+                    map.setBearing(-17.6);
+                } catch (e) {
+                    console.warn("3D map features not supported on this device, using 2D mode");
+                    // Fallback: reset to 2D
+                    map.setPitch(0);
+                    map.setBearing(0);
+                }
+                map.once("style.load", () => {
+                    try {
+                        add3DBuildings(map);
+                    } catch (e) {
+                        console.warn("Failed to load 3D buildings:", e);
+                    }
+                });
+            }
+        } catch (e) {
+            // If anything fails during style change, log and keep existing map state
+            console.error("Error changing map style:", e);
         }
     }, [mapStyle]);
 

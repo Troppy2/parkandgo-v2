@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -9,6 +9,7 @@ import apiClient from "../../../lib/api/client";
 import { ENDPOINTS } from "../../../lib/api/endpoints";
 import Input from "../../../components/ui/Input";
 import Button from "../../../components/ui/Button";
+import { geocodeAddress } from "../services/geocodingService";
 
 const suggestSchema = z.object({
   spot_name: z.string().min(2, "Spot name must be at least 2 characters"),
@@ -32,7 +33,7 @@ export default function SuggestSpotModal() {
   const isGuest = useAuthStore((s) => s.isGuest);
   const queryClient = useQueryClient();
 
-  const { register, handleSubmit, formState: { errors }, reset } = useForm<
+  const { register, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm<
     SuggestFormInput,
     unknown,
     SuggestFormData
@@ -40,6 +41,52 @@ export default function SuggestSpotModal() {
     resolver: zodResolver(suggestSchema),
     defaultValues: { cost: 0 },
   });
+
+  const [isGeocoding, setIsGeocoding] = useState(false);
+  const [isGettingLocation, setIsGettingLocation] = useState(false);
+  const addressValue = watch("address");
+
+  async function handleAutoFill() {
+    if (!addressValue?.trim()) return;
+    setIsGeocoding(true);
+    try {
+      const result = await geocodeAddress(addressValue);
+      setValue("latitude", result.lat as unknown as string, { shouldValidate: true });
+      setValue("longitude", result.lon as unknown as string, { shouldValidate: true });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Could not find that address";
+      showToast(message.match(/no location/i) ? "Could not find that address" : message, "error");
+    } finally {
+      setIsGeocoding(false);
+    }
+  }
+
+  async function handleAutoFillCurrentLocation() {
+    if (!navigator.geolocation) {
+      showToast("Geolocation not available on this device", "error");
+      return;
+    }
+
+    setIsGettingLocation(true);
+    try {
+      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0,
+        });
+      });
+
+      setValue("latitude", position.coords.latitude.toString(), { shouldValidate: true });
+      setValue("longitude", position.coords.longitude.toString(), { shouldValidate: true });
+      showToast("Location captured!", "success");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Could not get your location";
+      showToast(message, "error");
+    } finally {
+      setIsGettingLocation(false);
+    }
+  }
 
   useEffect(() => {
     if (!suggestSpotOpen) return;
@@ -189,9 +236,52 @@ export default function SuggestSpotModal() {
             />
           </div>
 
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={handleAutoFill}
+              disabled={!addressValue?.trim() || isGeocoding}
+              className="w-full flex items-center justify-center gap-1 text-xs font-semibold py-2 px-2 rounded-[10px] border border-maroon/30 text-maroon bg-maroon/5 hover:bg-maroon/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed min-h-[36px]"
+            >
+              {isGeocoding ? (
+                <>
+                  <i className="bi bi-arrow-repeat animate-spin text-sm" />
+                  <span className="hidden sm:inline">Finding…</span>
+                </>
+              ) : (
+                <>
+                  <i className="bi bi-geo-fill text-sm" />
+                  <span className="hidden sm:inline">From Address</span>
+                  <span className="sm:hidden text-[9px]">Address</span>
+                </>
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={handleAutoFillCurrentLocation}
+              disabled={isGettingLocation}
+              className="w-full flex items-center justify-center gap-1 text-xs font-semibold py-2 px-2 rounded-[10px] border border-blue/30 text-blue bg-blue/5 hover:bg-blue/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed min-h-[36px]"
+              title="Use your current GPS location"
+            >
+              {isGettingLocation ? (
+                <>
+                  <i className="bi bi-arrow-repeat animate-spin text-sm" />
+                  <span className="hidden sm:inline">Getting…</span>
+                </>
+              ) : (
+                <>
+                  <i className="bi bi-crosshair text-sm" />
+                  <span className="hidden sm:inline">My Location</span>
+                  <span className="sm:hidden text-[9px]">GPS</span>
+                </>
+              )}
+            </button>
+          </div>
+
           <p className="text-[10px] text-text3">
             <i className="bi bi-geo-alt mr-1" />
-            Tip: right-click on Google Maps to copy coordinates
+            Tip: Right-click on Google Maps or use "My Location" to get coordinates
           </p>
 
           <Button

@@ -1,6 +1,7 @@
 import asyncio
 from datetime import datetime, timedelta
 from sqlalchemy import select
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.campus_event import CampusEvent
@@ -18,8 +19,6 @@ class EventSyncService:
     async def sync_events(self) -> int:
         """Fetch all iCal feeds in parallel, deduplicate, and insert events not already in the DB.
         Returns the number of newly inserted events."""
-        event_repo = EventRepository(self.session)
-
         # Build a flat list of (category, url) pairs so we can fan-out all fetches at once.
         # Sequential fetching (old approach) summed every feed's latency; parallel reduces it
         # to the slowest single feed, keeping the total well under the client's 30s timeout.
@@ -58,11 +57,22 @@ class EventSyncService:
         existing_result = await self.session.execute(select(CampusEvent.external_id))
         existing_ids: set[str] = {row[0] for row in existing_result.all()}
 
-        inserted = 0
-        for event_data in unique_events:
-            if event_data["external_id"] not in existing_ids:
-                await event_repo.create(event_data)
-                inserted += 1
+        to_insert = [
+            event_data
+            for event_data in unique_events
+            if event_data["external_id"] not in existing_ids
+        ]
+
+        if not to_insert:
+            return 0
+
+        statement = (
+            pg_insert(CampusEvent)
+            .values(to_insert)
+            .on_conflict_do_nothing(index_elements=[CampusEvent.external_id])
+        )
+        result = await self.session.execute(statement)
+        inserted = result.rowcount or 0
 
         return inserted
 

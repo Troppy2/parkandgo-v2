@@ -1,3 +1,4 @@
+import { useRecommendationStore } from "@/store/recommendationStore"
 import apiClient from "../../../lib/api/client"
 import { ENDPOINTS } from "../../../lib/api/endpoints"
 import type { RecommendationResponse } from "../../../types/recommendation.types"
@@ -20,5 +21,9 @@ export async function getRecommendations(
       ...(params.verifiedOnly ? { verified_only: true } : {}),
     },
   })
+
+  if (response.data && response.data.length > 0) {
+    useRecommendationStore.getState().setCachedRecommendations(response.data)
+  }
   return response.data
 }

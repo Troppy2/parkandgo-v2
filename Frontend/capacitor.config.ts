@@ -13,6 +13,13 @@ const config: CapacitorConfig = {
       backgroundColor: '#7A0019',
       showSpinner: false,
     },
+    Geolocation: {
+      permissions: ['location'],
+    },
+    LocalNotifications: {
+      smallIcon: 'ic_stat_icon_config_sample',
+      iconColor: '#7A0019',
+    },
   },
 };
 

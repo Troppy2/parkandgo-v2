@@ -12,6 +12,25 @@ function removeRouteLayer(map: maplibregl.Map) {
   if (map.getSource("route")) map.removeSource("route");
 }
 
+/**
+ * Returns the index of the coordinate in `coords` that is closest to `userLoc`.
+ * Uses squared distance (no sqrt) — only relative order matters.
+ */
+function findClosestIndex(coords: [number, number][], userLoc: [number, number]): number {
+  let minDist = Infinity;
+  let minIdx = 0;
+  for (let i = 0; i < coords.length; i++) {
+    const dx = coords[i][0] - userLoc[0];
+    const dy = coords[i][1] - userLoc[1];
+    const dist = dx * dx + dy * dy;
+    if (dist < minDist) {
+      minDist = dist;
+      minIdx = i;
+    }
+  }
+  return minIdx;
+}
+
 export default function RouteLayer({ map, userLocation }: RouteLayerProps) {
   const { isNavigating, destination, route } = useNavStore();
 
@@ -29,10 +48,21 @@ export default function RouteLayer({ map, userLocation }: RouteLayerProps) {
       return;
     }
 
-    const coordinates: [number, number][] = route?.coordinates ?? [
-      userLocation,
-      [destination.longitude, destination.latitude],
-    ];
+    // Build the coordinates to draw.
+    // When a pre-fetched route exists, trim already-traversed waypoints so the
+    // line always starts at the user's CURRENT position and shows only the
+    // remaining path to the destination.  Without this, the full static route
+    // fetched at navigation-start would be drawn regardless of user movement.
+    let coordinates: [number, number][];
+    if (route?.coordinates && route.coordinates.length > 1) {
+      const closestIdx = findClosestIndex(route.coordinates, userLocation);
+      const remaining = route.coordinates.slice(closestIdx + 1);
+      coordinates = remaining.length > 0
+        ? [userLocation, ...remaining]
+        : [userLocation, [destination.longitude, destination.latitude]];
+    } else {
+      coordinates = [userLocation, [destination.longitude, destination.latitude]];
+    }
 
     const routeData = {
       type: "Feature" as const,

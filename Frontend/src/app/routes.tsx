@@ -8,32 +8,21 @@ import MapView from "../features/map/components/MapView"
 import TurnByTurn from "../features/navigation/components/TurnByTurn";
 import RouteDisplay from "../features/navigation/components/RouteDisplay";
 import ETAIndicator from "../features/navigation/components/ETAIndicator";
+import RememberParkingSpotModal from "../features/navigation/components/RememberParkingSpotModal";
 import SettingsModal from "../features/profile/components/SettingsModal";
 import SuggestSpotModal from "../features/parking/components/SuggestSpotModal";
 import AdminRoute from "../features/admin/components/AdminRoute";
 import AdminDashboard from "../features/admin/components/AdminDashboard";
-import { useAuthStore } from "../store/authStore";
+import AdminErrorBoundary from "../features/admin/components/AdminErrorBoundary";
 import { useUIStore } from "../store/uiStore";
-import { getMe } from "../features/auth/services/authApi";
+import { useActiveNavigation } from "../features/navigation/hooks/useActiveNavigation";
+import { initializeParkingReminderScheduler } from "../features/navigation/services/parkingReminderScheduler";
 
 function AppShell() {
-  const user = useAuthStore((s) => s.user)
-  const token = useAuthStore((s) => s.token)
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
-  const setAuth = useAuthStore((s) => s.setAuth)
-  const clearAuth = useAuthStore((s) => s.clearAuth)
   const darkMode = useUIStore((s) => s.darkMode)
 
-  // On mount: if we have a token but no user object (e.g. after page reload),
-  // restore the user by calling /auth/me. If the token is invalid, log out.
-  useEffect(() => {
-    if (isAuthenticated && !user && token) {
-      const refreshToken = localStorage.getItem("refresh_token") ?? ""
-      getMe()
-        .then((fetchedUser) => setAuth(fetchedUser, token, refreshToken))
-        .catch(() => clearAuth())
-    }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  // Enable active navigation tracking (real-time updates, step advancement, auto-end)
+  useActiveNavigation()
 
   // Sync dark mode preference to <html> data-theme attribute
   useEffect(() => {
@@ -44,6 +33,11 @@ function AppShell() {
     }
   }, [darkMode])
 
+  // Restore any pending parking reminder timeout after reload.
+  useEffect(() => {
+    void initializeParkingReminderScheduler()
+  }, [])
+
   return (
     <>
       <ResponsiveContainer
@@ -53,6 +47,7 @@ function AppShell() {
       {/* Navigation overlay — fixed positioned, returns null when not navigating */}
       <TurnByTurn />
       <RouteDisplay />
+      <RememberParkingSpotModal />
       {/* ETAIndicator: fetches OSRM route + watches GPS when navigation is active */}
       <ETAIndicator />
       {/* Settings modal — globally mounted so it works on both layouts */}
@@ -84,9 +79,11 @@ export default function AppRoutes() {
         <Route
           path="/admin"
           element={
-            <AdminRoute>
-              <AdminDashboard />
-            </AdminRoute>
+            <AdminErrorBoundary>
+              <AdminRoute>
+                <AdminDashboard />
+              </AdminRoute>
+            </AdminErrorBoundary>
           }
         />
 

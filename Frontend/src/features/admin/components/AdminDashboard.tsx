@@ -27,12 +27,11 @@ export default function AdminDashboard() {
       <main className="max-w-5xl mx-auto px-4 py-5 space-y-5">
         <StatsOverview />
 
+        <SpotManagement />
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <SpotManagement />
-          <div className="space-y-5">
-            <EventSyncPanel />
-            <ConfigPanel />
-          </div>
+          <EventSyncPanel />
+          <ConfigPanel />
         </div>
       </main>
     </div>

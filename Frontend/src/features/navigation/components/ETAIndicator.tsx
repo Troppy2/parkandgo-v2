@@ -1,6 +1,9 @@
 import { useEffect, useRef } from "react";
 import { useNavStore } from "../../../store/navStore";
+import { useUIStore } from "../../../store/uiStore";
 import { createDirectRoutePreview, fetchRoute } from "./services/routingApi";
+import type { LiveUserLocation } from "../../../store/navStore";
+import { logContextEvent } from "../services/navigationApi";
 
 const NAVIGATION_GEOLOCATION_OPTIONS = {
   enableHighAccuracy: false,
@@ -44,35 +47,21 @@ export default function ETAIndicator() {
     currentStepIndex,
     advanceStep,
   } = useNavStore();
+  const campusRoutingEnabled = useUIStore((s) => s.campusRoutingEnabled);
 
   const launchedRequestRef = useRef<string | null>(null);
-  const watchIdRef = useRef<number | null>(null);
 
-  const syncStatsFromLocation = (coords: [number, number]) => {
-    if (!destination || destination.latitude == null || destination.longitude == null) return;
-
-    const [longitude, latitude] = coords;
-    const distMiles = haversineDistance(
-      latitude,
-      longitude,
-      destination.latitude,
-      destination.longitude
-    );
-    const speed = SPEED_MPH[travelMode];
-    const etaMins = Math.max(1, Math.round((distMiles / speed) * 60));
-    updateStats(distMiles, etaMins);
-
-    const nextStep = route?.steps[currentStepIndex + 1];
-    if (nextStep) {
-      const [stepLng, stepLat] = nextStep.location;
-      const distToStep = haversineDistance(latitude, longitude, stepLat, stepLng);
-      if (distToStep < 0.015) {
-        advanceStep();
-      }
-    }
-  };
+  // Ref so the route-fetch effect can read the current location without adding
+  // currentUserLocation to its dependency array. Without this, every GPS ping
+  // would re-trigger the fetch guard and potentially start duplicate requests.
+  const currentUserLocationRef = useRef<LiveUserLocation | null>(currentUserLocation);
+  useEffect(() => {
+    currentUserLocationRef.current = currentUserLocation;
+  }, [currentUserLocation]);
 
   // Fetch the route when navigation starts, retries, or travel mode changes.
+  // currentUserLocation is intentionally excluded from deps — it's read via ref
+  // so location updates don't re-trigger a fetch that is already in flight.
   useEffect(() => {
     if (!isNavigating || !hasStartedNavigation || !destination) {
       launchedRequestRef.current = null;
@@ -80,7 +69,8 @@ export default function ETAIndicator() {
     }
     if (destination.latitude == null || destination.longitude == null) return;
 
-    const requestKey = `${routeRequestId}:${travelMode}:${destination.spot_id}`;
+    const effectiveTravelMode = campusRoutingEnabled ? travelMode : "walking";
+    const requestKey = `${routeRequestId}:${effectiveTravelMode}:${destination.spot_id}`;
     if (launchedRequestRef.current === requestKey) return;
 
     let cancelled = false;
@@ -93,10 +83,18 @@ export default function ETAIndicator() {
           origin[1],
           destination.longitude!,
           destination.latitude!,
-          travelMode
+          effectiveTravelMode
         )
       );
-      syncStatsFromLocation(origin);
+
+      // Compute an initial distance/ETA snapshot so the UI has something to
+      // show while the real OSRM response is still in flight.
+      if (destination.latitude != null && destination.longitude != null) {
+        const [lng, lat] = origin;
+        const distMiles = haversineDistance(lat, lng, destination.latitude, destination.longitude);
+        const speed = SPEED_MPH[effectiveTravelMode];
+        updateStats(distMiles, Math.max(1, Math.round((distMiles / speed) * 60)));
+      }
 
       try {
         const result = await fetchRoute(
@@ -104,7 +102,7 @@ export default function ETAIndicator() {
           origin[1],
           destination.longitude!,
           destination.latitude!,
-          travelMode
+          effectiveTravelMode
         );
 
         if (cancelled) return;
@@ -113,6 +111,12 @@ export default function ETAIndicator() {
         const miles = result.totalDistanceMeters / 1609.34;
         const etaMins = Math.max(1, Math.round(result.totalDurationSeconds / 60));
         updateStats(miles, etaMins);
+        void logContextEvent("navigation_route_loaded", {
+          spot_id: destination.spot_id,
+          source: result.source ?? "unknown",
+          campus_routing_enabled: campusRoutingEnabled,
+          travel_mode: effectiveTravelMode,
+        }).catch(() => undefined)
       } catch {
         if (!cancelled) {
           setRouteError("We couldn't calculate a route right now. Try again in a moment.");
@@ -120,16 +124,17 @@ export default function ETAIndicator() {
       }
     };
 
-    if (currentUserLocation) {
-      runFetch(currentUserLocation.coords);
+    // Read from ref — always fresh, never stale, and not a reactive dependency.
+    const loc = currentUserLocationRef.current;
+    if (loc) {
+      void runFetch(loc.coords);
     } else if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          const nextLocation = {
-            coords: [pos.coords.longitude, pos.coords.latitude] as [number, number],
+          const nextLocation: LiveUserLocation = {
+            coords: [pos.coords.longitude, pos.coords.latitude],
             heading: pos.coords.heading ?? 0,
           };
-
           setCurrentUserLocation(nextLocation);
           void runFetch(nextLocation.coords);
         },
@@ -148,7 +153,7 @@ export default function ETAIndicator() {
       cancelled = true;
     };
   }, [
-    currentUserLocation,
+    campusRoutingEnabled,
     destination,
     hasStartedNavigation,
     isNavigating,
@@ -160,53 +165,27 @@ export default function ETAIndicator() {
     updateStats,
   ]);
 
+  // Sync live stats whenever the shared location changes during active navigation.
+  // MapView's single persistent watchPosition feeds currentUserLocation via navStore,
+  // so no second watcher is registered here. All deps are explicit — no stale closure.
   useEffect(() => {
-    if (!isNavigating || !hasStartedNavigation || !destination) {
-      if (
-        watchIdRef.current !== null &&
-        navigator.geolocation &&
-        typeof navigator.geolocation.clearWatch === "function"
-      ) {
-        navigator.geolocation.clearWatch(watchIdRef.current);
-        watchIdRef.current = null;
+    if (!isNavigating || !hasStartedNavigation || !destination || !currentUserLocation) return;
+    if (destination.latitude == null || destination.longitude == null) return;
+
+    const [longitude, latitude] = currentUserLocation.coords;
+    const distMiles = haversineDistance(latitude, longitude, destination.latitude, destination.longitude);
+    const speed = SPEED_MPH[travelMode];
+    const etaMins = Math.max(1, Math.round((distMiles / speed) * 60));
+    updateStats(distMiles, etaMins);
+
+    const nextStep = route?.steps[currentStepIndex + 1];
+    if (nextStep) {
+      const [stepLng, stepLat] = nextStep.location;
+      const distToStep = haversineDistance(latitude, longitude, stepLat, stepLng);
+      if (distToStep < 0.015) {
+        advanceStep();
       }
-      return;
     }
-
-    if (
-      !navigator.geolocation ||
-      typeof navigator.geolocation.watchPosition !== "function" ||
-      watchIdRef.current !== null
-    ) {
-      return;
-    }
-
-    watchIdRef.current = navigator.geolocation.watchPosition(
-      (pos) => {
-        const nextLocation = {
-          coords: [pos.coords.longitude, pos.coords.latitude] as [number, number],
-          heading: pos.coords.heading ?? 0,
-        };
-
-        setCurrentUserLocation(nextLocation);
-        syncStatsFromLocation(nextLocation.coords);
-      },
-      () => {
-        setRouteError("We couldn't update your live location. Retry navigation in a moment.");
-      },
-      NAVIGATION_GEOLOCATION_OPTIONS
-    );
-
-    return () => {
-      if (
-        watchIdRef.current !== null &&
-        navigator.geolocation &&
-        typeof navigator.geolocation.clearWatch === "function"
-      ) {
-        navigator.geolocation.clearWatch(watchIdRef.current);
-        watchIdRef.current = null;
-      }
-    };
   }, [
     advanceStep,
     currentStepIndex,
@@ -215,8 +194,6 @@ export default function ETAIndicator() {
     hasStartedNavigation,
     isNavigating,
     route,
-    setCurrentUserLocation,
-    setRouteError,
     travelMode,
     updateStats,
   ]);

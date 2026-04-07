@@ -1,6 +1,19 @@
 import client from "@/lib/api/client"
 import { ENDPOINTS } from "@/lib/api/endpoints"
-import type { ParkingSpot } from "@/types/parking.types"
+import type { ParkingSpot, ParkingSpotCreate, CampusLocation, ParkingType } from "@/types/parking.types"
+
+export interface ParkingSpotUpdateBody {
+  spot_name?: string
+  address?: string
+  campus_location?: CampusLocation
+  parking_type?: ParkingType
+  cost?: number
+  walk_time?: string | null
+  near_buildings?: string | null
+  latitude?: number
+  longitude?: number
+  is_verified?: boolean
+}
 
 export interface AdminStats {
   total_spots: number
@@ -21,8 +34,23 @@ export async function getAdminStats(): Promise<AdminStats> {
   return data
 }
 
+export async function getAllSpots(): Promise<ParkingSpot[]> {
+  const { data } = await client.get(ENDPOINTS.ADMIN.ALL_SPOTS)
+  return data
+}
+
 export async function getUnverifiedSpots(): Promise<ParkingSpot[]> {
   const { data } = await client.get(ENDPOINTS.ADMIN.UNVERIFIED)
+  return data
+}
+
+export async function createAdminSpot(body: ParkingSpotCreate): Promise<ParkingSpot> {
+  const { data } = await client.post(ENDPOINTS.ADMIN.ALL_SPOTS, body)
+  return data
+}
+
+export async function updateAdminSpot(spotId: number, body: ParkingSpotUpdateBody): Promise<ParkingSpot> {
+  const { data } = await client.patch(ENDPOINTS.ADMIN.UPDATE_SPOT(spotId), body)
   return data
 }
 

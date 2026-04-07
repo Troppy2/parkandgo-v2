@@ -4,7 +4,17 @@ from sqlalchemy import engine_from_config, pool
 from alembic import context
 # Import every model so Base.metadata picks them up
 
-from app.models import user, parking_spot, saved_spot, app_config, campus_event  # noqa: F401
+from app.models import (  # noqa: F401
+    user,
+    parking_spot,
+    saved_spot,
+    app_config,
+    campus_event,
+    spot_reviews,
+    parking_history,
+    recommendation_context_log,
+    user_private_spots,
+)
 from app.core.database import Base
 from app.core.config import settings
 

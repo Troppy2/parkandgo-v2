@@ -4,6 +4,7 @@ import { useAuthStore } from "../../../store/authStore"
 import { useMediaQuery } from "../../../hooks/useMediaQuery"
 import UserProfile from "./UserProfile"
 import SavedSpotsList from "./SavedSpotsList"
+import PrivateSpotsList from "./PrivateSpotsList"
 import Preferences from "./Preferences"
 
 function PrivacyPolicyModal({ onClose }: { onClose: () => void }) {
@@ -36,7 +37,7 @@ function PrivacyPolicyModal({ onClose }: { onClose: () => void }) {
           We use Google OAuth to authenticate your identity. We store your name, email, and parking preferences to personalize recommendations. We do not sell your data to third parties.
         </p>
         <p className="text-[12px] text-text2 leading-relaxed">
-          Your saved spots and preferences are stored securely and can be deleted at any time by signing out or contacting us at parkandgo@umn.edu.
+          Your saved spots and preferences are stored securely and can be deleted at any time by signing out or contacting us at jamesinah34@gmail.com.
         </p>
       </div>
     </div>
@@ -48,6 +49,7 @@ export default function SettingsModal() {
   const { clearAuth } = useAuthStore()
   const isDesktop = useMediaQuery("(min-width: 768px)")
   const [privacyOpen, setPrivacyOpen] = useState(false)
+  const [isMinimizedForSpecialSpot, setIsMinimizedForSpecialSpot] = useState(false)
 
   // Body scroll lock + Escape key
   useEffect(() => {
@@ -101,6 +103,9 @@ export default function SettingsModal() {
 
         {/* Saved spots list — Phase 17 component */}
         <SavedSpotsList />
+
+        {/* Personal/private parking spots for quick navigation */}
+        <PrivateSpotsList onFormOpenChange={setIsMinimizedForSpecialSpot} />
 
         {/* Preferences toggles — Phase 17 component */}
         <Preferences />
@@ -188,7 +193,9 @@ export default function SettingsModal() {
           onClick={() => setSettingsOpen(false)}
         >
           <div
-            className="backdrop-blur-xl border border-black/12 rounded-[18px] w-[380px] shadow-lg overflow-hidden max-h-[520px] overflow-y-auto"
+            className={`backdrop-blur-xl border border-black/12 rounded-[18px] w-[380px] shadow-lg overflow-hidden max-h-[520px] overflow-y-auto transition-all duration-200 ${
+              isMinimizedForSpecialSpot ? "scale-[0.97] opacity-85 translate-y-4 pointer-events-none" : "scale-100 opacity-100 translate-y-0"
+            }`}
             style={{ background: "var(--color-modal-surface)", scrollbarWidth: "none" }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -202,7 +209,9 @@ export default function SettingsModal() {
           onClick={() => setSettingsOpen(false)}
         >
           <div
-            className="w-full max-h-[90vh] overflow-y-auto rounded-t-[24px] shadow-2xl pb-7"
+            className={`w-full max-h-[90vh] overflow-y-auto rounded-t-[24px] shadow-2xl pb-7 transition-all duration-200 ${
+              isMinimizedForSpecialSpot ? "scale-[0.98] opacity-85 translate-y-8 pointer-events-none" : "scale-100 opacity-100 translate-y-0"
+            }`}
             style={{ background: "var(--color-modal-surface)", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}
             onClick={(e) => e.stopPropagation()}
           >

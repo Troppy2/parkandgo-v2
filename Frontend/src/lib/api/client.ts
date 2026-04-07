@@ -5,10 +5,11 @@ import axios from "axios"
 const apiUrl = import.meta.env.VITE_API_URL
 const resolvedApiUrl = apiUrl || (import.meta.env.DEV ? "http://localhost:8000/api" : "")
 
+// This is a sanity check to prevent accidentally building a production bundle without setting VITE_API_URL
 if (!resolvedApiUrl) {
   throw new Error("VITE_API_URL is not set. Configure it before building for production.")
 }
-
+// This client instance is used for all API calls. Interceptors handle token attachment and refresh.
 const client = axios.create({
   baseURL: resolvedApiUrl,
   timeout: 20000,
@@ -22,6 +23,10 @@ client.interceptors.request.use((config) => {
   const token = localStorage.getItem("access_token")
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
+  }
+  const dataConsent = localStorage.getItem("parkandgo-data-consent")
+  if (dataConsent !== null) {
+    config.headers["X-Data-Consent"] = dataConsent
   }
   return config
 })

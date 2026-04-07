@@ -44,10 +44,11 @@ export default function SearchFilters({ filters, onChange, isOpen, sliderMax = 2
 
     return (
         // Matches .filters-expand — max-height animation for open/close
+        // Use higher max-height to accommodate wrapped content on mobile
         <div
             className={clsx(
                 "overflow-hidden transition-all duration-300 px-3.5",
-                isOpen ? "max-h-[200px]" : "max-h-0"
+                isOpen ? "max-h-[500px]" : "max-h-0"
             )}
         >
             {/* Parking Type section */}

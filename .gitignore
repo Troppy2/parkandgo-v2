@@ -21,3 +21,6 @@ parkandgo_db_postgres
 
 # Claude folder
 .claude/
+
+# Ruff cache - linting cache that can be safely ignored
+.ruff_cache/

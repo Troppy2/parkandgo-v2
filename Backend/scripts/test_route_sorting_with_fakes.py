@@ -12,9 +12,8 @@ Usage:
 import asyncio
 import sys
 import os
-from datetime import datetime
-from unittest.mock import Mock, patch, AsyncMock
-from math import radians, sin, cos, sqrt, atan2
+from unittest.mock import Mock, AsyncMock
+from math import radians, sin, cos, sqrt
 
 # Add backend to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)) + '/..')

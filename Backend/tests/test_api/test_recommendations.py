@@ -2,24 +2,23 @@
 Tests for GET /api/recommendations/ endpoint.
 
 Covers:
-- Recommendations require auth (401 without token)
+- Recommendations doesn't require authentication (but works if user is authenticated) it returns 200 for both cases
 - Response includes score and score_breakdown
 - limit param is respected
 - Higher scored spots appear first
 - campus_location filter works
 - verified_only filter works
 """
-import pytest
 from httpx import AsyncClient
 from app.models.user import User
 from app.models.parking_spot import ParkingSpot
 from tests.conftest import auth_header
 
 
-class TestRecommendationsAuth:
-    async def test_unauthenticated_returns_401(self, client: AsyncClient):
+class TestRecommendationsUnauthenticated:
+    async def test_unauthenticated_returns_200(self, client: AsyncClient):
         resp = await client.get("/api/recommendations/")
-        assert resp.status_code == 401
+        assert resp.status_code == 200
 
 
 class TestRecommendationsResponse:

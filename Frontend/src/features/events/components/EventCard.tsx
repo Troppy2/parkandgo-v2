@@ -36,6 +36,50 @@ export default function EventCard({ event, onMapClick }: EventCardProps) {
 
   const isPinned = PINNED_CATEGORIES.includes(event.category)
   const badgeStyle = CATEGORY_STYLES[event.category] ?? CATEGORY_STYLES["Academics"]
+  const hasCoordinates = event.latitude != null && event.longitude != null
+
+  const handleReminderToggle = async () => {
+    const newReminderSet = !reminderSet;
+    setReminderSet(newReminderSet);
+
+    // If enabling reminder, request notification permission and show notification
+    if (newReminderSet) {
+      if (typeof Notification === "undefined") {
+        console.warn("Notifications not supported");
+        setReminderSet(false);
+        return;
+      }
+
+      // Request permission if not already granted
+      if (Notification.permission === "denied") {
+        console.warn("Notification permission denied");
+        setReminderSet(false);
+        return;
+      }
+
+      if (Notification.permission === "default") {
+        const permission = await Notification.requestPermission();
+        if (permission !== "granted") {
+          setReminderSet(false);
+          return;
+        }
+      }
+
+      // Send notification to confirm reminder is set
+      if (Notification.permission === "granted") {
+        try {
+          new Notification("Reminder Set", {
+            body: `You'll be reminded about ${event.title} on ${startsAt?.toLocaleDateString()}`,
+            icon: "/icons/icon-192x192.png",
+            tag: `reminder-${event.event_id}`,
+            badge: "/icons/icon-96x96.png",
+          });
+        } catch (err) {
+          console.error("Failed to show notification:", err);
+        }
+      }
+    }
+  };
 
   return (
     // Matches .ev-item / .ev-item.pinned
@@ -81,10 +125,17 @@ export default function EventCard({ event, onMapClick }: EventCardProps) {
       {/* Action buttons — matches .ev-btns */}
       <div className="flex gap-1.5">
 
-        {/* Map button — matches .ev-map-btn */}
+        {/* Map button — matches .ev-map-btn, disabled if no coordinates */}
         <button
           onClick={() => onMapClick(event)}
-          className="flex-1 text-[10px] font-semibold text-blue bg-blue/7 border border-blue/15 rounded-[6px] py-1.5 text-center transition-transform duration-200 hover:-translate-y-[1px]"
+          disabled={!hasCoordinates}
+          className={clsx(
+            "flex-1 text-[10px] font-semibold rounded-[6px] py-1.5 text-center border transition-all duration-200 hover:-translate-y-[1px]",
+            hasCoordinates
+              ? "text-blue bg-blue/7 border-blue/15 cursor-pointer hover:bg-blue/10"
+              : "text-text3 bg-bg2 border-black/5 cursor-not-allowed opacity-60"
+          )}
+          title={hasCoordinates ? "Show event on map" : "Location not available"}
         >
           <i className="bi bi-map mr-1" />
           Map
@@ -92,7 +143,7 @@ export default function EventCard({ event, onMapClick }: EventCardProps) {
 
         {/* Reminder button — matches .ev-rem-btn / .ev-rem-btn.set */}
         <button
-          onClick={() => setReminderSet(!reminderSet)}
+          onClick={handleReminderToggle}
           className={clsx(
             "flex-1 text-[10px] font-semibold rounded-[6px] py-1.5 text-center border transition-all duration-200 hover:-translate-y-[1px]",
             reminderSet ? "bg-maroon text-white border-maroon" : "bg-maroon-light text-maroon border-maroon/20"

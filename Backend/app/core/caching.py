@@ -1,9 +1,9 @@
 import redis.asyncio as redis
-from app.core.config import settings
+from app.core.config import USE_REDIS, settings
 
 
 class _NullRedis:
-    """No-op Redis stub used when Redis is unavailable (e.g. local dev without Redis)."""
+    """No-op Redis stub used when USE_REDIS=false or when the Redis server is unreachable."""
     async def get(self, key: str): return None
     async def setex(self, key: str, time: int, value: str): pass
     async def delete(self, *keys: str): pass
@@ -12,8 +12,7 @@ class _NullRedis:
 
 
 _redis_client: redis.Redis | None = None
-_redis_available: bool = True
-
+_redis_available: bool = USE_REDIS  # False when USE_REDIS=false — get_redis() returns _NullRedis immediately
 
 async def get_redis() -> redis.Redis | _NullRedis:
     global _redis_client, _redis_available

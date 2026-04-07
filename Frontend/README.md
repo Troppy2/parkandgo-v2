@@ -71,3 +71,22 @@ export default defineConfig([
   },
 ])
 ```
+
+## Android APK Build and Distribution
+
+Use this flow for Capacitor Android builds:
+
+```bash
+npm run build
+npx cap sync android
+cd android
+./gradlew assembleRelease
+```
+
+Release APK output:
+
+```text
+android/app/build/outputs/apk/release/app-release.apk
+```
+
+For distribution, sign the APK/AAB and upload through your chosen channel (Google Play internal testing, managed MDM, or direct secure sharing).

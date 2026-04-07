@@ -1,5 +1,5 @@
 import { create } from "zustand"
-import { persist } from "zustand/middleware"  // ← new import
+import { persist } from "zustand/middleware"
 import type { Map as MaplibreMap } from "maplibre-gl"
 
 // Toast type (already exists from Phase 11)
@@ -41,10 +41,26 @@ interface UIState {
   setDirectionsOnly: (v: boolean) => void
   darkMode: boolean
   setDarkMode: (v: boolean) => void
+  dataConsent: boolean
+  setDataConsent: (v: boolean) => void
+  ttsEnabled: boolean
+  setTTSEnabled: (v: boolean) => void
+  selectedTTSVoice: string | null
+  setSelectedTTSVoice: (voiceName: string | null) => void
+  campusRoutingEnabled: boolean
+  setCampusRoutingEnabled: (v: boolean) => void
 
   // ── Map instance (from Phase 18) ──
   mapInstance: MaplibreMap | null
   setMapInstance: (map: MaplibreMap) => void
+
+  // ── Network status ──
+  isOffline: boolean
+  setOffline: (offline: boolean) => void
+  // ── Kojo AI assistant ──
+  //To-Do
+
+
 }
 
 // persist middleware wraps create() and saves specified fields to localStorage
@@ -88,10 +104,22 @@ export const useUIStore = create<UIState>()(
       setDirectionsOnly: (v) => set({ directionsOnly: v }),
       darkMode: false,
       setDarkMode: (v) => set({ darkMode: v }),
+      dataConsent: false,
+      setDataConsent: (v) => set({ dataConsent: v }),
+      ttsEnabled: false,
+      setTTSEnabled: (v) => set({ ttsEnabled: v }),
+      selectedTTSVoice: null,
+      setSelectedTTSVoice: (voiceName) => set({ selectedTTSVoice: voiceName }),
+      campusRoutingEnabled: true,
+      setCampusRoutingEnabled: (v) => set({ campusRoutingEnabled: v }),
 
       // Map instance — never persisted, recreated on mount
       mapInstance: null,
       setMapInstance: (map) => set({ mapInstance: map }),
+
+      // Network status — never persisted, derived from browser events on mount
+      isOffline: false,
+      setOffline: (offline) => set({ isOffline: offline }),
     }),
     {
       name: "parkandgo-ui",   // localStorage key
@@ -102,6 +130,10 @@ export const useUIStore = create<UIState>()(
         verifiedOnly: state.verifiedOnly,
         directionsOnly: state.directionsOnly,
         darkMode: state.darkMode,
+        dataConsent: state.dataConsent,
+        ttsEnabled: state.ttsEnabled,
+        selectedTTSVoice: state.selectedTTSVoice,
+        campusRoutingEnabled: state.campusRoutingEnabled,
       }),
     }
   )

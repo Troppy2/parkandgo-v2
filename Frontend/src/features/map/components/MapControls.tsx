@@ -23,6 +23,8 @@ function ControlButton({ onClick, title, children, border }: ControlButtonProps)
         text-[#1a1a1a] hover:text-[#7A0019]
         hover:bg-[#7A0019]/8 active:bg-[#7A0019]/14
         transition-colors duration-150 cursor-pointer
+        appearance-none outline-none border-0
+        active:outline-none active:border-0 active:shadow-none
         ${border ? "border-t border-black/8" : ""}
       `}
     >

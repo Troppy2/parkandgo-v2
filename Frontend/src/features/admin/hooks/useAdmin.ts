@@ -1,13 +1,18 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import {
   getAdminStats,
+  getAllSpots,
   getUnverifiedSpots,
   verifySpot,
   deleteSpot,
+  createAdminSpot,
+  updateAdminSpot,
   triggerEventSync,
   getAllConfig,
   updateConfig,
+  type ParkingSpotUpdateBody,
 } from "../services/adminApi"
+import type { ParkingSpotCreate } from "@/types/parking.types"
 import { useUIStore } from "@/store/uiStore"
 
 export function useAdminStats() {
@@ -15,6 +20,13 @@ export function useAdminStats() {
     queryKey: ["admin", "stats"],
     queryFn: getAdminStats,
     refetchInterval: 30_000,
+  })
+}
+
+export function useAllSpots() {
+  return useQuery({
+    queryKey: ["admin", "all-spots"],
+    queryFn: getAllSpots,
   })
 }
 
@@ -46,6 +58,46 @@ export function useDeleteSpot() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin"] })
       showToast("Spot rejected", "success")
+    },
+    onError: () => showToast("Failed to delete spot", "error"),
+  })
+}
+
+export function useCreateAdminSpot() {
+  const qc = useQueryClient()
+  const showToast = useUIStore((s) => s.showToast)
+  return useMutation({
+    mutationFn: (body: ParkingSpotCreate) => createAdminSpot(body),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin"] })
+      showToast("Spot created", "success")
+    },
+    onError: () => showToast("Failed to create spot", "error"),
+  })
+}
+
+export function useUpdateAdminSpot() {
+  const qc = useQueryClient()
+  const showToast = useUIStore((s) => s.showToast)
+  return useMutation({
+    mutationFn: ({ spotId, body }: { spotId: number; body: ParkingSpotUpdateBody }) =>
+      updateAdminSpot(spotId, body),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin"] })
+      showToast("Spot updated", "success")
+    },
+    onError: () => showToast("Failed to update spot", "error"),
+  })
+}
+
+export function useAdminDeleteSpot() {
+  const qc = useQueryClient()
+  const showToast = useUIStore((s) => s.showToast)
+  return useMutation({
+    mutationFn: deleteSpot,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin"] })
+      showToast("Spot deleted", "success")
     },
     onError: () => showToast("Failed to delete spot", "error"),
   })

@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from jose import jwt, JWTError
+from jose import jwt
 from app.core.config import settings
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 hours

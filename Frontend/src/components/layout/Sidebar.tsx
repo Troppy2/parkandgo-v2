@@ -119,6 +119,8 @@ export default function Sidebar({
     });
   };
 
+  const [filtersCollapsed, setFiltersCollapsed] = useState(false)
+
   const activeTypeFilter = filters.parking_type ?? "All"
 
   const toggleType = (value: ParkingType | "All") => {
@@ -192,60 +194,84 @@ export default function Sidebar({
         </div>
       </div>
 
-      {/* ── PARKING TYPE FILTER PILLS ── (D4) */}
+      {/* ── FILTERS (collapsible) ── */}
       {activeTab === "spots" && (
-        <div className="px-3.5 py-2 flex gap-1.5 overflow-x-auto border-b border-black/6 scrollbar-none flex-shrink-0 items-center">
-          {PARKING_TYPE_FILTERS.map(({ label, value, icon }) => (
+        <>
+          {/* Filter header row with collapse toggle */}
+          <div className="px-3.5 py-1.5 flex items-center justify-between border-b border-black/6 flex-shrink-0">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-text2">Filters</span>
             <button
-              key={value}
-              onClick={() => toggleType(value)}
-              className={clsx(
-                "flex-shrink-0 flex items-center gap-1",
-                activeTypeFilter === value ? "chip chip-ac" : "chip"
-              )}
+              onClick={() => setFiltersCollapsed(!filtersCollapsed)}
+              aria-expanded={!filtersCollapsed}
+              aria-label="Toggle filters"
+              className="flex items-center gap-1 text-[11px] font-semibold text-maroon hover:text-maroon-hover transition-colors"
             >
-              {icon && <i className={`bi ${icon} text-[10px]`} />}
-              {label}
+              {filtersCollapsed ? "Show" : "Hide"}
+              <i className={clsx(
+                "bi bi-chevron-down text-[10px] transition-transform duration-200",
+                filtersCollapsed ? "" : "rotate-180"
+              )} />
             </button>
-          ))}
-          {/* Reset button — only when filters are active */}
-          {hasActiveFilters && (
-            <button
-              onClick={resetFilters}
-              className="flex-shrink-0 flex items-center gap-1 chip border-maroon/50 text-maroon ml-auto hover:bg-maroon-light"
-              title="Reset all filters"
-            >
-              <i className="bi bi-x-circle text-[10px]" />
-              Reset
-            </button>
-          )}
-        </div>
-      )}
+          </div>
 
-      {/* ── COST SLIDER ── (D5) */}
-      {activeTab === "spots" && (
-        <div className="px-3.5 py-2.5 border-b border-black/6 flex-shrink-0">
-          <div className="flex items-center justify-between mb-1.5">
-            <div className="text-[10px] font-semibold text-text2 uppercase tracking-wider">
-              MAX COST / HR
+          {/* Collapsible filter body — max-height CSS transition, no DOM removal */}
+          <div className={clsx(
+            "overflow-hidden transition-[max-height] duration-300 ease-in-out flex-shrink-0",
+            filtersCollapsed ? "max-h-0" : "max-h-[200px]"
+          )}>
+            {/* Parking type pills (D4) */}
+            <div className="px-3.5 py-2 flex gap-1.5 overflow-x-auto border-b border-black/6 scrollbar-none items-center">
+              {PARKING_TYPE_FILTERS.map(({ label, value, icon }) => (
+                <button
+                  key={value}
+                  onClick={() => toggleType(value)}
+                  className={clsx(
+                    "flex-shrink-0 flex items-center gap-1",
+                    activeTypeFilter === value ? "chip chip-ac" : "chip"
+                  )}
+                >
+                  {icon && <i className={`bi ${icon} text-[10px]`} />}
+                  {label}
+                </button>
+              ))}
+              {/* Reset button — only when filters are active */}
+              {hasActiveFilters && (
+                <button
+                  onClick={resetFilters}
+                  className="flex-shrink-0 flex items-center gap-1 chip border-maroon/50 text-maroon ml-auto hover:bg-maroon-light"
+                  title="Reset all filters"
+                >
+                  <i className="bi bi-x-circle text-[10px]" />
+                  Reset
+                </button>
+              )}
             </div>
-            <div className="text-xs font-bold text-maroon">
-              {(filters.max_cost ?? sliderMax) >= sliderMax ? "Any" : `$${filters.max_cost?.toFixed(2)}/hr`}
+
+            {/* Cost slider (D5) */}
+            <div className="px-3.5 py-2.5 border-b border-black/6">
+              <div className="flex items-center justify-between mb-1.5">
+                <div className="text-[10px] font-semibold text-text2 uppercase tracking-wider">
+                  MAX COST / HR
+                </div>
+                <div className="text-xs font-bold text-maroon">
+                  {(filters.max_cost ?? sliderMax) >= sliderMax ? "Any" : `$${filters.max_cost?.toFixed(2)}/hr`}
+                </div>
+              </div>
+              <input
+                type="range"
+                min={0}
+                max={sliderMax}
+                step={0.5}
+                value={filters.max_cost ?? sliderMax}
+                onChange={(e) =>
+                  setFilters((prev) => ({ ...prev, max_cost: Number(e.target.value) }))
+                }
+                style={{ accentColor: "#7A0019" }}
+                className="w-full"
+              />
             </div>
           </div>
-          <input
-            type="range"
-            min={0}
-            max={sliderMax}
-            step={0.5}
-            value={filters.max_cost ?? sliderMax}
-            onChange={(e) =>
-              setFilters((prev) => ({ ...prev, max_cost: Number(e.target.value) }))
-            }
-            style={{ accentColor: "#7A0019" }}
-            className="w-full"
-          />
-        </div>
+        </>
       )}
 
       {/* ── TAB SWITCHER ── (D6) */}

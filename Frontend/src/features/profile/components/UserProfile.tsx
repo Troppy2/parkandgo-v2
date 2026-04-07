@@ -16,10 +16,13 @@ const profileSchema = z.object({
   grade_level: z.enum(["Freshman", "Sophomore", "Junior", "Senior", "Graduate", "Other"]).optional(),
   graduation_year: z.coerce.number().min(2024).max(2035).optional().or(z.literal("")),
   housing_type: z.enum(["On Campus", "Off Campus", "Commuter"]).optional(),
+  preferred_parking_types: z.string().max(250).optional().or(z.literal("")),
 });
 
 type ProfileFormInput = z.input<typeof profileSchema>;
 type ProfileFormData = z.output<typeof profileSchema>;
+
+const PARKING_TYPES = ["Parking Garage", "Surface Lot", "Street Parking"] as const;
 
 export default function UserProfile() {
   const user = useAuthStore((s) => s.user);
@@ -30,7 +33,7 @@ export default function UserProfile() {
     ? `${user.first_name[0]}${user.last_name[0]}`.toUpperCase()
     : "?";
 
-  const { register, handleSubmit, formState: { errors, isDirty } } = useForm<
+  const { register, handleSubmit, formState: { errors, isDirty }, watch, setValue } = useForm<
     ProfileFormInput,
     unknown,
     ProfileFormData
@@ -42,8 +45,26 @@ export default function UserProfile() {
       grade_level: (user?.grade_level ?? undefined) as ProfileFormData["grade_level"],
       graduation_year: user?.graduation_year ?? undefined,
       housing_type: (user?.housing_type ?? undefined) as ProfileFormData["housing_type"],
+      preferred_parking_types: user?.preferred_parking_types ?? "",
     },
   });
+
+  const preferredParkingTypesValue = watch("preferred_parking_types");
+
+  const toggleParkingType = (type: string) => {
+    const currentTypes = preferredParkingTypesValue
+      ? preferredParkingTypesValue.split(",").map((t) => t.trim())
+      : [];
+    
+    let newTypes: string[];
+    if (currentTypes.includes(type)) {
+      newTypes = currentTypes.filter((t) => t !== type);
+    } else {
+      newTypes = [...currentTypes, type];
+    }
+    
+    setValue("preferred_parking_types", newTypes.join(", "), { shouldDirty: true });
+  };
 
   const setAuth = useAuthStore((s) => s.setAuth);
 
@@ -169,6 +190,36 @@ export default function UserProfile() {
               <option key={housing} value={housing}>{housing}</option>
             ))}
           </select>
+        </div>
+
+        <div>
+          <label className="block text-[11px] font-semibold text-text2 mb-1.5">
+            Preferred Parking Types
+          </label>
+          <div className="flex flex-wrap gap-1.5">
+            {PARKING_TYPES.map((type) => {
+              const selected = preferredParkingTypesValue
+                ?.split(",")
+                .map((t) => t.trim())
+                .includes(type) ?? false;
+              
+              return (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => toggleParkingType(type)}
+                  className={`px-3 py-1.5 rounded-full text-[11px] font-semibold border transition-colors ${
+                    selected
+                      ? "bg-maroon text-white border-maroon"
+                      : "bg-bg border-black/9 text-text2 hover:bg-bg2"
+                  }`}
+                >
+                  {type}
+                </button>
+              );
+            })}
+          </div>
+          <p className="text-[10px] text-text3 mt-1">Select parking types you prefer for recommendations</p>
         </div>
 
         <Button

@@ -1,5 +1,7 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
+
 import RouteDisplay from "../RouteDisplay"
 import { useNavStore } from "../../../../store/navStore"
 import type { ParkingSpot } from "../../../../types/parking.types"
@@ -52,6 +54,21 @@ function createPosition(longitude: number, latitude: number, heading = 0): Geolo
   }
 }
 
+function renderRouteDisplay() {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false },
+      mutations: { retry: false },
+    },
+  })
+
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <RouteDisplay />
+    </QueryClientProvider>
+  )
+}
+
 describe("RouteDisplay", () => {
   beforeEach(() => {
     useNavStore.setState(useNavStore.getInitialState())
@@ -64,7 +81,7 @@ describe("RouteDisplay", () => {
       currentUserLocation: { coords: [-93.2277, 44.974], heading: 0 },
     })
 
-    render(<RouteDisplay />)
+    renderRouteDisplay()
 
     fireEvent.click(screen.getByRole("button", { name: "Start" }))
 
@@ -88,7 +105,7 @@ describe("RouteDisplay", () => {
       destination: fakeSpot,
     })
 
-    render(<RouteDisplay />)
+    renderRouteDisplay()
 
     fireEvent.click(screen.getByRole("button", { name: "Start" }))
 
@@ -131,7 +148,7 @@ describe("RouteDisplay", () => {
       destination: fakeSpot,
     })
 
-    render(<RouteDisplay />)
+    renderRouteDisplay()
 
     fireEvent.click(screen.getByRole("button", { name: "Start" }))
 

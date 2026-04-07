@@ -12,11 +12,9 @@ Test data mimics real geolocation scenarios:
 """
 
 import pytest
-from datetime import datetime
-from unittest.mock import Mock, patch, AsyncMock
+from unittest.mock import Mock
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.schemas.recommendation import RecommendationResponse
 from app.services.recommendation_engine import RecommendationEngine
 from app.models.parking_spot import ParkingSpot
 from app.models.user import User

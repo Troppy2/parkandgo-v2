@@ -13,7 +13,7 @@ from app.models.user import User
 from app.models.campus_event import CampusEvent
 from app.repositories.app_config_repository import AppConfigRepository
 from app.repositories.parking_repository import ParkingRepository
-from app.schemas.parking_spot import ParkingSpotResponse
+from app.schemas.parking_spot import ParkingSpotResponse, ParkingSpotCreate, ParkingSpotUpdate
 from app.services.event_sync_service import EventSyncService
 
 router = APIRouter(prefix="/admin", tags=["admin"])
@@ -47,6 +47,32 @@ async def get_admin_info(current_admin: User = Depends(get_admin_user)):
 
 # ── Spot management ──
 
+@router.get("/spots/", response_model=list[ParkingSpotResponse])
+async def get_all_spots(
+    admin: User = Depends(get_admin_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Return every parking spot regardless of verification status."""
+    repo = ParkingRepository(db)
+    return await repo.get_all()
+
+
+@router.post("/spots/", response_model=ParkingSpotResponse, status_code=201)
+async def create_spot(
+    body: ParkingSpotCreate,
+    admin: User = Depends(get_admin_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Admin-create a new parking spot (pre-verified by default)."""
+    repo = ParkingRepository(db)
+    data = body.model_dump()
+    data.setdefault("is_verified", True)
+    spot = await repo.create(data)
+    cache = await get_redis()
+    await invalidate_recommendation_cache(cache)
+    return spot
+
+
 @router.get("/spots/unverified", response_model=list[ParkingSpotResponse])
 async def get_unverified_spots(
     admin: User = Depends(get_admin_user),
@@ -72,6 +98,24 @@ async def verify_spot(
 
     spot.is_verified = True
     await db.flush()
+    cache = await get_redis()
+    await invalidate_recommendation_cache(cache)
+    return spot
+
+
+@router.patch("/spots/{spot_id}", response_model=ParkingSpotResponse)
+async def update_spot(
+    spot_id: int,
+    body: ParkingSpotUpdate,
+    admin: User = Depends(get_admin_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Partially update any field on a parking spot."""
+    repo = ParkingRepository(db)
+    updates = body.model_dump(exclude_unset=True)
+    spot = await repo.update(spot_id, updates)
+    if not spot:
+        raise HTTPException(status_code=404, detail="Parking spot not found")
     cache = await get_redis()
     await invalidate_recommendation_cache(cache)
     return spot

@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, delete
+from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from app.models.saved_spot import SavedSpot
 from app.repositories.base import BaseRepository
@@ -47,6 +47,6 @@ class SavedSpotRepository(BaseRepository):
         saved = await self.get_by_user_and_spot(user_id, spot_id)
         if not saved:
             return False
-        await self.session.delete(saved)  # AsyncSession.delete() is a coroutine
+        await self.session.delete(saved)
         await self.session.flush()
         return True

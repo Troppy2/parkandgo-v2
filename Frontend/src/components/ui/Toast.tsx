@@ -22,7 +22,7 @@ function ToastItem({
   return (
     <div
       className={clsx(
-        "flex items-center gap-3 px-4 py-3 rounded-xl shadow-md",
+        "flex items-center gap-3 px-4 py-3 rounded-xl shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg",
         "text-[13px] font-medium text-white",
         "animate-slide-up pointer-events-auto",
       )}
@@ -32,7 +32,7 @@ function ToastItem({
       <span className="flex-1">{message}</span>
       <button
         onClick={() => removeToast(id)}
-        className="ml-auto opacity-70 hover:opacity-100 flex-shrink-0"
+        className="ml-auto opacity-70 hover:opacity-100 flex-shrink-0 transition-opacity"
       >
         <i className="bi bi-x" />
       </button>

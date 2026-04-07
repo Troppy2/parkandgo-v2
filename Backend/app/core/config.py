@@ -1,8 +1,17 @@
 import json
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from pydantic import field_validator
 from pydantic_settings import BaseSettings
 
+# Read environment variables at module load time to avoid issues with async Redis initialization later on.
+# Default to empty string — avoids AttributeError if vars are absent (e.g. CI, fresh clone).
+_allowed_origins_raw = os.getenv("ALLOWED_ORIGINS", "").strip()
+_admin_emails_raw = os.getenv("ADMIN_EMAILS", "").strip()
+USE_REDIS = os.getenv("USE_REDIS", "false").strip().lower() in {"1", "true", "yes", "on"}
 
 class Settings(BaseSettings):
     # Database
@@ -16,15 +25,16 @@ class Settings(BaseSettings):
     # Redis — caching layer
     redis_url: str = "redis://localhost:6379"
 
+    use_redis: bool = USE_REDIS  # Flag to enable/disable Redis caching
     # Admin — comma-separated list of emails authorized for admin access
-    admin_emails: str = ""
+    admin_emails: str = _admin_emails_raw
 
     # App environment flag
     environment: str = "development"
     debug: bool = True
 
     # CORS — stored as a plain env string so pydantic-settings won't try to JSON-decode it first
-    allowed_origins: str = "http://localhost:3000"
+    allowed_origins: str = _allowed_origins_raw
 
     @property
     def admin_email_set(self) -> set[str]:
@@ -47,10 +57,20 @@ class Settings(BaseSettings):
 
     @property
     def allowed_origins_list(self) -> list[str]:
-        """Accept CORS origins from env as JSON list or comma-separated string."""
+        """Accept CORS origins from env as JSON list or comma-separated string.
+
+        Handles three formats:
+          ["https://a.com","https://b.com"]   ← valid JSON array
+          [https://a.com, https://b.com]       ← bracket notation without quotes (common mistake)
+          https://a.com,https://b.com          ← plain CSV (preferred)
+        """
         normalized = self.allowed_origins.strip()
         if not normalized:
             return []
+
+        # Strip stray outer brackets before attempting JSON — catches the common
+        # copy-paste mistake of [url1, url2] where URLs are not quoted.
+        stripped = normalized.lstrip("[").rstrip("]").strip() if normalized.startswith("[") else normalized
 
         if normalized.startswith("["):
             try:
@@ -58,7 +78,8 @@ class Settings(BaseSettings):
                 if isinstance(parsed, list):
                     return [str(origin).strip() for origin in parsed if str(origin).strip()]
             except json.JSONDecodeError:
-                pass
+                # Fall through: treat bracket-stripped value as CSV
+                normalized = stripped
 
         return [origin.strip() for origin in normalized.split(",") if origin.strip()]
 

@@ -9,7 +9,6 @@ Covers:
 - GET /api/parking/ returns all spots
 - GET /api/parking/search works with query
 """
-import pytest
 from httpx import AsyncClient
 from app.models.user import User
 from app.models.parking_spot import ParkingSpot

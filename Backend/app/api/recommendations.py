@@ -1,17 +1,15 @@
 import logging
 from fastapi import APIRouter, Depends, Query, HTTPException
-from pydantic import BaseModel
 import redis.asyncio as redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = logging.getLogger(__name__)
-from app.services.recommendation_engine import RecommendationEngine, ScoredSpot
+from app.services.recommendation_engine import RecommendationEngine
 from app.core.database import get_db
-from app.api.deps import get_current_user, get_optional_user
+from app.api.deps import get_optional_user
 from app.models.user import User
 from app.repositories.parking_repository import ParkingRepository
 from app.repositories.event_repository import EventRepository
-from app.schemas.parking_spot import ParkingSpotResponse
 from app.schemas.recommendation import RecommendationResponse
 import json
 from app.core.caching import get_redis
@@ -61,7 +59,7 @@ async def get_recommendations(
         if cached:
             return json.loads(cached)
     except Exception:
-        cache = None  # Redis unavailable — fall through to live query
+        cache = None  # Redis unavailable - fall through to live query
 
     repo = ParkingRepository(db)
     engine = RecommendationEngine(repo)

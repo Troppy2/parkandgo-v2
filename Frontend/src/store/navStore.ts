@@ -43,6 +43,9 @@ interface NavState {
   // routing
   route: RouteResult | null;
   currentStepIndex: number;
+  rememberedSpot: ParkingSpot | null;
+  arrivalRememberPromptOpen: boolean;
+  arrivalRememberSpot: ParkingSpot | null;
 
   // Actions
   startNavigation: (spot: ParkingSpot) => void;
@@ -57,6 +60,9 @@ interface NavState {
   setRouteError: (message: string) => void;
   clearRouteNotice: () => void;
   advanceStep: () => void;
+  setRememberedSpot: (spot: ParkingSpot | null) => void;
+  promptRememberSpot: (spot: ParkingSpot) => void;
+  dismissRememberSpotPrompt: () => void;
 }
 
 const routeLoadingState = {
@@ -84,6 +90,9 @@ export const useNavStore = create<NavState>((set) => ({
   routeRequestId: 0,
   route: null,
   currentStepIndex: 0,
+  rememberedSpot: null,
+  arrivalRememberPromptOpen: false,
+  arrivalRememberSpot: null,
 
   startNavigation: (spot) =>
     set({
@@ -100,6 +109,8 @@ export const useNavStore = create<NavState>((set) => ({
       routeRequestId: 0,
       route: null,
       currentStepIndex: 0,
+      arrivalRememberPromptOpen: false,
+      arrivalRememberSpot: null,
     }),
 
   beginNavigation: () =>
@@ -216,4 +227,18 @@ export const useNavStore = create<NavState>((set) => ({
         (state.route?.steps.length ?? 1) - 1
       ),
     })),
+
+  setRememberedSpot: (spot) => set({ rememberedSpot: spot }),
+
+  promptRememberSpot: (spot) =>
+    set({
+      arrivalRememberPromptOpen: true,
+      arrivalRememberSpot: spot,
+    }),
+
+  dismissRememberSpotPrompt: () =>
+    set({
+      arrivalRememberPromptOpen: false,
+      arrivalRememberSpot: null,
+    }),
 }));

@@ -2,6 +2,7 @@ import { useState } from "react";
 import clsx from "clsx";
 import { useSearch } from "../hooks/useSearch";
 import { useNavStore } from "../../../store/navStore";
+import { logContextEvent } from "../../navigation/services/navigationApi";
 
 interface SearchBarProps {
   onSettingsClick?: () => void;
@@ -75,6 +76,10 @@ export default function SearchBar({ onSettingsClick }: SearchBarProps) {
                 key={spot.spot_id}
                 onMouseDown={() => {
                   startNavigation(spot);
+                  void logContextEvent("search_navigation_click", {
+                    spot_id: spot.spot_id,
+                    query,
+                  }).catch(() => undefined)
                   setQuery("");
                 }}
                 className={clsx(

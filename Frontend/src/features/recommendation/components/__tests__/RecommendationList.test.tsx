@@ -10,6 +10,8 @@ import { MemoryRouter } from 'react-router-dom'
 import RecommendationList from '../RecommendationList'
 import { useAuthStore } from '../../../../store/authStore'
 import { useUIStore } from '../../../../store/uiStore'
+import { useRecommendationStore } from '../../../../store/recommendationStore'
+import { useNavStore } from '../../../../store/navStore'
 import type { RecommendationResponse } from '../../../../types/recommendation.types'
 
 // Mock the hook — this avoids needing to mock axios/network
@@ -66,7 +68,10 @@ describe('RecommendationList integration', () => {
       ...useUIStore.getState(),
       verifiedOnly: false,
       directionsOnly: false,
+      isOffline: false,
     })
+    useRecommendationStore.setState({ cachedRecommendations: [] })
+    useNavStore.setState(useNavStore.getInitialState())
   })
 
   it('shows sign-in prompt when not authenticated', () => {
@@ -122,6 +127,22 @@ describe('RecommendationList integration', () => {
     expect(screen.getByText('Free')).toBeInTheDocument()
   })
 
+  it('pins the remembered parking spot at the top when available', () => {
+    useNavStore.setState({
+      rememberedSpot: {
+        ...fakeRec.spot,
+        spot_id: 999,
+        spot_name: 'Remembered Spot',
+      },
+    })
+    mockUseRecommendations.mockReturnValue({ data: [fakeRec], isLoading: false, isError: false } as never)
+
+    render(<RecommendationList />, { wrapper: Wrapper })
+
+    expect(screen.getByText(/remembered parking spot/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /navigate to remembered spot/i })).toBeInTheDocument()
+  })
+
   it('filters out spots without directions when enabled in settings', () => {
     const brokenRec = {
       ...fakeRec,
@@ -145,5 +166,59 @@ describe('RecommendationList integration', () => {
     expect(screen.getByText('Oak Street Ramp')).toBeInTheDocument()
     expect(screen.queryByText('Broken Spot')).not.toBeInTheDocument()
     expect(screen.getByText('Directions')).toBeInTheDocument()
+  })
+
+  // ── Offline fallback behaviour ────────────────────────────────────────────
+
+  it('shows cached data when offline even if the query has not errored yet', () => {
+    // Simulate offline + no query error (TanStack may serve stale in-memory data)
+    useUIStore.setState({ ...useUIStore.getState(), isOffline: true })
+    useRecommendationStore.setState({ cachedRecommendations: [fakeRec] })
+    // Query returns undefined (pending/stale) — no error
+    mockUseRecommendations.mockReturnValue({ data: undefined, isLoading: false, isError: false } as never)
+
+    render(<RecommendationList />, { wrapper: Wrapper })
+
+    expect(screen.getByText('Oak Street Ramp')).toBeInTheDocument()
+  })
+
+  it('shows the offline notice banner when offline with cached data', () => {
+    useUIStore.setState({ ...useUIStore.getState(), isOffline: true })
+    useRecommendationStore.setState({ cachedRecommendations: [fakeRec] })
+    mockUseRecommendations.mockReturnValue({ data: undefined, isLoading: false, isError: false } as never)
+
+    render(<RecommendationList />, { wrapper: Wrapper })
+
+    expect(screen.getByText(/you're offline/i)).toBeInTheDocument()
+  })
+
+  it('shows cached data when online but the query fails', () => {
+    useUIStore.setState({ ...useUIStore.getState(), isOffline: false })
+    useRecommendationStore.setState({ cachedRecommendations: [fakeRec] })
+    mockUseRecommendations.mockReturnValue({ data: undefined, isLoading: false, isError: true } as never)
+
+    render(<RecommendationList />, { wrapper: Wrapper })
+
+    expect(screen.getByText('Oak Street Ramp')).toBeInTheDocument()
+  })
+
+  it('shows the error state when online, query fails, and no cache exists', () => {
+    useUIStore.setState({ ...useUIStore.getState(), isOffline: false })
+    useRecommendationStore.setState({ cachedRecommendations: [] })
+    mockUseRecommendations.mockReturnValue({ data: undefined, isLoading: false, isError: true } as never)
+
+    render(<RecommendationList />, { wrapper: Wrapper })
+
+    expect(screen.getByText(/error loading recommendations/i)).toBeInTheDocument()
+  })
+
+  it('does not show the offline notice when online even with cached data', () => {
+    useUIStore.setState({ ...useUIStore.getState(), isOffline: false })
+    useRecommendationStore.setState({ cachedRecommendations: [fakeRec] })
+    mockUseRecommendations.mockReturnValue({ data: [fakeRec], isLoading: false, isError: false } as never)
+
+    render(<RecommendationList />, { wrapper: Wrapper })
+
+    expect(screen.queryByText(/you're offline/i)).not.toBeInTheDocument()
   })
 })

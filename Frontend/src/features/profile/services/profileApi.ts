@@ -28,9 +28,9 @@ export async function unsaveSpot(spotId: number): Promise<void> {
   await apiClient.delete(ENDPOINTS.USERS.SAVED(spotId))
 }
 
-// Rename a saved spot — PATCH /users/me/saved/:spotId/rename with { custom_name }
+// Rename a saved spot — PATCH /users/me/saved/:spotId with { custom_name }
 export async function renameSpot(spotId: number, customName: string): Promise<SavedSpot> {
-  const { data } = await apiClient.patch(ENDPOINTS.USERS.RENAME(spotId), {
+  const { data } = await apiClient.patch(ENDPOINTS.USERS.SAVED(spotId), {
     custom_name: customName,
   })
   return data
