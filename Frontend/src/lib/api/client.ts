@@ -3,7 +3,7 @@
 import axios from "axios"
 
 const apiUrl = import.meta.env.VITE_API_URL
-const resolvedApiUrl = apiUrl || (import.meta.env.DEV ? "http://localhost:8000/api" : "")
+const resolvedApiUrl = apiUrl?.trim()
 
 // This is a sanity check to prevent accidentally building a production bundle without setting VITE_API_URL
 if (!resolvedApiUrl) {

@@ -8,7 +8,7 @@ from app.schemas.parking_history import ParkingHistoryCreate, ParkingHistoryUpda
 class ParkingHistoryRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
-
+    
     async def create_history(self, user_id: int, history_data: ParkingHistoryCreate) -> ParkingHistory:
         history = ParkingHistory(user_id=user_id, **history_data.model_dump())
         self.session.add(history)

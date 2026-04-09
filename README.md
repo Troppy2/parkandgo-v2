@@ -236,6 +236,35 @@ cd Frontend
 npx vitest run
 ```
 
+## Load Testing (Locust)
+
+Run load tests against the backend with Locust.
+
+```bash
+# Install load-test dependencies
+cd Backend
+pip install -r requirements/loadtest.txt
+
+# Start Locust UI
+locust -f loadtests/locustfile.py --host http://localhost:8000
+```
+
+Open `http://localhost:8089` and start a run with your desired user count and spawn rate.
+
+Optional authenticated profile:
+
+```bash
+# PowerShell
+$env:LOCUST_JWT_TOKEN="<jwt_token_here>"
+locust -f loadtests/locustfile.py --host http://localhost:8000
+```
+
+Headless example (CI/local script):
+
+```bash
+locust -f loadtests/locustfile.py --host http://localhost:8000 --headless -u 50 -r 5 -t 3m
+```
+
 ---
 
 ## Roadmap

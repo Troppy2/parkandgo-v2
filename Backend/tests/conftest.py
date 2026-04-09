@@ -49,6 +49,13 @@ app.dependency_overrides[get_db] = override_get_db
 app.dependency_overrides[get_redis] = override_get_redis
 
 
+@pytest_asyncio.fixture(scope="session", autouse=True)
+async def dispose_test_engine():
+    """Dispose async engine at session end so pytest can exit cleanly on Windows."""
+    yield
+    await test_engine.dispose()
+
+
 @pytest_asyncio.fixture(autouse=True)
 async def setup_database():
     """Create all tables before each test, drop them after."""

@@ -11,7 +11,7 @@ class UserPrivateSpotCreate(BaseModel):
     notes: Optional[str] = None
     is_default: bool = False
 
-
+# The update model allows all fields to be optional, so users can update just one or a few fields at a time.
 class UserPrivateSpotUpdate(BaseModel):
     name: Optional[str] = Field(default=None, min_length=1, max_length=100)
     latitude: Optional[float] = None

@@ -1,4 +1,6 @@
 from contextlib import asynccontextmanager
+import logging
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import _rate_limit_exceeded_handler
@@ -15,14 +17,27 @@ from app.core.config import settings
 from app.utils.metrics import instrumentator
 
 
+logger = logging.getLogger("app.main")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup: launch the scheduler and warm the Redis connection.
     Shutdown: stop the scheduler and close the Redis connection cleanly."""
-    await run_startup_health_checks()
-    start_scheduler()
+    scheduler_started = False
+
+    try:
+        await run_startup_health_checks()
+        start_scheduler()
+        scheduler_started = True
+    except Exception:
+        logger.exception(
+            "Startup health checks failed; continuing without scheduler. "
+            "Check DATABASE_URL and PostgreSQL credentials."
+        )
     yield
-    stop_scheduler()
+    if scheduler_started:
+        stop_scheduler()
     await close_redis()
 
 

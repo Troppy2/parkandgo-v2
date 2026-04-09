@@ -4,6 +4,7 @@ import AppRoutes from "./app/routes"
 import { useAuthStore } from "./store/authStore"
 import { useUIStore } from "./store/uiStore"
 import { getMe } from "./features/auth/services/authApi"
+import { checkHealthWithBackoff } from "./features/health/services/healthApi"
 
 // Reads isOffline from global UI store — renders above both the splash and the main app.
 function OfflineBanner() {
@@ -86,60 +87,6 @@ function AuthGate({ children }: { children: ReactNode }) {
 
 type StartupStatus = "checking" | "ready" | "failed"
 
-type HealthCheckBackoffOptions = {
-  maxAttempts: number
-  signal?: AbortSignal
-  onAttempt?: (currentAttempt: number, delayMs: number) => void
-}
-
-function waitWithAbort(delayMs: number, signal?: AbortSignal): Promise<void> {
-  return new Promise((resolve, reject) => {
-    if (signal?.aborted) {
-      reject(new DOMException("Aborted", "AbortError"))
-      return
-    }
-
-    const timerId = window.setTimeout(() => {
-      signal?.removeEventListener("abort", onAbort)
-      resolve()
-    }, delayMs)
-
-    const onAbort = () => {
-      window.clearTimeout(timerId)
-      signal?.removeEventListener("abort", onAbort)
-      reject(new DOMException("Aborted", "AbortError"))
-    }
-
-    signal?.addEventListener("abort", onAbort)
-  })
-}
-
-async function checkHealthWithBackoff({
-  maxAttempts,
-  signal,
-  onAttempt,
-}: HealthCheckBackoffOptions): Promise<void> {
-  const apiBase = import.meta.env.VITE_API_URL || "http://localhost:8000/api"
-  for (let currentAttempt = 1; currentAttempt <= maxAttempts; currentAttempt += 1) {
-    try {
-      const response = await fetch(`${apiBase}/health`, { method: "GET", signal })
-      if (response.ok) return
-    } catch (err) {
-      // Re-throw AbortError — it means the effect was cleaned up, not a real failure
-      if (err instanceof DOMException && err.name === "AbortError") throw err
-      // Network error (ECONNREFUSED, DNS failure, Render cold start) — fall through to retry
-    }
-
-    if (currentAttempt >= maxAttempts) {
-      throw new Error("Health check failed")
-    }
-
-    const delayMs = Math.min(1000 * 2 ** (currentAttempt - 1), 8000)
-    onAttempt?.(currentAttempt, delayMs)
-    await waitWithAbort(delayMs, signal)
-  }
-}
-
 // This component handles the initial health check with backoff and renders the appropriate UI states.
 function App() {
   const [startupStatus, setStartupStatus] = useState<StartupStatus>("checking")
@@ -205,7 +152,7 @@ function App() {
         <OfflineBanner />
         <div className="min-h-screen flex items-center justify-center bg-white text-[#7A0019] p-6">
           <div className="max-w-sm text-center space-y-3">
-            <h1 className="text-lg font-semibold">Connecting...</h1>
+            <h1 className="text-lg font-semibold">Connecting to server...</h1>
 
             {startupStatus === "checking" && (
               <p className="text-sm">
