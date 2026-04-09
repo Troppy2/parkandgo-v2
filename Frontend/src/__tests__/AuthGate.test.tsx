@@ -20,7 +20,11 @@ const mockGetMe = vi.mocked(getMe)
 // Instead, we co-locate a small harness that mirrors the same effect logic.
 import App from "../App"
 
-// Stub the health check so App doesn't block on the "checking" screen
+// Stub the health check so App resolves to "ready" immediately
+vi.mock("../features/health/services/healthApi", () => ({
+  checkHealthWithBackoff: vi.fn().mockResolvedValue(undefined),
+}))
+
 vi.mock("../app/routes", () => ({
   default: () => <div data-testid="app-routes" />,
 }))
@@ -60,8 +64,6 @@ describe("AuthGate — auth restore effect", () => {
       isGuest: false,
       isReady: false,
     })
-    // Suppress the health-check fetch so App reaches the "ready" state instantly
-    vi.spyOn(window, "fetch").mockResolvedValue(new Response(null, { status: 200 }))
   })
 
   it("calls getMe when there is a token but no user on store ready", async () => {
