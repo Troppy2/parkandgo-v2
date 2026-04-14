@@ -24,3 +24,6 @@ parkandgo_db_postgres
 
 # Ruff cache - linting cache that can be safely ignored
 .ruff_cache/
+
+# Idea files - I have no idea what this is
+.idea/
