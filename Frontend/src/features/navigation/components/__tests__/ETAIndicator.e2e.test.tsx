@@ -1,4 +1,4 @@
-import { render, waitFor } from "@testing-library/react";
+import { act, render, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import ETAIndicator from "../ETAIndicator";
 import { useNavStore } from "../../../../store/navStore";
@@ -13,28 +13,22 @@ import type { ParkingSpot } from "../../../../types/parking.types";
 const fetchRouteMock = vi.fn();
 
 vi.mock("../services/routingApi", () => ({
-  createDirectRoutePreview: (userLng: number, userLat: number, destLng: number, destLat: number) => ({
-    coordinates: [
-      [userLng, userLat],
-      [destLng, destLat],
-    ],
-    steps: [
-      {
-        instruction: "Head toward your destination",
-        distance: "0.5 mi",
-        distanceMeters: 800,
-        maneuverType: "depart",
-        maneuverModifier: "straight",
-        icon: "bi-arrow-up-circle-fill",
-        location: [userLng, userLat],
-      },
-    ],
-    totalDistanceMeters: 800,
-    totalDurationSeconds: 600,
-    source: "fallback",
-    notice: "Loading live turn-by-turn directions...",
-  }),
+  // createDirectRoutePreview is no longer called by ETAIndicator (Bug 2 fix —
+  // the pre-emptive straight-line route was removed so the loading state is
+  // preserved until the real OSRM response arrives).
   fetchRoute: (...args: unknown[]) => fetchRouteMock(...args),
+  getNextStep: vi.fn((userLng: number, userLat: number, steps: { location: [number, number] }[]) => {
+    // Return index of the step whose location is closest to the user (simplified)
+    let closest = 0;
+    let minDist = Infinity;
+    steps.forEach((s, i) => {
+      const dx = s.location[0] - userLng;
+      const dy = s.location[1] - userLat;
+      const d = dx * dx + dy * dy;
+      if (d < minDist) { minDist = d; closest = i; }
+    });
+    return closest;
+  }),
 }));
 
 const fakeSpot: ParkingSpot = {
@@ -159,6 +153,70 @@ describe("ETAIndicator", () => {
       expect(useNavStore.getState().distanceRemainingMiles).not.toBeNull();
       expect(useNavStore.getState().etaMinutes).not.toBeNull();
       expect(useNavStore.getState().routeStatus).toBe("ready");
+    });
+  });
+
+  it("jumps currentStepIndex to closest step when user location changes (Bug 3)", async () => {
+    render(<ETAIndicator />);
+
+    useNavStore.getState().startNavigation(fakeSpot);
+    useNavStore.getState().beginNavigation();
+
+    // Wait for route to load
+    await waitFor(() => expect(useNavStore.getState().routeStatus).toBe("ready"));
+
+    // Manually inject a multi-step route so the step-tracking logic has something to work with
+    useNavStore.getState().setRoute({
+      coordinates: [
+        [-93.2277, 44.974],
+        [-93.225, 44.9745],
+        [-93.22, 44.975],
+      ],
+      steps: [
+        {
+          instruction: "Head toward East River Road",
+          distance: "0.2 mi",
+          distanceMeters: 300,
+          maneuverType: "depart",
+          maneuverModifier: "straight",
+          icon: "bi-arrow-up-circle-fill",
+          location: [-93.2277, 44.974],
+        },
+        {
+          instruction: "Continue straight",
+          distance: "0.1 mi",
+          distanceMeters: 160,
+          maneuverType: "turn",
+          maneuverModifier: "straight",
+          icon: "bi-arrow-up",
+          location: [-93.225, 44.9745],
+        },
+        {
+          instruction: "You have arrived",
+          distance: "0 ft",
+          distanceMeters: 0,
+          maneuverType: "arrive",
+          maneuverModifier: "straight",
+          icon: "bi-p-circle-fill",
+          location: [-93.22, 44.975],
+        },
+      ],
+      totalDistanceMeters: 460,
+      totalDurationSeconds: 600,
+      source: "network",
+      notice: null,
+    });
+
+    // Simulate user moving close to step 1 (index 1)
+    act(() => {
+      useNavStore.getState().setCurrentUserLocation({
+        coords: [-93.2251, 44.9744],  // very close to step 1 location
+        heading: 90,
+      });
+    });
+
+    await waitFor(() => {
+      expect(useNavStore.getState().currentStepIndex).toBe(1);
     });
   });
 });

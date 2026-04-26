@@ -77,4 +77,79 @@ describe('navStore', () => {
     useNavStore.getState().setNavOverlayVisible(false)
     expect(useNavStore.getState().navOverlayVisible).toBe(false)
   })
+
+  it('setCurrentStepIndex jumps directly to the requested step (Bug 3)', () => {
+    useNavStore.getState().startNavigation(fakeSpot)
+    useNavStore.getState().beginNavigation()
+    useNavStore.getState().setRoute({
+      coordinates: [[-93.228, 44.974], [-93.225, 44.975], [-93.22, 44.975]],
+      steps: [
+        {
+          instruction: 'Head toward East River Road',
+          distance: '0.2 mi',
+          distanceMeters: 320,
+          maneuverType: 'depart',
+          maneuverModifier: 'straight',
+          icon: 'bi-arrow-up-circle-fill',
+          location: [-93.228, 44.974],
+        },
+        {
+          instruction: 'Turn right',
+          distance: '0.1 mi',
+          distanceMeters: 160,
+          maneuverType: 'turn',
+          maneuverModifier: 'right',
+          icon: 'bi-arrow-90deg-right',
+          location: [-93.225, 44.975],
+        },
+        {
+          instruction: 'You have arrived',
+          distance: '0 ft',
+          distanceMeters: 0,
+          maneuverType: 'arrive',
+          maneuverModifier: 'straight',
+          icon: 'bi-p-circle-fill',
+          location: [-93.22, 44.975],
+        },
+      ],
+      totalDistanceMeters: 480,
+      totalDurationSeconds: 600,
+      source: 'network',
+      notice: null,
+    })
+
+    useNavStore.getState().setCurrentStepIndex(2)
+    expect(useNavStore.getState().currentStepIndex).toBe(2)
+  })
+
+  it('setCurrentStepIndex clamps to valid range', () => {
+    useNavStore.getState().startNavigation(fakeSpot)
+    useNavStore.getState().beginNavigation()
+    useNavStore.getState().setRoute({
+      coordinates: [[-93.228, 44.974], [-93.22, 44.975]],
+      steps: [
+        {
+          instruction: 'Head toward destination',
+          distance: '0.3 mi',
+          distanceMeters: 480,
+          maneuverType: 'depart',
+          maneuverModifier: 'straight',
+          icon: 'bi-arrow-up-circle-fill',
+          location: [-93.228, 44.974],
+        },
+      ],
+      totalDistanceMeters: 480,
+      totalDurationSeconds: 600,
+      source: 'network',
+      notice: null,
+    })
+
+    // Out-of-range index should clamp to last valid step
+    useNavStore.getState().setCurrentStepIndex(99)
+    expect(useNavStore.getState().currentStepIndex).toBe(0)
+
+    // Negative index should clamp to 0
+    useNavStore.getState().setCurrentStepIndex(-5)
+    expect(useNavStore.getState().currentStepIndex).toBe(0)
+  })
 })

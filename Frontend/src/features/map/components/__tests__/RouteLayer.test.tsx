@@ -8,6 +8,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render } from '@testing-library/react'
+import type { RouteStatus } from '../../../../store/navStore'
 import type { RouteResult } from '../../../navigation/components/services/routingApi'
 import type { ParkingSpot } from '../../../../types/parking.types'
 
@@ -42,13 +43,14 @@ const DESTINATION: ParkingSpot = {
   created_at: null,
 }
 
-type NavSlice = { isNavigating: boolean; destination: ParkingSpot | null; route: RouteResult | null }
+type NavSlice = { isNavigating: boolean; destination: ParkingSpot | null; route: RouteResult | null; routeStatus?: RouteStatus }
 
 function setNavState(overrides: Partial<NavSlice> = {}) {
   const state: NavSlice = {
     isNavigating: true,
     destination: DESTINATION,
     route: null,
+    routeStatus: "ready",
     ...overrides,
   }
   // RouteLayer calls useNavStore() with NO selector — mock must return state directly
@@ -91,8 +93,18 @@ beforeEach(() => {
 })
 
 describe('RouteLayer — route drawing', () => {
+  it('does not draw any line while routeStatus is "loading" (Bug 2 buffer)', () => {
+    setNavState({ route: null, routeStatus: 'loading' })
+    const { map, addSource, addLayer } = makeMockMap(false)
+
+    render(<RouteLayer map={map} userLocation={[-93.228, 44.974]} />)
+
+    expect(addSource).not.toHaveBeenCalled()
+    expect(addLayer).not.toHaveBeenCalled()
+  })
+
   it('draws a straight line from userLocation to destination when no route is loaded', () => {
-    setNavState({ route: null })
+    setNavState({ route: null, routeStatus: 'ready' })
     const { map, addSource } = makeMockMap(false)
 
     render(<RouteLayer map={map} userLocation={[-93.228, 44.974]} />)

@@ -1,14 +1,14 @@
 import { useEffect, useRef } from "react";
 import { useNavStore } from "../../../store/navStore";
 import { useUIStore } from "../../../store/uiStore";
-import { createDirectRoutePreview, fetchRoute } from "./services/routingApi";
+import { fetchRoute, getNextStep } from "./services/routingApi";
 import type { LiveUserLocation } from "../../../store/navStore";
 import { logContextEvent } from "../services/navigationApi";
 
 const NAVIGATION_GEOLOCATION_OPTIONS = {
-  enableHighAccuracy: false,
+  enableHighAccuracy: true,
   timeout: 12000,
-  maximumAge: 30000,
+  maximumAge: 10000,
 } as const;
 
 function haversineDistance(
@@ -45,7 +45,7 @@ export default function ETAIndicator() {
     setRouteError,
     route,
     currentStepIndex,
-    advanceStep,
+    setCurrentStepIndex,
   } = useNavStore();
   const campusRoutingEnabled = useUIStore((s) => s.campusRoutingEnabled);
 
@@ -77,18 +77,9 @@ export default function ETAIndicator() {
     launchedRequestRef.current = requestKey;
 
     const runFetch = async (origin: [number, number]) => {
-      setRoute(
-        createDirectRoutePreview(
-          origin[0],
-          origin[1],
-          destination.longitude!,
-          destination.latitude!,
-          effectiveTravelMode
-        )
-      );
-
       // Compute an initial distance/ETA snapshot so the UI has something to
-      // show while the real OSRM response is still in flight.
+      // show while the real OSRM response is still in flight, without
+      // drawing a premature straight-line route (Bug 2 fix).
       if (destination.latitude != null && destination.longitude != null) {
         const [lng, lat] = origin;
         const distMiles = haversineDistance(lat, lng, destination.latitude, destination.longitude);
@@ -178,22 +169,23 @@ export default function ETAIndicator() {
     const etaMins = Math.max(1, Math.round((distMiles / speed) * 60));
     updateStats(distMiles, etaMins);
 
-    const nextStep = route?.steps[currentStepIndex + 1];
-    if (nextStep) {
-      const [stepLng, stepLat] = nextStep.location;
-      const distToStep = haversineDistance(latitude, longitude, stepLat, stepLng);
-      if (distToStep < 0.015) {
-        advanceStep();
+    // Bug 3 fix: dynamically jump to the closest step rather than advancing
+    // one-at-a-time, so the overhead banner always reflects the user's real
+    // position even when they skip ahead or the route is re-fetched.
+    if (route?.steps && route.steps.length > 0) {
+      const closestStepIdx = getNextStep(longitude, latitude, route.steps);
+      if (closestStepIdx !== currentStepIndex) {
+        setCurrentStepIndex(closestStepIdx);
       }
     }
   }, [
-    advanceStep,
     currentStepIndex,
     currentUserLocation,
     destination,
     hasStartedNavigation,
     isNavigating,
     route,
+    setCurrentStepIndex,
     travelMode,
     updateStats,
   ]);

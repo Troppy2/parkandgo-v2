@@ -32,7 +32,7 @@ function findClosestIndex(coords: [number, number][], userLoc: [number, number])
 }
 
 export default function RouteLayer({ map, userLocation }: RouteLayerProps) {
-  const { isNavigating, destination, route } = useNavStore();
+  const { isNavigating, destination, route, routeStatus } = useNavStore();
 
   useEffect(() => {
     if (!map) return;
@@ -42,7 +42,8 @@ export default function RouteLayer({ map, userLocation }: RouteLayerProps) {
       !destination ||
       !userLocation ||
       destination.longitude == null ||
-      destination.latitude == null
+      destination.latitude == null ||
+      routeStatus === "loading"
     ) {
       removeRouteLayer(map);
       return;
@@ -93,7 +94,7 @@ export default function RouteLayer({ map, userLocation }: RouteLayerProps) {
     } else {
       map.once("load", applyRoute);
     }
-  }, [destination, isNavigating, map, route, userLocation]);
+  }, [destination, isNavigating, map, route, routeStatus, userLocation]);
 
   useEffect(() => {
     return () => {

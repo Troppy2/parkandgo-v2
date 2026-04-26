@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { clearRouteCache, fetchRoute } from "../routingApi";
+import { clearRouteCache, fetchRoute, snapToRoute } from "../routingApi";
 
 vi.mock("@mapbox/polyline", () => ({
   default: {
@@ -95,5 +95,43 @@ describe("routingApi", () => {
       [-93.22, 44.975],
     ]);
     expect(result.notice).toMatch(/simple direct route/i);
+  });
+});
+
+describe("snapToRoute", () => {
+  it("returns coords unchanged when the route has fewer than 2 points", () => {
+    expect(snapToRoute([-93.23, 44.97], [])).toEqual([-93.23, 44.97]);
+    expect(snapToRoute([-93.23, 44.97], [[-93.23, 44.97]])).toEqual([-93.23, 44.97]);
+  });
+
+  it("snaps a point that lies exactly on a segment endpoint", () => {
+    const route: [number, number][] = [[-93.230, 44.970], [-93.220, 44.970]];
+    // The point is the first endpoint itself
+    expect(snapToRoute([-93.230, 44.970], route)).toEqual([-93.230, 44.970]);
+  });
+
+  it("snaps a point that is off the road to the nearest segment", () => {
+    // Horizontal segment from (0,0) to (1,0); point is at (0.5, 1) — should snap to (0.5, 0)
+    const route: [number, number][] = [[0, 0], [1, 0]];
+    const snapped = snapToRoute([0.5, 1], route);
+    expect(snapped[0]).toBeCloseTo(0.5, 5);
+    expect(snapped[1]).toBeCloseTo(0, 5);
+  });
+
+  it("clamps to the nearest endpoint when the projection falls outside the segment", () => {
+    // Segment from (0,0) to (1,0); point at (-1, 0) should clamp to (0,0)
+    const route: [number, number][] = [[0, 0], [1, 0]];
+    const snapped = snapToRoute([-1, 0], route);
+    expect(snapped[0]).toBeCloseTo(0, 5);
+    expect(snapped[1]).toBeCloseTo(0, 5);
+  });
+
+  it("picks the closest segment when the route has multiple segments", () => {
+    // L-shaped route: (0,0)→(1,0)→(1,1); point at (0.6, 0.6) is closer to vertical segment
+    const route: [number, number][] = [[0, 0], [1, 0], [1, 1]];
+    const snapped = snapToRoute([0.6, 0.6], route);
+    // Closest point on (1,0)→(1,1) is (1, 0.6)
+    expect(snapped[0]).toBeCloseTo(1, 5);
+    expect(snapped[1]).toBeCloseTo(0.6, 5);
   });
 });

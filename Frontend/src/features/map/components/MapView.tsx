@@ -12,11 +12,12 @@ import {
 import MapControls from "./MapControls";
 import RouteLayer from "./RouteLayer";
 import { useEvents } from "../../events/hooks/useEvents";
+import { snapToRoute } from "../../navigation/components/services/routingApi";
 
 const MAP_GEOLOCATION_OPTIONS = {
-    maximumAge: 30000,
+    maximumAge: 10000,
     timeout: 15000,
-    enableHighAccuracy: false,
+    enableHighAccuracy: true,
 } as const;
 
 function add3DBuildings(map: maplibregl.Map) {
@@ -80,6 +81,8 @@ export default function MapView() {
     const destination = useNavStore((s) => s.destination);
     const isNavigating = useNavStore((s) => s.isNavigating);
     const hasStartedNavigation = useNavStore((s) => s.hasStartedNavigation);
+    const travelMode = useNavStore((s) => s.travelMode);
+    const route = useNavStore((s) => s.route);
     const userLocation = useNavStore((s) => s.currentUserLocation);
     const setCurrentUserLocation = useNavStore((s) => s.setCurrentUserLocation);
 
@@ -228,6 +231,23 @@ export default function MapView() {
     useEffect(() => {
         if (!userLocation || !mapRef.current) return;
 
+        // Bug 1 fix: snap marker to the nearest point on the route geometry
+        // when the user is actively navigating in driving mode.  The raw GPS
+        // signal often drifts off the road (multipath, low satellite count),
+        // so we project the position onto the polyline so the icon stays on
+        // the road.  The real GPS coordinate is still stored in the store for
+        // ETA / arrival detection — only the visual marker is snapped.
+        const isDriving =
+            isNavigating &&
+            hasStartedNavigation &&
+            travelMode === "driving" &&
+            route?.coordinates &&
+            route.coordinates.length >= 2;
+
+        const markerCoords: [number, number] = isDriving
+            ? snapToRoute(userLocation.coords, route!.coordinates)
+            : userLocation.coords;
+
         // If marker doesn't exist, create it once
         if (!userLocationMarkerRef.current) {
             // Build the yellow arrow marker (UMN Gold) with fixed size
@@ -279,14 +299,14 @@ export default function MapView() {
             el.appendChild(svg);
 
             userLocationMarkerRef.current = new maplibregl.Marker({ element: el, anchor: "center" })
-                .setLngLat(userLocation.coords)
+                .setLngLat(markerCoords)
                 .addTo(mapRef.current);
 
             // Initial rotation
             svg.style.transform = `rotate(${userLocation.heading}deg)`;
         } else {
             // Marker exists: update position + rotation only (no DOM recreation)
-            userLocationMarkerRef.current.setLngLat(userLocation.coords);
+            userLocationMarkerRef.current.setLngLat(markerCoords);
 
             // Update rotation via DOM query (avoids full element recreation)
             const markerEl = userLocationMarkerRef.current.getElement?.() ||
@@ -298,7 +318,7 @@ export default function MapView() {
                 }
             }
         }
-    }, [userLocation]);
+    }, [hasStartedNavigation, isNavigating, route, travelMode, userLocation]);
 
     // Keep userLocationRef in sync so the navigation effects can read it without a stale closure.
     useEffect(() => {

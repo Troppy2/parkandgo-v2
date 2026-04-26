@@ -329,6 +329,55 @@ export function getRemainingRouteGeometry(
   };
 }
 
+/**
+ * Project a point onto the line segment [a, b].
+ * Coordinates are treated as 2-D (lng/lat) — accurate enough for short
+ * campus-scale distances where Earth curvature is negligible.
+ */
+function projectPointToSegment(
+  p: [number, number],
+  a: [number, number],
+  b: [number, number],
+): [number, number] {
+  const dx = b[0] - a[0];
+  const dy = b[1] - a[1];
+  const lenSq = dx * dx + dy * dy;
+  if (lenSq === 0) return a;
+  const t = Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / lenSq));
+  return [a[0] + t * dx, a[1] + t * dy];
+}
+
+/**
+ * Snap a raw GPS coordinate to the nearest point on the route geometry.
+ * Used to keep the user marker on the road in driving mode.
+ *
+ * @param coords - Raw GPS position [lng, lat]
+ * @param routeCoords - Ordered route polyline [[lng, lat], …]
+ * @returns Snapped position on the polyline closest to `coords`
+ */
+export function snapToRoute(
+  coords: [number, number],
+  routeCoords: [number, number][],
+): [number, number] {
+  if (routeCoords.length < 2) return coords;
+
+  let bestDistSq = Infinity;
+  let bestPoint: [number, number] = coords;
+
+  for (let i = 0; i < routeCoords.length - 1; i++) {
+    const projected = projectPointToSegment(coords, routeCoords[i], routeCoords[i + 1]);
+    const dx = coords[0] - projected[0];
+    const dy = coords[1] - projected[1];
+    const distSq = dx * dx + dy * dy;
+    if (distSq < bestDistSq) {
+      bestDistSq = distSq;
+      bestPoint = projected;
+    }
+  }
+
+  return bestPoint;
+}
+
 export async function fetchRoute(
   userLng: number,
   userLat: number,
