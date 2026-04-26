@@ -343,7 +343,10 @@ function projectPointToSegment(
   const dy = b[1] - a[1];
   const lenSq = dx * dx + dy * dy;
   if (lenSq === 0) return a;
-  const t = Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / lenSq));
+  // t is the parametric position [0, 1] where the perpendicular from p
+  // meets the segment: 0 = point a, 1 = point b, clamped to stay on segment.
+  const dot = (p[0] - a[0]) * dx + (p[1] - a[1]) * dy;
+  const t = Math.max(0, Math.min(1, dot / lenSq));
   return [a[0] + t * dx, a[1] + t * dy];
 }
 

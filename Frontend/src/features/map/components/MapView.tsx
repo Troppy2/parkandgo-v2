@@ -245,7 +245,7 @@ export default function MapView() {
             route.coordinates.length >= 2;
 
         const markerCoords: [number, number] = isDriving
-            ? snapToRoute(userLocation.coords, route!.coordinates)
+            ? snapToRoute(userLocation.coords, route?.coordinates ?? [])
             : userLocation.coords;
 
         // If marker doesn't exist, create it once
