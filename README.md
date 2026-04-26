@@ -115,25 +115,6 @@ parkandgo-v2/
 
 ---
 
-## API Reference
-
-All routes are prefixed with `/api`. Protected routes require `Authorization: Bearer <jwt_token>`.
-
-| Method | Route | Auth | Description |
-|---|---|---|---|
-| POST | `/api/auth/google` | — | Exchange Google OAuth token for JWT |
-| GET | `/api/auth/me` | Bearer | Get current user profile |
-| GET | `/api/parking/` | — | List all parking spots |
-| GET | `/api/parking/search` | — | Full-text search spots |
-| GET | `/api/parking/filter` | — | Filter by type, price, campus |
-| GET | `/api/recommendations/` | Optional | Personalized spot recommendations |
-| POST | `/api/recommendations/suggest` | Bearer | Submit a user-suggested spot |
-| GET | `/api/events/` | — | List upcoming campus events |
-| PATCH | `/api/users/me` | Bearer | Update preferences |
-| GET | `/api/admin/` | Admin | Admin dashboard data |
-
----
-
 ## Recommendation Engine
 
 The scoring engine lives in `Backend/app/services/recommendation_engine.py`. Every spot is scored out of **75 base points** (+ up to 15 event bonus):
@@ -161,19 +142,6 @@ Note: Distance is calculated and shown in the score breakdown UI, but travel tim
 | OpenStreetMap (Overpass) | Street parking, lot outlines | Planned |
 | Minneapolis Open Data | Meters, permit zones | Planned |
 | OpenWeatherMap | Weather impact on recommendations | Planned (V2.5) |
-
-### Current Campus Lots (8 verified)
-
-| Lot | Coordinates |
-|---|---|
-| Oak Street Ramp | 44.9739, -93.2312 |
-| 19th Ave Meters | 44.9785, -93.2345 |
-| Church Street Garage | 44.9763, -93.2343 |
-| 4th St Ramp | 44.9806, -93.2355 |
-| East River Road Garage | 44.9732, -93.2392 |
-| Washington Ave Bridge Lot | 44.9729, -93.2435 |
-| 21st Ave Ramp | 44.9708, -93.2421 |
-| 19th Ave Ramp (West Bank) | 44.9719, -93.2443 |
 
 ---
 
@@ -209,9 +177,9 @@ Events affect recommendation scoring — spots near a large active event receive
 A few non-negotiables enforced across the codebase:
 
 **Backend**
-- All DB calls are `async/await` — no sync sessions
-- Repositories handle all queries — nothing in route handlers
-- `session.flush()` only inside repositories — `commit()` happens in `get_db()`
+- All DB calls are `async/await`: no sync sessions
+- Repositories handle all queries: nothing in route handlers
+- `session.flush()` only inside repositories: `commit()` happens in `get_db()`
 - New POST routes return `201`, not `200`
 
 **Frontend**
@@ -289,7 +257,7 @@ Natural language chat interface. Describe what you need and get a direct recomme
 
 1. Fork the repo
 2. Create a feature branch (`git checkout -b feat/your-feature`)
-3. Follow the checklist in `.claude/CLAUDE.md` for new features
+3. Follow the checklist in `.claude/CLAUDE.md` for new features(Not Really)
 4. Open a PR against `main`
 
 ---
