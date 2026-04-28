@@ -1,7 +1,9 @@
+import logging
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select, func
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_admin_user
@@ -17,6 +19,7 @@ from app.schemas.parking_spot import ParkingSpotResponse, ParkingSpotCreate, Par
 from app.services.event_sync_service import EventSyncService
 
 router = APIRouter(prefix="/admin", tags=["admin"])
+logger = logging.getLogger("app.api.admin")
 
 
 # ── Schemas ──
@@ -31,6 +34,18 @@ class StatsResponse(BaseModel):
     unverified_spots: int
     total_users: int
     total_events: int
+
+
+async def _safe_count(
+    db: AsyncSession,
+    statement,
+    label: str,
+) -> int:
+    try:
+        return (await db.execute(statement)).scalar() or 0
+    except SQLAlchemyError as exc:
+        logger.warning("Admin stats count failed for %s: %s", label, exc)
+        return 0
 
 
 # ── Dashboard / user info ──
@@ -146,12 +161,26 @@ async def get_stats(
     db: AsyncSession = Depends(get_db),
 ):
     """Aggregate stats for the admin dashboard."""
-    total_spots = (await db.execute(select(func.count(ParkingSpot.spot_id)))).scalar() or 0
-    verified = (await db.execute(
-        select(func.count(ParkingSpot.spot_id)).where(ParkingSpot.is_verified == True)
-    )).scalar() or 0
-    total_users = (await db.execute(select(func.count(User.user_id)))).scalar() or 0
-    total_events = (await db.execute(select(func.count(CampusEvent.event_id)))).scalar() or 0
+    total_spots = await _safe_count(
+        db,
+        select(func.count(ParkingSpot.spot_id)),
+        "parking_spots",
+    )
+    verified = await _safe_count(
+        db,
+        select(func.count(ParkingSpot.spot_id)).where(ParkingSpot.is_verified == True),
+        "verified_parking_spots",
+    )
+    total_users = await _safe_count(
+        db,
+        select(func.count(User.user_id)),
+        "users",
+    )
+    total_events = await _safe_count(
+        db,
+        select(func.count(CampusEvent.event_id)),
+        "campus_events",
+    )
 
     return StatsResponse(
         total_spots=total_spots,

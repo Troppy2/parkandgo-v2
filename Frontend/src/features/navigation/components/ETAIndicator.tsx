@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useNavStore } from "../../../store/navStore";
 import { useUIStore } from "../../../store/uiStore";
-import { createDirectRoutePreview, fetchRoute } from "./services/routingApi";
+import { fetchRoute, getNextStep } from "./services/routingApi";
 import type { LiveUserLocation } from "../../../store/navStore";
 import { logContextEvent } from "../services/navigationApi";
 
@@ -45,7 +45,7 @@ export default function ETAIndicator() {
     setRouteError,
     route,
     currentStepIndex,
-    advanceStep,
+    setCurrentStepIndex,
   } = useNavStore();
   const campusRoutingEnabled = useUIStore((s) => s.campusRoutingEnabled);
 
@@ -58,6 +58,17 @@ export default function ETAIndicator() {
   useEffect(() => {
     currentUserLocationRef.current = currentUserLocation;
   }, [currentUserLocation]);
+
+  // Show distance/ETA estimate immediately when destination is selected, before Start is pressed.
+  useEffect(() => {
+    if (!isNavigating || hasStartedNavigation || !destination || !currentUserLocation) return;
+    if (destination.latitude == null || destination.longitude == null) return;
+
+    const [lng, lat] = currentUserLocation.coords;
+    const distMiles = haversineDistance(lat, lng, destination.latitude, destination.longitude);
+    const speed = SPEED_MPH[travelMode];
+    updateStats(distMiles, Math.max(1, Math.round((distMiles / speed) * 60)));
+  }, [isNavigating, hasStartedNavigation, destination, currentUserLocation, travelMode, updateStats]);
 
   // Fetch the route when navigation starts, retries, or travel mode changes.
   // currentUserLocation is intentionally excluded from deps — it's read via ref
@@ -77,16 +88,6 @@ export default function ETAIndicator() {
     launchedRequestRef.current = requestKey;
 
     const runFetch = async (origin: [number, number]) => {
-      setRoute(
-        createDirectRoutePreview(
-          origin[0],
-          origin[1],
-          destination.longitude!,
-          destination.latitude!,
-          effectiveTravelMode
-        )
-      );
-
       // Compute an initial distance/ETA snapshot so the UI has something to
       // show while the real OSRM response is still in flight.
       if (destination.latitude != null && destination.longitude != null) {
@@ -178,22 +179,20 @@ export default function ETAIndicator() {
     const etaMins = Math.max(1, Math.round((distMiles / speed) * 60));
     updateStats(distMiles, etaMins);
 
-    const nextStep = route?.steps[currentStepIndex + 1];
-    if (nextStep) {
-      const [stepLng, stepLat] = nextStep.location;
-      const distToStep = haversineDistance(latitude, longitude, stepLat, stepLng);
-      if (distToStep < 0.015) {
-        advanceStep();
+    if (route?.steps.length) {
+      const nextStepIndex = getNextStep(longitude, latitude, route.steps);
+      if (nextStepIndex !== currentStepIndex) {
+        setCurrentStepIndex(nextStepIndex);
       }
     }
   }, [
-    advanceStep,
     currentStepIndex,
     currentUserLocation,
     destination,
     hasStartedNavigation,
     isNavigating,
     route,
+    setCurrentStepIndex,
     travelMode,
     updateStats,
   ]);

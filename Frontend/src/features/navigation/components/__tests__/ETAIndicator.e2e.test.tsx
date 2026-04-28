@@ -9,33 +9,16 @@ import {
   UMN_TEST_LOCATIONS,
 } from "../../../../lib/testing/mockGeolocation";
 import type { ParkingSpot } from "../../../../types/parking.types";
+import type { RouteResult } from "../services/routingApi";
 
 const fetchRouteMock = vi.fn();
-
-vi.mock("../services/routingApi", () => ({
-  createDirectRoutePreview: (userLng: number, userLat: number, destLng: number, destLat: number) => ({
-    coordinates: [
-      [userLng, userLat],
-      [destLng, destLat],
-    ],
-    steps: [
-      {
-        instruction: "Head toward your destination",
-        distance: "0.5 mi",
-        distanceMeters: 800,
-        maneuverType: "depart",
-        maneuverModifier: "straight",
-        icon: "bi-arrow-up-circle-fill",
-        location: [userLng, userLat],
-      },
-    ],
-    totalDistanceMeters: 800,
-    totalDurationSeconds: 600,
-    source: "fallback",
-    notice: "Loading live turn-by-turn directions...",
-  }),
-  fetchRoute: (...args: unknown[]) => fetchRouteMock(...args),
-}));
+vi.mock("../services/routingApi", async () => {
+  const actual = await vi.importActual("../services/routingApi");
+  return {
+    ...actual,
+    fetchRoute: (...args: unknown[]) => fetchRouteMock(...args),
+  };
+});
 
 const fakeSpot: ParkingSpot = {
   spot_id: 1,
@@ -53,42 +36,54 @@ const fakeSpot: ParkingSpot = {
   created_at: null,
 };
 
+const resolvedRoute: RouteResult = {
+  coordinates: [
+    [-93.2277, 44.974],
+    [-93.2245, 44.9744],
+    [-93.22, 44.975],
+  ],
+  steps: [
+    {
+      instruction: "Head toward East River Road",
+      distance: "0.3 mi",
+      distanceMeters: 500,
+      maneuverType: "depart",
+      maneuverModifier: "straight",
+      icon: "bi-arrow-up-circle-fill",
+      location: [-93.2277, 44.974],
+    },
+    {
+      instruction: "Turn right on East River Road",
+      distance: "0.1 mi",
+      distanceMeters: 160,
+      maneuverType: "turn",
+      maneuverModifier: "right",
+      icon: "bi-arrow-90deg-right",
+      location: [-93.2245, 44.9744],
+    },
+    {
+      instruction: "You have arrived",
+      distance: "0 ft",
+      distanceMeters: 0,
+      maneuverType: "arrive",
+      maneuverModifier: "straight",
+      icon: "bi-p-circle-fill",
+      location: [-93.22, 44.975],
+    },
+  ],
+  totalDistanceMeters: 500,
+  totalDurationSeconds: 900,
+  source: "network",
+  notice: null,
+};
+
 describe("ETAIndicator", () => {
   beforeEach(() => {
     useNavStore.setState(useNavStore.getInitialState());
     enableMockGeolocation();
     setMockLocation(UMN_TEST_LOCATIONS.eastBank);
     fetchRouteMock.mockReset();
-    fetchRouteMock.mockResolvedValue({
-      coordinates: [
-        [-93.2277, 44.974],
-        [-93.22, 44.975],
-      ],
-      steps: [
-        {
-          instruction: "Head toward East River Road",
-          distance: "0.3 mi",
-          distanceMeters: 500,
-          maneuverType: "depart",
-          maneuverModifier: "straight",
-          icon: "bi-arrow-up-circle-fill",
-          location: [-93.2277, 44.974],
-        },
-        {
-          instruction: "You have arrived",
-          distance: "0 ft",
-          distanceMeters: 0,
-          maneuverType: "arrive",
-          maneuverModifier: "straight",
-          icon: "bi-p-circle-fill",
-          location: [-93.22, 44.975],
-        },
-      ],
-      totalDistanceMeters: 500,
-      totalDurationSeconds: 900,
-      source: "network",
-      notice: null,
-    });
+    fetchRouteMock.mockResolvedValue(resolvedRoute);
   });
 
   afterEach(() => {
@@ -149,6 +144,35 @@ describe("ETAIndicator", () => {
     });
   });
 
+  it("keeps the route empty while the live route request is still loading", async () => {
+    let resolveRoute: ((route: RouteResult) => void) | null = null;
+    fetchRouteMock.mockImplementationOnce(
+      () =>
+        new Promise<RouteResult>((resolve) => {
+          resolveRoute = resolve;
+        })
+    );
+
+    render(<ETAIndicator />);
+
+    useNavStore.getState().startNavigation(fakeSpot);
+    useNavStore.getState().beginNavigation();
+
+    await waitFor(() => {
+      expect(fetchRouteMock).toHaveBeenCalledOnce();
+      expect(useNavStore.getState().routeStatus).toBe("loading");
+    });
+
+    expect(useNavStore.getState().route).toBeNull();
+
+    resolveRoute?.(resolvedRoute);
+
+    await waitFor(() => {
+      expect(useNavStore.getState().routeStatus).toBe("ready");
+      expect(useNavStore.getState().route).toEqual(resolvedRoute);
+    });
+  });
+
   it("updates live stats from the dedicated navigation watch like the legacy app", async () => {
     render(<ETAIndicator />);
 
@@ -159,6 +183,28 @@ describe("ETAIndicator", () => {
       expect(useNavStore.getState().distanceRemainingMiles).not.toBeNull();
       expect(useNavStore.getState().etaMinutes).not.toBeNull();
       expect(useNavStore.getState().routeStatus).toBe("ready");
+    });
+  });
+
+  it("jumps directly to the closest route step as the user moves", async () => {
+    render(<ETAIndicator />);
+
+    useNavStore.getState().startNavigation(fakeSpot);
+    useNavStore.getState().beginNavigation();
+
+    await waitFor(() => {
+      expect(useNavStore.getState().routeStatus).toBe("ready");
+    });
+
+    expect(useNavStore.getState().currentStepIndex).toBe(0);
+
+    useNavStore.getState().setCurrentUserLocation({
+      coords: resolvedRoute.steps[2].location,
+      heading: 0,
+    });
+
+    await waitFor(() => {
+      expect(useNavStore.getState().currentStepIndex).toBe(2);
     });
   });
 });

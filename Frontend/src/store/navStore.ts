@@ -60,6 +60,7 @@ interface NavState {
   setRouteError: (message: string) => void;
   clearRouteNotice: () => void;
   advanceStep: () => void;
+  setCurrentStepIndex: (index: number) => void;
   setRememberedSpot: (spot: ParkingSpot | null) => void;
   promptRememberSpot: (spot: ParkingSpot) => void;
   dismissRememberSpotPrompt: () => void;
@@ -225,6 +226,14 @@ export const useNavStore = create<NavState>((set) => ({
       currentStepIndex: Math.min(
         state.currentStepIndex + 1,
         (state.route?.steps.length ?? 1) - 1
+      ),
+    })),
+
+  setCurrentStepIndex: (index) =>
+    set((state) => ({
+      currentStepIndex: Math.max(
+        0,
+        Math.min(index, (state.route?.steps.length ?? 1) - 1)
       ),
     })),
 

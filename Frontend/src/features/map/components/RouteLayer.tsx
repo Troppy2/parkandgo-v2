@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import maplibregl from "maplibre-gl";
 import { useNavStore } from "../../../store/navStore";
+import { snapToRoute } from "../../navigation/components/services/routingApi";
 
 interface RouteLayerProps {
   map: maplibregl.Map | null;
@@ -31,8 +32,51 @@ function findClosestIndex(coords: [number, number][], userLoc: [number, number])
   return minIdx;
 }
 
+/**
+ * Find the nearest projected point on a polyline and the segment index it belongs to.
+ */
+function findClosestProjectedPoint(
+  coords: [number, number][],
+  userLoc: [number, number]
+): { point: [number, number]; segmentIndex: number } {
+  if (coords.length < 2) {
+    return { point: coords[0] ?? userLoc, segmentIndex: 0 };
+  }
+
+  let bestPoint: [number, number] = coords[0];
+  let bestSegmentIndex = 0;
+  let bestDistSq = Infinity;
+
+  for (let i = 0; i < coords.length - 1; i++) {
+    const [ax, ay] = coords[i];
+    const [bx, by] = coords[i + 1];
+
+    const dx = bx - ax;
+    const dy = by - ay;
+    const segLenSq = dx * dx + dy * dy;
+
+    const t = segLenSq > 0
+      ? Math.max(0, Math.min(1, ((userLoc[0] - ax) * dx + (userLoc[1] - ay) * dy) / segLenSq))
+      : 0;
+
+    const px = ax + t * dx;
+    const py = ay + t * dy;
+    const ex = userLoc[0] - px;
+    const ey = userLoc[1] - py;
+    const distSq = ex * ex + ey * ey;
+
+    if (distSq < bestDistSq) {
+      bestDistSq = distSq;
+      bestPoint = [px, py];
+      bestSegmentIndex = i;
+    }
+  }
+
+  return { point: bestPoint, segmentIndex: bestSegmentIndex };
+}
+
 export default function RouteLayer({ map, userLocation }: RouteLayerProps) {
-  const { isNavigating, destination, route } = useNavStore();
+  const { isNavigating, destination, route, routeStatus, travelMode } = useNavStore();
 
   useEffect(() => {
     if (!map) return;
@@ -41,6 +85,7 @@ export default function RouteLayer({ map, userLocation }: RouteLayerProps) {
       !isNavigating ||
       !destination ||
       !userLocation ||
+      routeStatus === "loading" ||
       destination.longitude == null ||
       destination.latitude == null
     ) {
@@ -54,12 +99,28 @@ export default function RouteLayer({ map, userLocation }: RouteLayerProps) {
     // remaining path to the destination.  Without this, the full static route
     // fetched at navigation-start would be drawn regardless of user movement.
     let coordinates: [number, number][];
+    const routeAnchoredUserLocation: [number, number] =
+      travelMode === "driving" && route?.coordinates && route.coordinates.length > 1
+        ? snapToRoute(userLocation, route.coordinates)
+        : userLocation;
+
     if (route?.coordinates && route.coordinates.length > 1) {
-      const closestIdx = findClosestIndex(route.coordinates, userLocation);
-      const remaining = route.coordinates.slice(closestIdx + 1);
-      coordinates = remaining.length > 0
-        ? [userLocation, ...remaining]
-        : [userLocation, [destination.longitude, destination.latitude]];
+      if (travelMode === "driving") {
+        const { point, segmentIndex } = findClosestProjectedPoint(
+          route.coordinates,
+          routeAnchoredUserLocation,
+        );
+        const remaining = route.coordinates.slice(segmentIndex + 1);
+        coordinates = remaining.length > 0
+          ? [point, ...remaining]
+          : [point, [destination.longitude, destination.latitude]];
+      } else {
+        const closestIdx = findClosestIndex(route.coordinates, userLocation);
+        const remaining = route.coordinates.slice(closestIdx + 1);
+        coordinates = remaining.length > 0
+          ? [userLocation, ...remaining]
+          : [userLocation, [destination.longitude, destination.latitude]];
+      }
     } else {
       coordinates = [userLocation, [destination.longitude, destination.latitude]];
     }
@@ -93,7 +154,7 @@ export default function RouteLayer({ map, userLocation }: RouteLayerProps) {
     } else {
       map.once("load", applyRoute);
     }
-  }, [destination, isNavigating, map, route, userLocation]);
+  }, [destination, isNavigating, map, route, routeStatus, travelMode, userLocation]);
 
   useEffect(() => {
     return () => {

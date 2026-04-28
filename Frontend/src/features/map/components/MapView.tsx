@@ -8,15 +8,17 @@ import {
     STANDARD_STYLE,
     SATELLITE_STYLE,
     BUILDINGS_3D_STYLE,
+    DARK_STYLE,
 } from "../../../lib/map/mapStyles";
+import { snapToRoute } from "../../navigation/components/services/routingApi";
 import MapControls from "./MapControls";
 import RouteLayer from "./RouteLayer";
 import { useEvents } from "../../events/hooks/useEvents";
 
 const MAP_GEOLOCATION_OPTIONS = {
-    maximumAge: 30000,
+    maximumAge: 5000,
     timeout: 15000,
-    enableHighAccuracy: false,
+    enableHighAccuracy: true,
 } as const;
 
 function add3DBuildings(map: maplibregl.Map) {
@@ -82,6 +84,8 @@ export default function MapView() {
     const hasStartedNavigation = useNavStore((s) => s.hasStartedNavigation);
     const userLocation = useNavStore((s) => s.currentUserLocation);
     const setCurrentUserLocation = useNavStore((s) => s.setCurrentUserLocation);
+    const route = useNavStore((s) => s.route);
+    const travelMode = useNavStore((s) => s.travelMode);
 
     // All spots visible on the map — public endpoint, no auth required
 
@@ -228,6 +232,12 @@ export default function MapView() {
     useEffect(() => {
         if (!userLocation || !mapRef.current) return;
 
+        // Snap to road when driving and a route is loaded
+        const displayCoords =
+            isNavigating && travelMode === "driving" && route && route.coordinates.length > 1
+                ? snapToRoute(userLocation.coords, route.coordinates)
+                : userLocation.coords;
+
         // If marker doesn't exist, create it once
         if (!userLocationMarkerRef.current) {
             // Build the yellow arrow marker (UMN Gold) with fixed size
@@ -279,14 +289,14 @@ export default function MapView() {
             el.appendChild(svg);
 
             userLocationMarkerRef.current = new maplibregl.Marker({ element: el, anchor: "center" })
-                .setLngLat(userLocation.coords)
+                .setLngLat(displayCoords)
                 .addTo(mapRef.current);
 
             // Initial rotation
             svg.style.transform = `rotate(${userLocation.heading}deg)`;
         } else {
             // Marker exists: update position + rotation only (no DOM recreation)
-            userLocationMarkerRef.current.setLngLat(userLocation.coords);
+            userLocationMarkerRef.current.setLngLat(displayCoords);
 
             // Update rotation via DOM query (avoids full element recreation)
             const markerEl = userLocationMarkerRef.current.getElement?.() ||
@@ -298,7 +308,7 @@ export default function MapView() {
                 }
             }
         }
-    }, [userLocation]);
+    }, [userLocation, isNavigating, travelMode, route]);
 
     // Keep userLocationRef in sync so the navigation effects can read it without a stale closure.
     useEffect(() => {
@@ -372,6 +382,10 @@ export default function MapView() {
         try {
             if (mapStyle === "standard") {
                 map.setStyle(STANDARD_STYLE);
+                map.setPitch(0);
+                map.setBearing(0);
+            } else if (mapStyle === "dark") {
+                map.setStyle(DARK_STYLE);
                 map.setPitch(0);
                 map.setBearing(0);
             } else if (mapStyle === "satellite") {

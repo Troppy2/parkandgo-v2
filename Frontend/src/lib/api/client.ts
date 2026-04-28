@@ -1,6 +1,7 @@
 /* Axios client with JWT token management */
 
 import axios from "axios"
+import { useAuthStore } from "@/store/authStore"
 
 const apiUrl = import.meta.env.VITE_API_URL
 const resolvedApiUrl = apiUrl?.trim()
@@ -51,8 +52,7 @@ client.interceptors.response.use(
           originalRequest.headers.Authorization = `Bearer ${res.data.access_token}`
           return client(originalRequest)
         } catch {
-          localStorage.removeItem("access_token")
-          localStorage.removeItem("refresh_token")
+          useAuthStore.getState().clearAuth()
         }
       }
     }

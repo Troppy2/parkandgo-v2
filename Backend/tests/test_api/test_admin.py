@@ -11,8 +11,10 @@ Covers:
 """
 import pytest
 from httpx import AsyncClient
+from sqlalchemy import text
 from app.models.user import User
 from app.models.parking_spot import ParkingSpot
+from sqlalchemy.ext.asyncio import AsyncSession
 from tests.conftest import auth_header
 
 
@@ -213,3 +215,33 @@ class TestAdminDeleteSpot:
             headers=auth_header(admin_user),
         )
         assert resp.status_code == 404
+
+
+class TestAdminStats:
+    async def test_stats_returns_aggregates(
+        self,
+        client: AsyncClient,
+        admin_user: User,
+        multiple_spots: list[ParkingSpot],
+    ):
+        resp = await client.get("/api/admin/stats", headers=auth_header(admin_user))
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["total_spots"] == len(multiple_spots)
+        assert data["verified_spots"] == 3
+        assert data["unverified_spots"] == 1
+
+    async def test_stats_falls_back_when_events_table_is_missing(
+        self,
+        client: AsyncClient,
+        admin_user: User,
+        db_session: AsyncSession,
+    ):
+        await db_session.execute(text("DROP TABLE campus_events"))
+        await db_session.commit()
+
+        resp = await client.get("/api/admin/stats", headers=auth_header(admin_user))
+
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["total_events"] == 0

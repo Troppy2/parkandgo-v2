@@ -77,4 +77,41 @@ describe('navStore', () => {
     useNavStore.getState().setNavOverlayVisible(false)
     expect(useNavStore.getState().navOverlayVisible).toBe(false)
   })
+
+  it('setCurrentStepIndex clamps to the route bounds', () => {
+    useNavStore.getState().setRoute({
+      coordinates: [
+        [-93.228, 44.974],
+        [-93.227, 44.975],
+      ],
+      steps: [
+        {
+          instruction: 'Head forward',
+          distance: '0.1 mi',
+          distanceMeters: 160,
+          maneuverType: 'depart',
+          maneuverModifier: 'straight',
+          icon: 'bi-arrow-up-circle-fill',
+          location: [-93.228, 44.974],
+        },
+        {
+          instruction: 'You have arrived',
+          distance: '0 ft',
+          distanceMeters: 0,
+          maneuverType: 'arrive',
+          maneuverModifier: 'straight',
+          icon: 'bi-p-circle-fill',
+          location: [-93.227, 44.975],
+        },
+      ],
+      totalDistanceMeters: 160,
+      totalDurationSeconds: 120,
+    })
+
+    useNavStore.getState().setCurrentStepIndex(99)
+    expect(useNavStore.getState().currentStepIndex).toBe(1)
+
+    useNavStore.getState().setCurrentStepIndex(-3)
+    expect(useNavStore.getState().currentStepIndex).toBe(0)
+  })
 })

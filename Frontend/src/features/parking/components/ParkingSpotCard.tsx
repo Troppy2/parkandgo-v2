@@ -24,6 +24,8 @@ export default function ParkingSpotCard({ spot, details }: ParkingSpotCardProps)
   const [reviewRating, setReviewRating] = useState(5)
   const [reviewNotes, setReviewNotes] = useState("")
   const startNavigation = useNavStore((s) => s.startNavigation)
+  const beginNavigation = useNavStore((s) => s.beginNavigation)
+  const setTravelMode = useNavStore((s) => s.setTravelMode)
   const showToast = useUIStore((s) => s.showToast)
   const dataConsent = useUIStore((s) => s.dataConsent)
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
@@ -81,6 +83,18 @@ export default function ParkingSpotCard({ spot, details }: ParkingSpotCardProps)
 
   const handleNavigate = () => {
     startNavigation(spot)
+
+    if (isAuthenticated) {
+      void historyMutation.mutateAsync().catch(() => {
+        // History is best-effort. Navigation should still proceed.
+      })
+    }
+  }
+
+  const handleDirections = () => {
+    setTravelMode("driving")
+    startNavigation(spot)
+    beginNavigation()
 
     if (isAuthenticated) {
       void historyMutation.mutateAsync().catch(() => {
@@ -157,7 +171,7 @@ export default function ParkingSpotCard({ spot, details }: ParkingSpotCardProps)
 
           <button
             onClick={() => {
-              handleNavigate()
+              handleDirections()
               void logContextEvent("recommendation_directions_click", {
                 spot_id: spot.spot_id,
                 source: "recommendation_card",

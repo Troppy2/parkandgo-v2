@@ -329,6 +329,51 @@ export function getRemainingRouteGeometry(
   };
 }
 
+/**
+ * Snap [lng, lat] to the nearest point on a route polyline.
+ * Uses cosine(lat) correction so east-west distances scale correctly.
+ */
+export function snapToRoute(
+  lngLat: [number, number],
+  coordinates: [number, number][]
+): [number, number] {
+  if (coordinates.length === 0) return lngLat;
+  if (coordinates.length === 1) return coordinates[0];
+
+  const [pLng, pLat] = lngLat;
+  const cosLat = Math.cos((pLat * Math.PI) / 180);
+
+  let bestPoint: [number, number] = coordinates[0];
+  let bestDistSq = Infinity;
+
+  for (let i = 0; i < coordinates.length - 1; i++) {
+    const [aLng, aLat] = coordinates[i];
+    const [bLng, bLat] = coordinates[i + 1];
+
+    const dx = (bLng - aLng) * cosLat;
+    const dy = bLat - aLat;
+    const px = (pLng - aLng) * cosLat;
+    const py = pLat - aLat;
+
+    const segLenSq = dx * dx + dy * dy;
+    const t = segLenSq > 0 ? Math.max(0, Math.min(1, (px * dx + py * dy) / segLenSq)) : 0;
+
+    const snapLng = aLng + t * (bLng - aLng);
+    const snapLat = aLat + t * (bLat - aLat);
+
+    const ex = (pLng - snapLng) * cosLat;
+    const ey = pLat - snapLat;
+    const distSq = ex * ex + ey * ey;
+
+    if (distSq < bestDistSq) {
+      bestDistSq = distSq;
+      bestPoint = [snapLng, snapLat];
+    }
+  }
+
+  return bestPoint;
+}
+
 export async function fetchRoute(
   userLng: number,
   userLat: number,

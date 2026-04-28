@@ -27,3 +27,6 @@ parkandgo_db_postgres
 
 # Idea files - I have no idea what this is
 .idea/
+
+# Android build files - these can be regenerated and are not needed in version control
+Frontend/android/

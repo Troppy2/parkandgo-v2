@@ -1,6 +1,7 @@
 {
   "dependencies": {
-    "@mapbox/polyline": "^1.2.1"
+    "@mapbox/polyline": "^1.2.1",
+    "framer-motion": "^12.38.0"
   },
   "devDependencies": {
     "@types/mapbox__polyline": "^1.0.5"

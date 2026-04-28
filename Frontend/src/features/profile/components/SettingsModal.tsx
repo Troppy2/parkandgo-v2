@@ -117,11 +117,12 @@ export default function SettingsModal() {
           </div>
 
           {/* Three style options in a row — icon + label + active ring */}
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-4 gap-2">
             {[
-              { value: "standard", label: "Standard", icon: "bi-map" },
+              { value: "standard",  label: "Standard",  icon: "bi-map" },
+              { value: "dark",      label: "Dark",      icon: "bi-moon-fill" },
               { value: "satellite", label: "Satellite", icon: "bi-globe" },
-              { value: "3d",        label: "3D View",  icon: "bi-buildings" },
+              { value: "3d",        label: "3D View",   icon: "bi-buildings" },
             ].map(({ value, label, icon }) => (
               <button
                 key={value}

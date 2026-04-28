@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { clearRouteCache, fetchRoute } from "../routingApi";
+import { clearRouteCache, fetchRoute, snapToRoute } from "../routingApi";
 
 vi.mock("@mapbox/polyline", () => ({
   default: {
@@ -46,6 +46,51 @@ const okResponse = {
     },
   ],
 };
+
+describe("snapToRoute", () => {
+  it("returns user position when coordinates array is empty", () => {
+    expect(snapToRoute([-93.23, 44.97], [])).toEqual([-93.23, 44.97]);
+  });
+
+  it("returns the single coordinate when route has one point", () => {
+    expect(snapToRoute([-93.23, 44.97], [[-93.22, 44.97]])).toEqual([-93.22, 44.97]);
+  });
+
+  it("snaps point perpendicular to segment midpoint", () => {
+    // Horizontal segment from A to B, user is directly above midpoint
+    const A: [number, number] = [-93.24, 44.97];
+    const B: [number, number] = [-93.22, 44.97];
+    const user: [number, number] = [-93.23, 44.98]; // north of midpoint
+
+    const [snapLng, snapLat] = snapToRoute(user, [A, B]);
+    expect(snapLng).toBeCloseTo(-93.23, 4);
+    expect(snapLat).toBeCloseTo(44.97, 4);
+  });
+
+  it("clamps to nearest endpoint when user is past end of segment", () => {
+    const A: [number, number] = [-93.24, 44.97];
+    const B: [number, number] = [-93.22, 44.97];
+    const user: [number, number] = [-93.20, 44.97]; // east of B
+
+    const snapped = snapToRoute(user, [A, B]);
+    expect(snapped[0]).toBeCloseTo(B[0], 4);
+    expect(snapped[1]).toBeCloseTo(B[1], 4);
+  });
+
+  it("picks the closest segment when route has multiple segments", () => {
+    const coords: [number, number][] = [
+      [-93.26, 44.97],
+      [-93.24, 44.97],
+      [-93.22, 44.97],
+    ];
+    // User is close to the second segment
+    const user: [number, number] = [-93.23, 44.975];
+
+    const [, snapLat] = snapToRoute(user, coords);
+    // Snapped lat should be on the route (44.97), not the user lat (44.975)
+    expect(snapLat).toBeCloseTo(44.97, 4);
+  });
+});
 
 describe("routingApi", () => {
   beforeEach(() => {

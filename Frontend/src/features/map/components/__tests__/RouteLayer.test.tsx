@@ -42,13 +42,21 @@ const DESTINATION: ParkingSpot = {
   created_at: null,
 }
 
-type NavSlice = { isNavigating: boolean; destination: ParkingSpot | null; route: RouteResult | null }
+type NavSlice = {
+  isNavigating: boolean
+  destination: ParkingSpot | null
+  route: RouteResult | null
+  routeStatus: 'idle' | 'loading' | 'ready' | 'error'
+  travelMode: 'walking' | 'driving' | 'cycling'
+}
 
 function setNavState(overrides: Partial<NavSlice> = {}) {
   const state: NavSlice = {
     isNavigating: true,
     destination: DESTINATION,
     route: null,
+    routeStatus: 'ready',
+    travelMode: 'walking',
     ...overrides,
   }
   // RouteLayer calls useNavStore() with NO selector — mock must return state directly
@@ -91,6 +99,17 @@ beforeEach(() => {
 })
 
 describe('RouteLayer — route drawing', () => {
+  it('does not draw any route while a live route request is still loading', () => {
+    setNavState({ route: null, routeStatus: 'loading' })
+    const { map, addSource, addLayer } = makeMockMap(false)
+
+    render(<RouteLayer map={map} userLocation={[-93.228, 44.974]} />)
+
+    expect(addSource).not.toHaveBeenCalled()
+    expect(addLayer).not.toHaveBeenCalled()
+    expect((map.removeLayer as ReturnType<typeof vi.fn>)).toHaveBeenCalledTimes(0)
+  })
+
   it('draws a straight line from userLocation to destination when no route is loaded', () => {
     setNavState({ route: null })
     const { map, addSource } = makeMockMap(false)
