@@ -124,7 +124,7 @@ export const useAuthStore = create<AuthState>()(
 
           state.setReady(true)
         } else {
-          // Storage was corrupt or missing — still unblock the app.
+          // Storage was corrupt or missing - still unblock the app.
           useAuthStore.setState({ isReady: true })
         }
       },

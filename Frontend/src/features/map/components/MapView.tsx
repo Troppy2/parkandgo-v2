@@ -87,7 +87,7 @@ export default function MapView() {
     const route = useNavStore((s) => s.route);
     const travelMode = useNavStore((s) => s.travelMode);
 
-    // All spots visible on the map — public endpoint, no auth required
+    // All spots visible on the map - public endpoint, no auth required
 
     // Track event markers so we can remove them when tab switches
     const eventMarkersRef = useRef<maplibregl.Marker[]>([]);

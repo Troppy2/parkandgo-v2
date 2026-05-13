@@ -1,4 +1,4 @@
-/* Map utilities — MapLibre GL helpers */
+/* Map utilities - MapLibre GL helpers */
 
 export const MAP_STYLE_NORMAL = "https://demotiles.maplibre.org/style.json"
 export const MAP_STYLE_3D_BUILDINGS = null

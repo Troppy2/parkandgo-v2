@@ -40,7 +40,7 @@ def parse_feed(raw_bytes: bytes, category: str) -> list[dict]:
         if component.name != "VEVENT":
             continue  # skip non-event components like VCALENDAR header
 
-        # extract fields — icalendar returns special objects so you need str() or .dt
+        # extract fields - icalendar returns special objects so you need str() or .dt
         title = str(component.get("SUMMARY", "Untitled"))
         location = str(component.get("LOCATION", ""))
         external_id = str(component.get("UID", ""))
@@ -70,11 +70,11 @@ def normalize_to_utc(dt) -> datetime | None:
     if dt is None:
         return None
     # campus_events stores TIMESTAMP WITHOUT TIME ZONE, so return naive UTC.
-    # icalendar returns date for all-day events — normalize to midnight UTC.
+    # icalendar returns date for all-day events - normalize to midnight UTC.
     if isinstance(dt, date) and not isinstance(dt, datetime):
         dt = datetime.combine(dt, datetime.min.time(), tzinfo=timezone.utc)
         return dt.replace(tzinfo=None)
-    # naive datetime — assume America/Chicago (UMN local time)
+    # naive datetime - assume America/Chicago (UMN local time)
     if dt.tzinfo is None:
         local_tz = zoneinfo.ZoneInfo("America/Chicago")
         dt = dt.replace(tzinfo=local_tz)

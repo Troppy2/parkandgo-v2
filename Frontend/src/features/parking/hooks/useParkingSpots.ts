@@ -3,7 +3,7 @@ import apiClient from "../../../lib/api/client"
 import { ENDPOINTS } from "../../../lib/api/endpoints"
 import type { ParkingSpot } from "../../../types/parking.types"
 
-// Twin Cities metro bounding box — filters out any spot submitted with bad coordinates
+// Twin Cities metro bounding box - filters out any spot submitted with bad coordinates
 const METRO_BOUNDS = { minLat: 44.78, maxLat: 45.15, minLon: -93.65, maxLon: -92.95 }
 
 function isValidCoord(spot: ParkingSpot): boolean {

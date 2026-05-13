@@ -8,7 +8,7 @@ from pydantic import field_validator
 from pydantic_settings import BaseSettings
 
 # Read environment variables at module load time to avoid issues with async Redis initialization later on.
-# Default to empty string — avoids AttributeError if vars are absent (e.g. CI, fresh clone).
+# Default to empty string - avoids AttributeError if vars are absent (e.g. CI, fresh clone).
 _allowed_origins_raw = os.getenv("ALLOWED_ORIGINS", "").strip()
 _admin_emails_raw = os.getenv("ADMIN_EMAILS", "").strip()
 USE_REDIS = os.getenv("USE_REDIS", "false").strip().lower() in {"1", "true", "yes", "on"}
@@ -17,23 +17,23 @@ class Settings(BaseSettings):
     # Database
     database_url: str
 
-    # Auth — JWT signing key and Google OAuth credentials
+    # Auth - JWT signing key and Google OAuth credentials
     secret_key: str
     google_client_id: str
     google_client_secret: str
 
-    # Redis — caching layer
+    # Redis - caching layer
     redis_url: str = "redis://localhost:6379"
 
     use_redis: bool = USE_REDIS  # Flag to enable/disable Redis caching
-    # Admin — comma-separated list of emails authorized for admin access
+    # Admin - comma-separated list of emails authorized for admin access
     admin_emails: str = _admin_emails_raw
 
     # App environment flag
     environment: str = "development"
     debug: bool = True
 
-    # CORS — stored as a plain env string so pydantic-settings won't try to JSON-decode it first
+    # CORS - stored as a plain env string so pydantic-settings won't try to JSON-decode it first
     allowed_origins: str = _allowed_origins_raw
 
     @property
@@ -68,7 +68,7 @@ class Settings(BaseSettings):
         if not normalized:
             return []
 
-        # Strip stray outer brackets before attempting JSON — catches the common
+        # Strip stray outer brackets before attempting JSON - catches the common
         # copy-paste mistake of [url1, url2] where URLs are not quoted.
         stripped = normalized.lstrip("[").rstrip("]").strip() if normalized.startswith("[") else normalized
 

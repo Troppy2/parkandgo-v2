@@ -71,7 +71,7 @@ export default function ETAIndicator() {
   }, [isNavigating, hasStartedNavigation, destination, currentUserLocation, travelMode, updateStats]);
 
   // Fetch the route when navigation starts, retries, or travel mode changes.
-  // currentUserLocation is intentionally excluded from deps — it's read via ref
+  // currentUserLocation is intentionally excluded from deps - it's read via ref
   // so location updates don't re-trigger a fetch that is already in flight.
   useEffect(() => {
     if (!isNavigating || !hasStartedNavigation || !destination) {
@@ -125,7 +125,7 @@ export default function ETAIndicator() {
       }
     };
 
-    // Read from ref — always fresh, never stale, and not a reactive dependency.
+    // Read from ref - always fresh, never stale, and not a reactive dependency.
     const loc = currentUserLocationRef.current;
     if (loc) {
       void runFetch(loc.coords);
@@ -168,7 +168,7 @@ export default function ETAIndicator() {
 
   // Sync live stats whenever the shared location changes during active navigation.
   // MapView's single persistent watchPosition feeds currentUserLocation via navStore,
-  // so no second watcher is registered here. All deps are explicit — no stale closure.
+  // so no second watcher is registered here. All deps are explicit - no stale closure.
   useEffect(() => {
     if (!isNavigating || !hasStartedNavigation || !destination || !currentUserLocation) return;
     if (destination.latitude == null || destination.longitude == null) return;

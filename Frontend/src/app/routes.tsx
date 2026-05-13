@@ -44,15 +44,15 @@ function AppShell() {
         mapContent={<MapView />}
         spotResults={<RecommendationList />}
       />
-      {/* Navigation overlay — fixed positioned, returns null when not navigating */}
+      {/* Navigation overlay - fixed positioned, returns null when not navigating */}
       <TurnByTurn />
       <RouteDisplay />
       <RememberParkingSpotModal />
       {/* ETAIndicator: fetches OSRM route + watches GPS when navigation is active */}
       <ETAIndicator />
-      {/* Settings modal — globally mounted so it works on both layouts */}
+      {/* Settings modal - globally mounted so it works on both layouts */}
       <SettingsModal />
-      {/* Suggest a Spot modal — globally mounted */}
+      {/* Suggest a Spot modal - globally mounted */}
       <SuggestSpotModal />
     </>
   );
@@ -65,7 +65,7 @@ export default function AppRoutes() {
         {/* Public */}
         <Route path="/login" element={<LoginPage />} />
 
-        {/* Protected — requires sign-in or guest mode */}
+        {/* Protected - requires sign-in or guest mode */}
         <Route
           path="/"
           element={
@@ -75,7 +75,7 @@ export default function AppRoutes() {
           }
         />
 
-        {/* Admin — requires is_admin */}
+        {/* Admin - requires is_admin */}
         <Route
           path="/admin"
           element={

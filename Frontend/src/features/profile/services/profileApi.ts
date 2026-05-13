@@ -15,7 +15,7 @@ export async function getSavedSpots(): Promise<SavedSpot[]> {
   return data
 }
 
-// Save a spot — POST with spot_id in the body
+// Save a spot - POST with spot_id in the body
 export async function saveSpot(spotId: number): Promise<SavedSpot> {
   const { data } = await apiClient.post(ENDPOINTS.USERS.SAVED(), {
     spot_id: spotId,
@@ -23,12 +23,12 @@ export async function saveSpot(spotId: number): Promise<SavedSpot> {
   return data
 }
 
-// Unsave a spot — DELETE /users/me/saved/:spotId — returns 204 No Content
+// Unsave a spot - DELETE /users/me/saved/:spotId - returns 204 No Content
 export async function unsaveSpot(spotId: number): Promise<void> {
   await apiClient.delete(ENDPOINTS.USERS.SAVED(spotId))
 }
 
-// Rename a saved spot — PATCH /users/me/saved/:spotId with { custom_name }
+// Rename a saved spot - PATCH /users/me/saved/:spotId with { custom_name }
 export async function renameSpot(spotId: number, customName: string): Promise<SavedSpot> {
   const { data } = await apiClient.patch(ENDPOINTS.USERS.SAVED(spotId), {
     custom_name: customName,

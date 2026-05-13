@@ -39,7 +39,7 @@ export default function LoginPage() {
 
   const handleGoogleLogin = () => {
     if (!window.google?.accounts?.oauth2) {
-      setLoginError("Google sign-in isn't ready yet — please wait a moment and try again.")
+      setLoginError("Google sign-in isn't ready yet - please wait a moment and try again.")
       return
     }
 
@@ -58,7 +58,7 @@ export default function LoginPage() {
             // ERR_NETWORK = CORS block or server unreachable
             // ECONNABORTED = axios request timeout
             if (code === "ERR_NETWORK" || code === "ECONNABORTED") {
-              setLoginError("Couldn't reach the server. It may be starting up — please wait 30 seconds and try again.")
+              setLoginError("Couldn't reach the server. It may be starting up - please wait 30 seconds and try again.")
               return
             }
           }

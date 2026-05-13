@@ -42,7 +42,7 @@ export default function MobileNav({ children, onSuggestSpotClick }: MobileNavPro
 
   const resetFilters = () => setFilters({})
 
-  // Dynamic slider max — compute from filter results, fallback to 10
+  // Dynamic slider max - compute from filter results, fallback to 10
   const sliderMax = filterResults && filterResults.length > 0
     ? Math.max(10, Math.ceil(Math.max(...filterResults.map((s) => s.cost ?? 0))))
     : 10
@@ -91,7 +91,7 @@ export default function MobileNav({ children, onSuggestSpotClick }: MobileNavPro
         </button>
       </div>
 
-      {/* "See Filters" row — always visible when on spots tab, not inside the isExpanded gate */}
+      {/* "See Filters" row - always visible when on spots tab, not inside the isExpanded gate */}
       {activeTab === "spots" && (
         <button
           onClick={() => {
@@ -126,12 +126,12 @@ export default function MobileNav({ children, onSuggestSpotClick }: MobileNavPro
         </button>
       )}
 
-      {/* Filter panel — always rendered, transitions via max-height */}
+      {/* Filter panel - always rendered, transitions via max-height */}
       {activeTab === "spots" && (
         <SearchFilters filters={filters} onChange={setFilters} isOpen={filtersOpen} sliderMax={sliderMax} />
       )}
 
-      {/* Content — CSS max-height transition for open/close animation (no abrupt DOM removal) */}
+      {/* Content - CSS max-height transition for open/close animation (no abrupt DOM removal) */}
       <div
         className={clsx(
           "overflow-hidden transition-[max-height] duration-300 ease-in-out",

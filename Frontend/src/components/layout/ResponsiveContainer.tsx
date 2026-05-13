@@ -34,7 +34,7 @@ export default function ResponsiveContainer({
 
   if (isDesktop) {
     return (
-      // Desktop: flex row — sidebar on left, map fills the rest
+      // Desktop: flex row - sidebar on left, map fills the rest
       <div className="flex h-screen w-screen overflow-hidden">
         {/* Hide sidebar during navigation */}
         {!isNavigating && (
@@ -48,7 +48,7 @@ export default function ResponsiveContainer({
           </Sidebar>
         )}
 
-        {/* Map area fills remaining space — flex-1 auto-expands when sidebar collapses or during navigation */}
+        {/* Map area fills remaining space - flex-1 auto-expands when sidebar collapses or during navigation */}
         <div className="flex-1 relative">{mapContent}</div>
       </div>
     );
@@ -60,10 +60,10 @@ export default function ResponsiveContainer({
       {/* Map fills the whole background */}
       {mapContent}
 
-      {/* Header floats above the map — hide during navigation */}
+      {/* Header floats above the map - hide during navigation */}
       {!isNavigating && <Header onSettingsClick={() => setSettingsOpen(true)} />}
 
-      {/* Bottom sheet floats above the map — hide during navigation */}
+      {/* Bottom sheet floats above the map - hide during navigation */}
       {!isNavigating && (
         <MobileNav
           onSuggestSpotClick={handleSuggestSpotClick}

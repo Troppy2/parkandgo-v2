@@ -1,4 +1,4 @@
-/**
+﻿/**
  * NavigationDiagnostic.tsx
  * 
  * Temporary debug component to diagnose why stats don't populate.
@@ -8,7 +8,6 @@
  * ...
  * <NavigationDiagnostic />
  */
-
 import { useEffect, useState } from 'react'
 import { useNavStore } from '../store/navStore'
 
@@ -72,7 +71,6 @@ export default function NavigationDiagnostic() {
     </div>
   )
 }
-
 function DisplayNavState() {
   const state = useNavStore()
 

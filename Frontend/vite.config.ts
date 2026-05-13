@@ -12,7 +12,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'icons/*.png'],
       manifest: {
-        name: 'Park & Go — UMN Parking',
+        name: 'Park & Go - UMN Parking',
         short_name: 'Park & Go',
         description: 'Find the best parking spot near your UMN classes',
         theme_color: '#7A0019',

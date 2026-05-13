@@ -157,7 +157,7 @@
   "time": { "from": "now-1h", "to": "now" },
   "timepicker": {},
   "timezone": "",
-  "title": "Park & Go — API Dashboard",
+  "title": "Park & Go - API Dashboard",
   "uid": "parkandgo-api",
   "version": 1
 }

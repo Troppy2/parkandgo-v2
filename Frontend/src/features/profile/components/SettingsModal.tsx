@@ -65,7 +65,7 @@ export default function SettingsModal() {
     }
   }, [settingsOpen, privacyOpen, setSettingsOpen])
 
-  // Don't render at all when closed — saves memory
+  // Don't render at all when closed - saves memory
   if (!settingsOpen) return null
 
   const handleSignOut = () => {
@@ -73,7 +73,7 @@ export default function SettingsModal() {
     setSettingsOpen(false)
   }
 
-  // All the inner content in one place — reused by both layouts below
+  // All the inner content in one place - reused by both layouts below
   const content = (
     <div>
       {/* Handle bar - mobile only */}
@@ -81,7 +81,7 @@ export default function SettingsModal() {
         <div className="w-9 h-1 bg-[var(--color-sheet-handle)] rounded-full mx-auto mt-3" />
       )}
 
-      {/* Title bar — matches .set-tbar / .am-sm-hd */}
+      {/* Title bar - matches .set-tbar / .am-sm-hd */}
       <div className="flex items-center justify-between px-5 py-3.5 border-b border-black/8">
         <span className="text-[17px] font-bold tracking-tight flex items-center gap-1.5">
           <i className="bi bi-gear text-text2 text-base" />
@@ -98,25 +98,25 @@ export default function SettingsModal() {
       {/* Body */}
       <div>
 
-        {/* Account + editable profile — Phase 17 component */}
+        {/* Account + editable profile - Phase 17 component */}
         <UserProfile />
 
-        {/* Saved spots list — Phase 17 component */}
+        {/* Saved spots list - Phase 17 component */}
         <SavedSpotsList />
 
         {/* Personal/private parking spots for quick navigation */}
         <PrivateSpotsList onFormOpenChange={setIsMinimizedForSpecialSpot} />
 
-        {/* Preferences toggles — Phase 17 component */}
+        {/* Preferences toggles - Phase 17 component */}
         <Preferences />
 
-        {/* Map Style picker — the main new thing in Phase 19 */}
+        {/* Map Style picker - the main new thing in Phase 19 */}
         <div className="px-5 pt-3 pb-2">
           <div className="text-[10px] font-bold uppercase tracking-[0.9px] text-text2 mb-3">
             Map Style
           </div>
 
-          {/* Three style options in a row — icon + label + active ring */}
+          {/* Three style options in a row - icon + label + active ring */}
           <div className="grid grid-cols-4 gap-2">
             {[
               { value: "standard",  label: "Standard",  icon: "bi-map" },
@@ -146,7 +146,7 @@ export default function SettingsModal() {
           </div>
         </div>
 
-        {/* App info row — version + build */}
+        {/* App info row - version + build */}
         <div className="px-5 pt-2 pb-1">
           <div className="text-[10px] font-bold uppercase tracking-[0.9px] text-text2 mb-2">
             About
@@ -168,7 +168,7 @@ export default function SettingsModal() {
           </div>
         </div>
 
-        {/* Sign out — solid red with white text */}
+        {/* Sign out - solid red with white text */}
         <button
           onClick={handleSignOut}
           style={{ width: "calc(100% - 40px)" }}
@@ -188,7 +188,7 @@ export default function SettingsModal() {
       {privacyOpen && <PrivacyPolicyModal onClose={() => setPrivacyOpen(false)} />}
 
       {isDesktop ? (
-        // ── Desktop layout — centered modal overlay ──
+        // ── Desktop layout - centered modal overlay ──
         <div
           className="fixed inset-0 bg-black/30 z-[100] flex items-center justify-center backdrop-blur-sm"
           onClick={() => setSettingsOpen(false)}
@@ -204,7 +204,7 @@ export default function SettingsModal() {
           </div>
         </div>
       ) : (
-        // ── Mobile layout — bottom sheet ──
+        // ── Mobile layout - bottom sheet ──
         <div
           className="fixed inset-0 bg-black/45 z-[100] flex items-end backdrop-blur-[1px]"
           onClick={() => setSettingsOpen(false)}

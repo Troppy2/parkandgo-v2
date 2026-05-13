@@ -33,7 +33,7 @@ function wrapper({ children }: { children: React.ReactNode }) {
 
 function openModalAsAuthenticatedUser() {
   useAuthStore.getState().setAuth(
-    // minimal User shape — only fields the modal reads
+    // minimal User shape - only fields the modal reads
     { user_id: 1, email: "test@umn.edu", first_name: "Alex", last_name: "J", is_admin: false } as never,
     "fake-token",
     "fake-refresh"
@@ -43,7 +43,7 @@ function openModalAsAuthenticatedUser() {
 
 // ── Tests ─────────────────────────────────────────────────
 
-describe("SuggestSpotModal — geocoding button", () => {
+describe("SuggestSpotModal - geocoding button", () => {
   beforeEach(() => {
     useUIStore.setState(useUIStore.getInitialState())
     useAuthStore.getState().clearAuth()

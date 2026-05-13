@@ -8,7 +8,7 @@ interface SearchFiltersProps {
     sliderMax?: number
 }
 
-// Chip options — match your backend's allowed values exactly
+// Chip options - match your backend's allowed values exactly
 const PARKING_TYPES = ["Parking Garage", "Surface Lot", "Street Parking"] as const
 const CAMPUSES = ["East Bank", "West Bank", "St. Paul"] as const
 
@@ -43,7 +43,7 @@ export default function SearchFilters({ filters, onChange, isOpen, sliderMax = 2
     }
 
     return (
-        // Matches .filters-expand — max-height animation for open/close
+        // Matches .filters-expand - max-height animation for open/close
         // Use higher max-height to accommodate wrapped content on mobile
         <div
             className={clsx(
@@ -88,7 +88,7 @@ export default function SearchFilters({ filters, onChange, isOpen, sliderMax = 2
                 </div>
             </div>
 
-            {/* Cost slider — matches .cslide-row */}
+            {/* Cost slider - matches .cslide-row */}
             <div className="mb-3">
                 <div className="text-[10px] font-bold uppercase tracking-[0.7px] text-text3 mb-1.5">
                     MAX COST / HR
@@ -112,7 +112,7 @@ export default function SearchFilters({ filters, onChange, isOpen, sliderMax = 2
                 </div>
             </div>
 
-            {/* Reset button — only when filters are active */}
+            {/* Reset button - only when filters are active */}
             {hasActiveFilters && (
                 <button
                     onClick={resetFilters}

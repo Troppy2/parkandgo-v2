@@ -23,7 +23,7 @@ export default function TurnByTurn() {
   const currentStep = route?.steps[currentStepIndex];
   const destinationSpotId = destination?.spot_id;
 
-  // Must be called unconditionally — before any early return — to satisfy Rules of Hooks.
+  // Must be called unconditionally - before any early return - to satisfy Rules of Hooks.
   // The `enabled` flag gates actual TTS behavior when conditions aren't met.
   useNavigationTTS({
     enabled: ttsEnabled && routeStatus === "ready" && hasStartedNavigation,

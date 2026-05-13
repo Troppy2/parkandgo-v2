@@ -1,4 +1,4 @@
-# Park & Go V2 — Base Dependencies (Python 3.13+)
+# Park & Go V2 - Base Dependencies (Python 3.13+)
 # Install: pip install -r requirements/base.txt
 
 # Framework

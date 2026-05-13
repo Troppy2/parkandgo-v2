@@ -52,7 +52,7 @@ async def refresh_access_token(
     db: AsyncSession = Depends(get_db),
 ):
     """Issue a new access token using a valid refresh token.
-    Does NOT require an Authorization header — the whole point is that
+    Does NOT require an Authorization header - the whole point is that
     the access token may already be expired when this is called."""
     try:
         payload = decode_refresh_token(body.refresh_token)

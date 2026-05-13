@@ -14,7 +14,7 @@ import { useRecommendationStore } from '../../../../store/recommendationStore'
 import { useNavStore } from '../../../../store/navStore'
 import type { RecommendationResponse } from '../../../../types/recommendation.types'
 
-// Mock the hook — this avoids needing to mock axios/network
+// Mock the hook - this avoids needing to mock axios/network
 vi.mock('../../hooks/useRecommendations', () => ({
   useRecommendations: vi.fn(),
 }))
@@ -174,7 +174,7 @@ describe('RecommendationList integration', () => {
     // Simulate offline + no query error (TanStack may serve stale in-memory data)
     useUIStore.setState({ ...useUIStore.getState(), isOffline: true })
     useRecommendationStore.setState({ cachedRecommendations: [fakeRec] })
-    // Query returns undefined (pending/stale) — no error
+    // Query returns undefined (pending/stale) - no error
     mockUseRecommendations.mockReturnValue({ data: undefined, isLoading: false, isError: false } as never)
 
     render(<RecommendationList />, { wrapper: Wrapper })

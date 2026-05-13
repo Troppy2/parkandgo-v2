@@ -1,20 +1,18 @@
-# Park & Go
-
+﻿# Park & Go
 > Smart parking finder for the University of Minnesota campus. Recommends spots based on your destination, event schedule, travel mode, and personal preferences.
 
 > Shout out to Claude
 ---
-
 ## What It Does
 
 Park & Go removes the guesswork from campus parking. Instead of driving around looking for a spot, you get a ranked list of recommended lots based on:
 
-- **Cost** — cheapest spots score highest; anything ≥ $5.00 is ranked last
-- **Travel time** — estimated drive/walk time to your destination
-- **Your major** — prioritizes lots on your side of campus (East Bank vs. West Bank)
-- **Parking type preference** — ramps, surface lots, or street parking
-- **Live event awareness** — spots near active events get flagged
-- **Verified data** — verified lots rank higher than unverified submissions
+- **Cost** - cheapest spots score highest; anything ≥ $5.00 is ranked last
+- **Travel time** - estimated drive/walk time to your destination
+- **Your major** - prioritizes lots on your side of campus (East Bank vs. West Bank)
+- **Parking type preference** - ramps, surface lots, or street parking
+- **Live event awareness** - spots near active events get flagged
+- **Verified data** - verified lots rank higher than unverified submissions
 
 Guests can browse the map and see recommendations without signing in. Authenticated users get personalized scores and can save favorite spots.
 
@@ -149,8 +147,8 @@ Note: Distance is calculated and shown in the score breakdown UI, but travel tim
 
 - **Primary:** `#7A0019` (UMN Maroon)
 - **Secondary:** `#FFCC33` (UMN Gold)
-- **Mobile layout:** Google Maps-style — map background, floating search bar, bottom sheet
-- **Desktop layout:** Apple Maps-style — frosted glass sidebar (340px), map fills the rest
+- **Mobile layout:** Google Maps-style - map background, floating search bar, bottom sheet
+- **Desktop layout:** Apple Maps-style - frosted glass sidebar (340px), map fills the rest
 - **Touch targets:** 44×44px minimum on all interactive elements
 - All colors are CSS variables in `Frontend/src/styles/variables.css`. Never hardcode hex values.
 
@@ -168,7 +166,7 @@ Campus events are synced daily from UMN iCal feeds and mapped to these categorie
 | STEM | Science/Engineering, AI events |
 | Arts | Arts/Culture, Exhibition |
 
-Events affect recommendation scoring — spots near a large active event receive a proximity bonus.
+Events affect recommendation scoring - spots near a large active event receive a proximity bonus.
 
 ---
 
@@ -183,12 +181,12 @@ A few non-negotiables enforced across the codebase:
 - New POST routes return `201`, not `200`
 
 **Frontend**
-- No `any` types — use `unknown` and narrow, or define a type
+- No `any` types - use `unknown` and narrow, or define a type
 - All API calls go through TanStack Query hooks
 - Every data-fetching component has loading and error states
 - Forms use React Hook Form + Zod
 
-**Known quirk:** The `prefered_name` field has one `r` — this is intentional (matches the DB column). Never "fix" this spelling.
+**Known quirk:** The `prefered_name` field has one `r` - this is intentional (matches the DB column). Never "fix" this spelling.
 
 ---
 
@@ -236,19 +234,19 @@ locust -f loadtests/locustfile.py --host http://localhost:8000 --headless -u 50 
 ---
 
 ## Roadmap
-### V2 — Current (Stable)
+### V2 - Current (Stable)
 Core parking finder. Heuristic recommendation engine, Google OAuth, MapLibre map with 2D/Satellite/3D modes, OSRM turn-by-turn navigation, campus events from UMN iCal feeds, search and filters, saved spots, community spot submissions, and admin dashboard.
 
-### V2.1 — Quality of Life + Data Foundation
+### V2.1 - Quality of Life + Data Foundation
 Bug fixes for the recommendation engine preference scoring, suggest-a-spot submission flow, and 3D map mode. Adds TTS turn-by-turn navigation, community safety ratings and spot notes, iCal event geocoding so the map button actually works, user parking history with an explicit data consent prompt, and offline/degraded state handling so the app stays usable without a connection.
 
-### V2.2 — Navigation Polish + Campus Buildings Mode
+### V2.2 - Navigation Polish + Campus Buildings Mode
 OSRM route caching so repeat routes load instantly. Re-routing detection when the user goes off course. Campus buildings mode lets users switch from parking directions to walking directions to a specific UMN building once they are parked. UI and marker pin polish pass.
 
-### V2.5 — ML-Powered Recommendations
+### V2.5 - ML-Powered Recommendations
 Replaces the hand-tuned scoring weights with weights learned from real user behavior collected in V2.1. Weather impact scoring via OpenWeatherMap adjusts recommendations based on current conditions.
 
-### V2.6 — AI Parking Assistant
+### V2.6 - AI Parking Assistant
 Natural language chat interface. Describe what you need and get a direct recommendation with map integration. Resolves UMN venue names to coordinates, calls the existing recommendation engine under the hood, and falls back to the standard results list if confidence is low.
 
 ---

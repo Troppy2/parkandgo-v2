@@ -73,7 +73,7 @@ app.include_router(events.router, prefix="/api")
 app.include_router(health.router, prefix="/api")
 
 
-# Prometheus /metrics endpoint — auto-instruments all HTTP routes
+# Prometheus /metrics endpoint - auto-instruments all HTTP routes
 instrumentator.instrument(app).expose(app, endpoint="/metrics", include_in_schema=False)
 
 

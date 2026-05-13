@@ -46,7 +46,7 @@ async def google_login(db: AsyncSession, google_access_token: str) -> dict:
         db.add(user)
         await db.flush()
 
-    # Sync is_admin from env var on every login — env is the source of truth
+    # Sync is_admin from env var on every login - env is the source of truth
     user.is_admin = (email or "").lower() in settings.admin_email_set
     await db.flush()
 

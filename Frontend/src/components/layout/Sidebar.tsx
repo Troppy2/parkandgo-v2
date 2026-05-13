@@ -18,7 +18,7 @@ interface SidebarProps {
   onToggleCollapse: () => void;
 }
 
-// Filter chip options — values match backend exactly
+// Filter chip options - values match backend exactly
 const PARKING_TYPE_FILTERS: { label: string; value: ParkingType | "All"; icon: string | null }[] = [
   { label: "All",     value: "All",             icon: null },
   { label: "Garage",  value: "Parking Garage",  icon: "bi-building" },
@@ -100,7 +100,7 @@ export default function Sidebar({
 
   const resetFilters = () => setFilters({});
 
-  // Dynamic max cost — compute from current filter results, fallback to 20
+  // Dynamic max cost - compute from current filter results, fallback to 20
   const maxCostInData = filterResults && filterResults.length > 0
     ? Math.ceil(Math.max(...filterResults.map((s) => s.cost ?? 0)))
     : 20
@@ -214,7 +214,7 @@ export default function Sidebar({
             </button>
           </div>
 
-          {/* Collapsible filter body — max-height CSS transition, no DOM removal */}
+          {/* Collapsible filter body - max-height CSS transition, no DOM removal */}
           <div className={clsx(
             "overflow-hidden transition-[max-height] duration-300 ease-in-out flex-shrink-0",
             filtersCollapsed ? "max-h-0" : "max-h-[200px]"
@@ -234,7 +234,7 @@ export default function Sidebar({
                   {label}
                 </button>
               ))}
-              {/* Reset button — only when filters are active */}
+              {/* Reset button - only when filters are active */}
               {hasActiveFilters && (
                 <button
                   onClick={resetFilters}
@@ -300,7 +300,7 @@ export default function Sidebar({
         )}
       </div>
 
-      {/* ── SPOT COUNT ROW — always visible on spots tab ── */}
+      {/* ── SPOT COUNT ROW - always visible on spots tab ── */}
       {activeTab === "spots" && (filterResults?.length ?? 0) > 0 && (
         <div className="px-3.5 py-1.5 flex items-center gap-2 border-b border-black/5 flex-shrink-0">
           <span className="text-[11px] font-semibold text-text1">Filtered spots</span>

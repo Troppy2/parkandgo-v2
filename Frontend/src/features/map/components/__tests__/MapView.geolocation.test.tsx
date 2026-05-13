@@ -162,7 +162,7 @@ function setupStores() {
 
 // ── Tests ──────────────────────────────────────────────────────────────────
 
-describe('Phase 4 — Geolocation & Map Stability', () => {
+describe('Phase 4 - Geolocation & Map Stability', () => {
   beforeEach(() => {
     capturedElements.length = 0
     setupStores()

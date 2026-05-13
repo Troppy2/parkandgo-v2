@@ -5,7 +5,7 @@ import { useUIStore } from "../../../store/uiStore"
 import { spotHasDirections } from "../../../lib/parking/spotDirections"
 
 export function useSearch(rawQuery: string) {
-  // Debounce the raw input — 300ms delay
+  // Debounce the raw input - 300ms delay
   const query = useDebounce(rawQuery, 300)
   const directionsOnly = useUIStore((s) => s.directionsOnly)
 

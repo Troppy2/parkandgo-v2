@@ -72,7 +72,7 @@ async def create_spot(
     db: AsyncSession = Depends(get_db),
 ):
     """Submit a new parking spot. Validates coordinates are within a UMN campus boundary.
-    New spots are unverified by default — an admin must verify them before they score higher."""
+    New spots are unverified by default - an admin must verify them before they score higher."""
     if not is_within_campus_bounds(spot_data.latitude, spot_data.longitude):
         raise HTTPException(status_code=400, detail="Coordinates must be within a UMN campus boundary")
 
