@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/icons/icon-192x192.svg" />
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#7A0019" />
+    <meta name="description" content="Park & Go Admin Dashboard" />
+    <title>Park & Go Admin</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script>
+      try {
+        const ui = JSON.parse(localStorage.getItem("parkandgo-ui") || "{}")
+        if (ui.darkMode) document.documentElement.setAttribute("data-theme", "dark")
+      } catch(e) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/admin.tsx"></script>
+  </body>
+</html>

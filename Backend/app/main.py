@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+import asyncio
 import logging
 
 from fastapi import FastAPI
@@ -20,22 +21,42 @@ from app.utils.metrics import instrumentator
 logger = logging.getLogger("app.main")
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """Startup: launch the scheduler and warm the Redis connection.
-    Shutdown: stop the scheduler and close the Redis connection cleanly."""
-    scheduler_started = False
-
+async def _run_startup_checks_background() -> None:
+    """Run schema/seed checks in the background so the app serves requests immediately."""
     try:
         await run_startup_health_checks()
+    except Exception:
+        logger.exception(
+            "Background startup health checks failed. "
+            "Check DATABASE_URL and PostgreSQL credentials."
+        )
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Startup: launch the scheduler immediately, then run health checks in the background.
+    The app starts serving requests without waiting for DB checks to complete.
+    Shutdown: cancel the background task, stop the scheduler, close Redis."""
+    scheduler_started = False
+    startup_task: asyncio.Task | None = None
+
+    try:
         start_scheduler()
         scheduler_started = True
     except Exception:
-        logger.exception(
-            "Startup health checks failed; continuing without scheduler. "
-            "Check DATABASE_URL and PostgreSQL credentials."
-        )
+        logger.exception("Failed to start scheduler on startup.")
+
+    startup_task = asyncio.create_task(_run_startup_checks_background())
+
     yield
+
+    if startup_task and not startup_task.done():
+        startup_task.cancel()
+        try:
+            await startup_task
+        except asyncio.CancelledError:
+            pass
+
     if scheduler_started:
         stop_scheduler()
     await close_redis()

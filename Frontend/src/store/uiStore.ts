@@ -10,7 +10,7 @@ interface Toast {
 }
 
 // Map style type - three options
-export type MapStyle = "standard" | "satellite" | "3d" | "dark"
+export type MapStyle = "standard" | "satellite" | "3d"
 
 interface UIState {
   // ── Toasts ──

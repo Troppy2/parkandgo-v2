@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { useRecommendations } from "../hooks/useRecommendations"
 import { useAuthStore } from "../../../store/authStore"
 import { useMediaQuery } from "../../../hooks/useMediaQuery"
@@ -8,7 +9,10 @@ import { recommendationHasDirections } from "../../../lib/parking/spotDirections
 import RecommendationCard from "./RecommendationCard"
 import LoadingSkeleton from "./LoadingSkeleton"
 
+const TOP_N = 3
+
 export default function RecommendationList() {
+  const [showAll, setShowAll] = useState(false)
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
   const isOffline = useUIStore((s) => s.isOffline)
   const isDesktop = useMediaQuery("(min-width: 768px)")
@@ -17,14 +21,23 @@ export default function RecommendationList() {
   const cachedRecommendations = useRecommendationStore((s) => s.cachedRecommendations)
   const rememberedSpot = useNavStore((s) => s.rememberedSpot)
   const startNavigation = useNavStore((s) => s.startNavigation)
-  
-  const { data, isLoading, isError } = useRecommendations({ verifiedOnly })
+  const currentUserLocation = useNavStore((s) => s.currentUserLocation)
+  const travelMode = useNavStore((s) => s.travelMode)
+
+  const { data, isLoading, isError } = useRecommendations({
+    verifiedOnly,
+    lat: currentUserLocation?.coords[1],
+    lon: currentUserLocation?.coords[0],
+    limit: 10,
+    travelMode,
+  })
   
   // Prefer fresh query data; fall back to the persisted Zustand cache on error or
   // when the device is offline (TanStack may still have in-memory data when offline,
   // but we check isOffline explicitly so the fallback doesn't depend on isError alone).
   const recommendations = data ?? ((isError || isOffline) && cachedRecommendations.length > 0 ? cachedRecommendations : [])
   const visibleData = directionsOnly ? recommendations.filter(recommendationHasDirections) : recommendations
+  const displayedData = showAll ? visibleData : visibleData.slice(0, TOP_N)
 
   if (!isAuthenticated) {
     return (
@@ -93,9 +106,17 @@ export default function RecommendationList() {
             </button>
           </div>
         )}
-        {visibleData.map((rec) => (
+        {displayedData.map((rec) => (
           <RecommendationCard key={rec.spot.spot_id} recommendation={rec} />
         ))}
+        {visibleData.length > TOP_N && (
+          <button
+            onClick={() => setShowAll((prev) => !prev)}
+            className="w-full py-2 rounded-[10px] border border-black/10 text-[12px] font-semibold text-maroon bg-maroon-light hover:bg-maroon/10 transition-colors"
+          >
+            {showAll ? "Show less" : `All ${visibleData.length} spots`}
+          </button>
+        )}
       </div>
     )
   }
@@ -140,9 +161,14 @@ export default function RecommendationList() {
           </span>
         )}
         {hasData && (
-          <span className="ml-auto text-[11px] font-medium text-text2 bg-bg2 rounded-full px-2 py-0.5">
-            {visibleData.length} spots
-          </span>
+          <>
+            <button
+              onClick={() => setShowAll((prev) => !prev)}
+              className={`ml-auto text-[11px] font-semibold rounded-full px-2.5 py-0.5 transition-colors ${showAll ? "bg-maroon text-white" : "bg-bg2 text-text2 hover:bg-maroon/10 hover:text-maroon"}`}
+            >
+              {showAll ? `Top ${TOP_N}` : `All ${visibleData.length}`}
+            </button>
+          </>
         )}
       </div>
 
@@ -151,7 +177,7 @@ export default function RecommendationList() {
       )}
 
       <div className="flex gap-2.5 px-3.5 pb-4 overflow-x-auto scrollbar-none">
-        {visibleData.map((rec) => (
+        {displayedData.map((rec) => (
           <div key={rec.spot.spot_id} className="flex-shrink-0 w-[340px]">
             <RecommendationCard recommendation={rec} />
           </div>

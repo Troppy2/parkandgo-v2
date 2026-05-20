@@ -165,7 +165,7 @@ describe("ETAIndicator", () => {
 
     expect(useNavStore.getState().route).toBeNull();
 
-    resolveRoute?.(resolvedRoute);
+    resolveRoute!(resolvedRoute);
 
     await waitFor(() => {
       expect(useNavStore.getState().routeStatus).toBe("ready");

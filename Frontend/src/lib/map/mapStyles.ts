@@ -6,9 +6,6 @@ export const UMN_DEFAULT_ZOOM = 15.5
 // ── Standard street map ──
 export const STANDARD_STYLE = "https://tiles.openfreemap.org/styles/bright"
 
-// ── Dark street map ──
-export const DARK_STYLE = "https://tiles.openfreemap.org/styles/dark"
-
 // ── 3D Buildings ──
 export const BUILDINGS_3D_STYLE = "https://tiles.openfreemap.org/styles/bright"
 // Same URL as standard - the extrusion layer gets added in code, not here

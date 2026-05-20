@@ -6,13 +6,15 @@ interface SearchFiltersProps {
     onChange: (updated: SpotFilters) => void
     isOpen: boolean
     sliderMax?: number
+    viewMode?: "Recommended" | "All"
+    onViewModeChange?: (v: "Recommended" | "All") => void
 }
 
 // Chip options - match your backend's allowed values exactly
 const PARKING_TYPES = ["Parking Garage", "Surface Lot", "Street Parking"] as const
 const CAMPUSES = ["East Bank", "West Bank", "St. Paul"] as const
 
-export default function SearchFilters({ filters, onChange, isOpen, sliderMax = 20 }: SearchFiltersProps) {
+export default function SearchFilters({ filters, onChange, isOpen, sliderMax = 20, viewMode, onViewModeChange }: SearchFiltersProps) {
     // Helper to toggle a chip value
     // If already selected = clear it (set to undefined)
     // If not selected = set it
@@ -51,6 +53,25 @@ export default function SearchFilters({ filters, onChange, isOpen, sliderMax = 2
                 isOpen ? "max-h-[500px]" : "max-h-0"
             )}
         >
+            {/* Recommended / All view toggle */}
+            {onViewModeChange && (
+                <div className="mb-2.5">
+                    <div className="text-[10px] font-bold uppercase tracking-[0.7px] text-text3 mb-1.5">View</div>
+                    <div className="flex gap-1.5">
+                        {(["Recommended", "All"] as const).map((mode) => (
+                            <button
+                                key={mode}
+                                onClick={() => onViewModeChange(mode)}
+                                className={clsx("chip flex items-center gap-1", viewMode === mode && "chip-ac")}
+                            >
+                                {mode === "Recommended" && <i className="bi bi-star-fill text-[9px]" />}
+                                {mode}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {/* Parking Type section */}
             {/* Matches .filter-sec + .filter-sec-t */}
             <div className="mb-2.5">

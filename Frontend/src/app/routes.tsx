@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "../features/auth/components/ProtectedRoute";
-import LoginPage from "../features/auth/components/LoginPage";
 import ResponsiveContainer from "../components/layout/ResponsiveContainer";
 import RecommendationList from "../features/recommendation/components/RecommendationList";
 import MapView from "../features/map/components/MapView"
@@ -11,9 +10,6 @@ import ETAIndicator from "../features/navigation/components/ETAIndicator";
 import RememberParkingSpotModal from "../features/navigation/components/RememberParkingSpotModal";
 import SettingsModal from "../features/profile/components/SettingsModal";
 import SuggestSpotModal from "../features/parking/components/SuggestSpotModal";
-import AdminRoute from "../features/admin/components/AdminRoute";
-import AdminDashboard from "../features/admin/components/AdminDashboard";
-import AdminErrorBoundary from "../features/admin/components/AdminErrorBoundary";
 import { useUIStore } from "../store/uiStore";
 import { useActiveNavigation } from "../features/navigation/hooks/useActiveNavigation";
 import { initializeParkingReminderScheduler } from "../features/navigation/services/parkingReminderScheduler";
@@ -62,9 +58,6 @@ export default function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public */}
-        <Route path="/login" element={<LoginPage />} />
-
         {/* Protected - requires sign-in or guest mode */}
         <Route
           path="/"
@@ -72,18 +65,6 @@ export default function AppRoutes() {
             <ProtectedRoute>
               <AppShell />
             </ProtectedRoute>
-          }
-        />
-
-        {/* Admin - requires is_admin */}
-        <Route
-          path="/admin"
-          element={
-            <AdminErrorBoundary>
-              <AdminRoute>
-                <AdminDashboard />
-              </AdminRoute>
-            </AdminErrorBoundary>
           }
         />
 

@@ -8,6 +8,7 @@ interface RecommendationParams {
   lon?: number
   limit?: number
   verifiedOnly?: boolean
+  travelMode?: string
 }
 
 export async function getRecommendations(
@@ -18,6 +19,7 @@ export async function getRecommendations(
       user_lat: params.lat,
       user_lon: params.lon,
       limit: params.limit,
+      travel_mode: params.travelMode ?? "walking",
       ...(params.verifiedOnly ? { verified_only: true } : {}),
     },
   })

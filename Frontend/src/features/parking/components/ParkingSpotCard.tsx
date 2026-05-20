@@ -140,6 +140,7 @@ export default function ParkingSpotCard({ spot, details }: ParkingSpotCardProps)
               "text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-black/15 flex items-center gap-1",
               spot.is_verified ? "text-text1" : "text-text2"
             )}
+            title={spot.is_verified ? "Community-submitted and staff-confirmed" : "Community-submitted, not yet verified"}
           >
             <i className="bi bi-patch-check-fill text-[9px]" />
             {spot.is_verified ? "Verified" : "Unverified"}

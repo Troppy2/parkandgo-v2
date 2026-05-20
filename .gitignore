@@ -19,6 +19,9 @@ dev-utilities/
 # Local database
 parkandgo_db_postgres
 
+#IDE files
+.vscode/
+
 # Claude folder
 .claude/
 

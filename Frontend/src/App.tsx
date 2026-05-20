@@ -152,7 +152,7 @@ function App() {
         <OfflineBanner />
         <div className="min-h-screen flex items-center justify-center bg-white text-[#7A0019] p-6">
           <div className="max-w-sm text-center space-y-3">
-            <h1 className="text-lg font-semibold">Connecting to server...</h1>
+            <h1 className="text-lg font-semibold">Loading Park &amp; Go...</h1>
 
             {startupStatus === "checking" && (
               <p className="text-sm">

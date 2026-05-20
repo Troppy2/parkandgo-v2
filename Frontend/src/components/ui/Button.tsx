@@ -14,9 +14,9 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 
 const variantMap = {
-  primary:   "bg-maroon text-white hover:bg-maroon-hover active:bg-[var(--color-maroon-dark)] active:scale-95",
-  secondary: "bg-white border border-maroon text-maroon hover:bg-maroon-light active:scale-95",
-  ghost:     "bg-transparent text-maroon hover:bg-maroon-light active:scale-95",
+  primary:   "bg-maroon text-white hover:bg-maroon-hover active:bg-[var(--color-maroon-dark)]",
+  secondary: "bg-white border border-maroon text-maroon hover:bg-maroon-light",
+  ghost:     "bg-transparent text-maroon hover:bg-maroon-light",
 }
 
 const sizeMap = {
@@ -41,7 +41,8 @@ export default function Button({
         // Base styles always applied
         "inline-flex items-center justify-center gap-2",
         "font-semibold rounded-full min-h-[44px]",
-        "transition-all duration-150",
+        "transition-all duration-75",
+        "active:scale-[0.97] active:brightness-90",
         "disabled:cursor-not-allowed disabled:opacity-100",
         "disabled:bg-[var(--color-button-disabled-bg)] disabled:text-[var(--color-button-disabled-text)] disabled:border-transparent",
         variantMap[variant],
