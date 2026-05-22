@@ -6,6 +6,10 @@ import { useUIStore } from '../../../store/uiStore'
 
 // ── Mocks ──────────────────────────────────────────────────────────────────
 
+const mockUseDebouncedSearch = vi.hoisted(() =>
+  vi.fn(() => ({ data: [], isLoading: false }))
+)
+
 vi.mock('../../../store/authStore', () => ({
   useAuthStore: vi.fn(),
 }))
@@ -15,7 +19,7 @@ vi.mock('../../../store/uiStore', () => ({
 }))
 
 vi.mock('../../../features/search/hooks/useDebouncedSearch', () => ({
-  useDebouncedSearch: () => ({ data: [], isLoading: false }),
+  useDebouncedSearch: mockUseDebouncedSearch,
 }))
 
 vi.mock('react-router-dom', () => ({
@@ -80,6 +84,7 @@ function renderSidebar() {
 
 describe('Sidebar filter collapse', () => {
   beforeEach(() => {
+    mockUseDebouncedSearch.mockClear()
     setupStores()
   })
 
@@ -117,5 +122,14 @@ describe('Sidebar filter collapse', () => {
     expect(
       screen.queryByRole('button', { name: /toggle filters/i })
     ).not.toBeInTheDocument()
+  })
+
+  it('asks the search hook to include all spots when All is selected', () => {
+    renderSidebar()
+    fireEvent.click(screen.getByRole('button', { name: 'All' }))
+    expect(mockUseDebouncedSearch).toHaveBeenLastCalledWith(
+      expect.any(Object),
+      expect.objectContaining({ includeAll: true })
+    )
   })
 })
