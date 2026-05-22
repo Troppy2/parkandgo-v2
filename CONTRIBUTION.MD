@@ -8,7 +8,7 @@ Use this file as the short checklist before opening a pull request or committing
 
 ```bash
 cd Backend
-python -m venv venv
+py -3.11 -m venv venv
 venv\Scripts\activate
 pip install -r requirements/dev.txt
 cp .env.example .env

@@ -37,7 +37,7 @@ Guests can browse the map and see recommendations without signing in. Authentica
 
 ### Prerequisites
 
-- Python 3.11+
+- Python 3.11+ (use the 3.11 interpreter when creating the virtual environment)
 - Node.js 18+
 - PostgreSQL 15+
 - Docker (optional, for full-stack)
