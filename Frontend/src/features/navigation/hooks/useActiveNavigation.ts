@@ -7,7 +7,7 @@ const AUTO_END_THRESHOLD_METERS = 15;
 /**
  * Handles auto-end: ends navigation when the user reaches the destination.
  *
- * Intentionally narrow — it only does what nothing else already handles:
+ * Intentionally narrow - it only does what nothing else already handles:
  * - Stats updates and ETA are handled by ETAIndicator
  * - Step advancement is handled by ETAIndicator
  * - Route line drawing is handled by RouteLayer

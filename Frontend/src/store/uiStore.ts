@@ -9,8 +9,8 @@ interface Toast {
   type: "success" | "error"
 }
 
-// Map style type — three options
-export type MapStyle = "standard" | "satellite" | "3d" | "dark"
+// Map style type - three options
+export type MapStyle = "standard" | "satellite" | "3d"
 
 interface UIState {
   // ── Toasts ──
@@ -30,7 +30,7 @@ interface UIState {
   suggestSpotOpen: boolean
   setSuggestSpotOpen: (open: boolean) => void
 
-  // ── Map style — persisted so user's preference survives refresh ──
+  // ── Map style - persisted so user's preference survives refresh ──
   mapStyle: MapStyle
   setMapStyle: (style: MapStyle) => void
 
@@ -113,17 +113,17 @@ export const useUIStore = create<UIState>()(
       campusRoutingEnabled: true,
       setCampusRoutingEnabled: (v) => set({ campusRoutingEnabled: v }),
 
-      // Map instance — never persisted, recreated on mount
+      // Map instance - never persisted, recreated on mount
       mapInstance: null,
       setMapInstance: (map) => set({ mapInstance: map }),
 
-      // Network status — never persisted, derived from browser events on mount
+      // Network status - never persisted, derived from browser events on mount
       isOffline: false,
       setOffline: (offline) => set({ isOffline: offline }),
     }),
     {
       name: "parkandgo-ui",   // localStorage key
-      // Only persist these fields — not toasts, mapInstance, or activeTab
+      // Only persist these fields - not toasts, mapInstance, or activeTab
       // activeTab is intentionally not persisted so the app always starts on "spots"
       partialize: (state) => ({
         mapStyle: state.mapStyle,

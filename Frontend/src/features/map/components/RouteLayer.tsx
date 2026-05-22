@@ -15,7 +15,7 @@ function removeRouteLayer(map: maplibregl.Map) {
 
 /**
  * Returns the index of the coordinate in `coords` that is closest to `userLoc`.
- * Uses squared distance (no sqrt) — only relative order matters.
+ * Uses squared distance (no sqrt) - only relative order matters.
  */
 function findClosestIndex(coords: [number, number][], userLoc: [number, number]): number {
   let minDist = Infinity;

@@ -1,7 +1,6 @@
 import { useAuthStore } from "../../store/authStore";
 import { useUIStore } from "../../store/uiStore";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import clsx from "clsx";
 import SearchBar from "../../features/search/components/SearchBar";
 import EventList from "../../features/events/components/EventList";
@@ -18,12 +17,15 @@ interface SidebarProps {
   onToggleCollapse: () => void;
 }
 
-// Filter chip options — values match backend exactly
-const PARKING_TYPE_FILTERS: { label: string; value: ParkingType | "All"; icon: string | null }[] = [
-  { label: "All",     value: "All",             icon: null },
-  { label: "Garage",  value: "Parking Garage",  icon: "bi-building" },
-  { label: "Surface", value: "Surface Lot",     icon: "bi-tree" },
-  { label: "Street",  value: "Street Parking",  icon: "bi-signpost-fill" },
+type ViewMode = "Recommended" | "All" | ParkingType
+
+// Filter chip options - Recommended first, then All, then parking types
+const PARKING_TYPE_FILTERS: { label: string; value: ViewMode; icon: string | null }[] = [
+  { label: "Recommended", value: "Recommended",   icon: "bi-star-fill" },
+  { label: "All",         value: "All",           icon: null },
+  { label: "Garage",      value: "Parking Garage", icon: "bi-building" },
+  { label: "Surface",     value: "Surface Lot",   icon: "bi-tree" },
+  { label: "Street",      value: "Street Parking", icon: "bi-signpost-fill" },
 ]
 
 // Icon-only rail shown when sidebar is collapsed (D3)
@@ -79,7 +81,6 @@ export default function Sidebar({
 }: SidebarProps) {
   const user = useAuthStore((s) => s.user);
   const isGuest = useAuthStore((s) => s.isGuest);
-  const navigate = useNavigate();
   const activeTab = useUIStore((s) => s.activeTab);
   const setActiveTab = useUIStore((s) => s.setActiveTab);
   const mapInstance = useUIStore((s) => s.mapInstance);
@@ -87,20 +88,25 @@ export default function Sidebar({
   const verifiedOnly = useUIStore((s) => s.verifiedOnly);
   const directionsOnly = useUIStore((s) => s.directionsOnly);
   const [filters, setFilters] = useState<SpotFilters>({});
+  const [viewMode, setViewMode] = useState<ViewMode>("Recommended");
 
   // Merge verifiedOnly global pref into filters so the API receives it
   const mergedFilters: SpotFilters = { ...filters, verified_only: verifiedOnly || undefined };
-  const { data: filterResults, isLoading: filterLoading } = useDebouncedSearch(mergedFilters);
+  const { data: filterResults, isLoading: filterLoading } = useDebouncedSearch(mergedFilters, {
+    includeAll: viewMode !== "Recommended",
+  });
 
   const hasActiveFilters =
-    !!filters.parking_type ||
     (filters.max_cost !== undefined && filters.max_cost < 20) ||
     !!verifiedOnly ||
     !!directionsOnly;
 
-  const resetFilters = () => setFilters({});
+  const resetFilters = () => {
+    setFilters({});
+    setViewMode("Recommended");
+  };
 
-  // Dynamic max cost — compute from current filter results, fallback to 20
+  // Dynamic max cost - compute from current filter results, fallback to 20
   const maxCostInData = filterResults && filterResults.length > 0
     ? Math.ceil(Math.max(...filterResults.map((s) => s.cost ?? 0)))
     : 20
@@ -121,12 +127,11 @@ export default function Sidebar({
 
   const [filtersCollapsed, setFiltersCollapsed] = useState(false)
 
-  const activeTypeFilter = filters.parking_type ?? "All"
-
-  const toggleType = (value: ParkingType | "All") => {
+  const toggleType = (value: ViewMode) => {
+    setViewMode(value)
     setFilters((prev) => ({
       ...prev,
-      parking_type: value === "All" ? undefined : value,
+      parking_type: value === "All" || value === "Recommended" ? undefined : value,
     }))
   }
 
@@ -214,7 +219,7 @@ export default function Sidebar({
             </button>
           </div>
 
-          {/* Collapsible filter body — max-height CSS transition, no DOM removal */}
+          {/* Collapsible filter body - max-height CSS transition, no DOM removal */}
           <div className={clsx(
             "overflow-hidden transition-[max-height] duration-300 ease-in-out flex-shrink-0",
             filtersCollapsed ? "max-h-0" : "max-h-[200px]"
@@ -227,14 +232,14 @@ export default function Sidebar({
                   onClick={() => toggleType(value)}
                   className={clsx(
                     "flex-shrink-0 flex items-center gap-1",
-                    activeTypeFilter === value ? "chip chip-ac" : "chip"
+                    viewMode === value ? "chip chip-ac" : "chip"
                   )}
                 >
                   {icon && <i className={`bi ${icon} text-[10px]`} />}
                   {label}
                 </button>
               ))}
-              {/* Reset button — only when filters are active */}
+              {/* Reset button - only when filters are active */}
               {hasActiveFilters && (
                 <button
                   onClick={resetFilters}
@@ -300,10 +305,12 @@ export default function Sidebar({
         )}
       </div>
 
-      {/* ── SPOT COUNT ROW — always visible on spots tab ── */}
-      {activeTab === "spots" && (filterResults?.length ?? 0) > 0 && (
+      {/* ── SPOT COUNT ROW - only visible when not in Recommended mode ── */}
+      {activeTab === "spots" && viewMode !== "Recommended" && (filterResults?.length ?? 0) > 0 && (
         <div className="px-3.5 py-1.5 flex items-center gap-2 border-b border-black/5 flex-shrink-0">
-          <span className="text-[11px] font-semibold text-text1">Filtered spots</span>
+          <span className="text-[11px] font-semibold text-text1">
+            {viewMode === "All" ? "All spots" : `${viewMode} spots`}
+          </span>
           <span className="text-[10px] font-medium text-text1 bg-bg2 rounded-full px-2 py-0.5 ml-auto">
             {(filterResults ?? []).length} spots
           </span>
@@ -324,9 +331,9 @@ export default function Sidebar({
       <div className="flex-1 overflow-y-auto scrollbar-none">
         {activeTab === "events" && !isGuest
           ? <EventList onEventMapClick={handleEventMapClick} />
-          : hasActiveFilters
-            ? <SearchResults spots={filterResults} isLoading={filterLoading} query="" onReset={resetFilters} />
-            : children
+          : viewMode === "Recommended"
+            ? children
+            : <SearchResults spots={filterResults} isLoading={filterLoading} query="" onReset={resetFilters} />
         }
       </div>
 
@@ -354,7 +361,7 @@ export default function Sidebar({
 
           {user?.is_admin && (
             <button
-              onClick={() => navigate("/admin")}
+              onClick={() => { window.location.href = '/admin.html' }}
               className="w-full flex items-center gap-2 px-2.5 py-2 rounded-[10px] bg-maroon text-white hover:bg-maroon-hover transition-colors duration-150 cursor-pointer"
             >
               <i className="bi bi-shield-lock-fill text-sm" />

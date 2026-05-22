@@ -20,7 +20,7 @@ export default function SearchResults({ spots, isLoading, query, onReset }: Sear
         )
     }
 
-    // Empty state — no spots match active filters
+    // Empty state - no spots match active filters
     if (!spots || spots.length === 0) {
         return (
             <div className="px-3.5 py-8 text-center">

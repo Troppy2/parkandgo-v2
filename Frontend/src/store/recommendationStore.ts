@@ -3,7 +3,7 @@
  * 
  * - Persists data in localStorage (via Zustand persist)
  * - Stores raw backend response (no transformations)
- * - No cache invalidation — data stays until replaced or cleared
+ * - No cache invalidation - data stays until replaced or cleared
  * - Improves UX by avoiding refetches when returning to the list or switching views
  * 
  * Not a full caching solution. Fetching should be handled separately (e.g., useRecommendations hook).

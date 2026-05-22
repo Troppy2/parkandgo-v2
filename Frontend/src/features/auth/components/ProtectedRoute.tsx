@@ -1,5 +1,4 @@
 import type { ReactNode } from "react"
-import { Navigate } from "react-router-dom"
 import { useAuthStore } from "../../../store/authStore"
 
 interface ProtectedRouteProps {
@@ -20,7 +19,8 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   }
 
   if (!isAuthenticated && !isGuest) {
-    return <Navigate to="/login" replace />
+    window.location.replace('/login.html')
+    return null
   }
 
   return <>{children}</>

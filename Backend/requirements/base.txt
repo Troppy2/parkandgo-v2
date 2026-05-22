@@ -1,4 +1,4 @@
-# Park & Go V2 — Base Dependencies (Python 3.13+)
+# Park & Go V2 - Base Dependencies (Python 3.13+)
 # Install: pip install -r requirements/base.txt
 
 # Framework
@@ -10,6 +10,7 @@ uvicorn[standard]==0.34.0
 
 # Database & ORM (PostgreSQL + PostGIS)
 sqlalchemy==2.0.36
+greenlet>=3.1.1
 asyncpg==0.30.0
 psycopg2-binary==2.9.10
 GeoAlchemy2==0.14.3

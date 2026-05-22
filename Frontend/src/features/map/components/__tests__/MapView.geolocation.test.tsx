@@ -146,6 +146,7 @@ function setupStores() {
     setRouteError: vi.fn(),
     clearRouteNotice: vi.fn(),
     advanceStep: vi.fn(),
+    setCurrentStepIndex: vi.fn(),
     setRememberedSpot: vi.fn(),
     promptRememberSpot: vi.fn(),
     dismissRememberSpotPrompt: vi.fn(),
@@ -162,7 +163,7 @@ function setupStores() {
 
 // ── Tests ──────────────────────────────────────────────────────────────────
 
-describe('Phase 4 — Geolocation & Map Stability', () => {
+describe('Phase 4 - Geolocation & Map Stability', () => {
   beforeEach(() => {
     capturedElements.length = 0
     setupStores()
@@ -322,6 +323,7 @@ describe('Phase 4 — Geolocation & Map Stability', () => {
         setRouteError: vi.fn(),
         clearRouteNotice: vi.fn(),
         advanceStep: vi.fn(),
+        setCurrentStepIndex: vi.fn(),
         setRememberedSpot: vi.fn(),
         promptRememberSpot: vi.fn(),
         dismissRememberSpotPrompt: vi.fn(),

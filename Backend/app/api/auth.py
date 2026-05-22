@@ -11,6 +11,7 @@ from app.models.user import User
 from app.schemas.user import RefreshTokenRequest, TokenResponse, UserResponse
 from app.services.auth_service import google_login
 from app.core.limiter import limiter
+from app.core.config import settings
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -39,8 +40,12 @@ async def login_with_google(
 
 
 @router.get("/me", response_model=UserResponse)
-async def get_me(user: User = Depends(get_current_user)):
-    """Return the currently authenticated user's profile."""
+async def get_me(user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    """Return the currently authenticated user's profile, syncing is_admin from env."""
+    correct_admin = (user.email or "").lower() in settings.admin_email_set
+    if user.is_admin != correct_admin:
+        user.is_admin = correct_admin
+        await db.flush()
     return user
 
 
@@ -52,7 +57,7 @@ async def refresh_access_token(
     db: AsyncSession = Depends(get_db),
 ):
     """Issue a new access token using a valid refresh token.
-    Does NOT require an Authorization header — the whole point is that
+    Does NOT require an Authorization header - the whole point is that
     the access token may already be expired when this is called."""
     try:
         payload = decode_refresh_token(body.refresh_token)

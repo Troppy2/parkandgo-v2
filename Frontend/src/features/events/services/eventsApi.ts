@@ -2,7 +2,7 @@ import apiClient from "../../../lib/api/client"
 import { ENDPOINTS } from "../../../lib/api/endpoints"
 import type { CampusEvent, EventCategory } from "../../../types/campus_event.types"
 
-// GET /events — optional category filter
+// GET /events - optional category filter
 // When category is undefined, fetches all events
 export async function getEvents(category?: EventCategory): Promise<CampusEvent[]> {
   const { data } = await apiClient.get(ENDPOINTS.EVENTS.LIST, {

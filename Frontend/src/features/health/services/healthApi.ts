@@ -14,8 +14,8 @@ type startupProbeOptions = {
 }
 
 const DEFAULT_MAX_ATTEMPTS = 5
-const DEFAULT_BASE_DELAY_MS = 700
-const DEFAULT_MAX_DELAY_MS = 6000
+const DEFAULT_BASE_DELAY_MS = 200
+const DEFAULT_MAX_DELAY_MS = 3000
 
 function isAbortError(error: unknown): error is { name: string } {
   return typeof error === "object" && error !== null && "name" in error && (error as { name: string }).name === "AbortError"

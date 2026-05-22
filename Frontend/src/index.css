@@ -1,6 +1,7 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
-/* Park & Go design tokens — these mirror the tailwind.config.js colors */
+/* Park & Go design tokens - these mirror the tailwind.config.js colors */
 :root {
   --color-maroon: #7A0019;
   --color-gold: #FFCC33;
@@ -73,7 +74,7 @@
 }
 
 @layer components {
-  /* Maroon solid fills — anchored here because Tailwind v4's CSS-variable
+  /* Maroon solid fills - anchored here because Tailwind v4's CSS-variable
      chain for the DEFAULT key can produce a transparent bg in light mode */
   .bg-maroon {
     background-color: #7A0019;
@@ -137,7 +138,7 @@
   to   { transform: translateY(0);    opacity: 1; }
 }
 
-/* Google Sign In button — always renders in light mode per Google brand guidelines */
+/* Google Sign In button - always renders in light mode per Google brand guidelines */
 [data-theme="dark"] .google-sign-in-btn {
   background-color: #ffffff !important;
   color: #3c4043 !important;
@@ -185,7 +186,7 @@
 [data-theme="dark"] .border-black\/10    { border-color: rgba(255,255,255,0.10) !important; }
 [data-theme="dark"] .border-black\/12    { border-color: rgba(255,255,255,0.12) !important; }
 
-/* Inputs and selects — exclude bg-transparent inputs (e.g. search bar inner input) */
+/* Inputs and selects - exclude bg-transparent inputs (e.g. search bar inner input) */
 [data-theme="dark"] input:not([type="range"]):not(.bg-transparent),
 [data-theme="dark"] select,
 [data-theme="dark"] textarea {
@@ -246,7 +247,7 @@
   border-color: rgba(255,255,255,0.09) !important;
 }
 
-/* Map controls (zoom + locate buttons) — D12 — target the wrapper divs */
+/* Map controls (zoom + locate buttons) - D12 - target the wrapper divs */
 [data-theme="dark"] .bg-white\/90 {
   background-color: rgba(44,44,46,0.92) !important;
 }
@@ -261,17 +262,17 @@
   background-color: #2c2c2e !important;
 }
 
-/* Settings modal desktop — already covered by rgba override, but ensure text is light */
+/* Settings modal desktop - already covered by rgba override, but ensure text is light */
 [data-theme="dark"] .bg-\[rgba\(246\,246\,246\,0\.97\)\] * {
   color: #f5f5f7;
 }
 
-/* Toggle track "off" state — border2 (#d1d5db) in dark mode → dark grey */
+/* Toggle track "off" state - border2 (#d1d5db) in dark mode → dark grey */
 [data-theme="dark"] .bg-border2 {
   background-color: #48484a !important;
 }
 
-/* Settings modal — now uses var(--color-modal-surface) inline; dark handled via CSS var */
+/* Settings modal - now uses var(--color-modal-surface) inline; dark handled via CSS var */
 /* bg-[#e8e8ed] bookmark unsaved / misc surfaces in dark mode */
 [data-theme="dark"] .bg-\[\#e8e8ed\] { background-color: #3a3a3c !important; }
 
@@ -315,7 +316,7 @@
 /* Empty state icons */
 [data-theme="dark"] .text-text3 { color: #6b6b70 !important; }
 
-/* Maroon text on dark backgrounds — #7A0019 is too dark to read; use a bright readable variant */
+/* Maroon text on dark backgrounds - #7A0019 is too dark to read; use a bright readable variant */
 [data-theme="dark"] .text-maroon       { color: #e8697d !important; }
 [data-theme="dark"] .text-maroon\/60   { color: rgba(232,105,125,0.72) !important; }
 [data-theme="dark"] .border-maroon\/30 { border-color: rgba(232,105,125,0.35) !important; }
@@ -335,7 +336,7 @@ button:not(:disabled):active,
 }
 
 /* ── MapLibre Marker Fixes ─────────────────────── */
-/* Prevent custom pin inner elements from scaling — but NOT .maplibregl-marker
+/* Prevent custom pin inner elements from scaling - but NOT .maplibregl-marker
    itself, which MapLibre positions via translate3d() inline transforms. */
 .event-pin {
   transform: none !important;

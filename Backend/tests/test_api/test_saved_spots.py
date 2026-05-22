@@ -32,7 +32,7 @@ class TestSaveSpot:
             json={"spot_id": test_spot.spot_id},
             headers=auth_header(test_user),
         )
-        # Second save — should conflict
+        # Second save - should conflict
         resp = await client.post(
             "/api/users/me/saved",
             json={"spot_id": test_spot.spot_id},

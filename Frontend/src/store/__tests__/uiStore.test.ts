@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { useUIStore } from '../uiStore'
 
-describe('uiStore — offline state', () => {
+describe('uiStore - offline state', () => {
   beforeEach(() => {
     useUIStore.setState({ isOffline: false })
   })

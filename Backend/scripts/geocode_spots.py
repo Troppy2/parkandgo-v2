@@ -339,7 +339,7 @@ def main():
                 r["status"].upper(),
                 old_coord_str,
                 new_coord_str,
-                r["error"] or "—",
+                r["error"] or "-",
             ])
         
         headers = ["ID", "Spot Name", "Status", "Old Coords", "New Coords", "Error/Note"]

@@ -51,7 +51,7 @@ async def get_admin_user(
     current_user: User = Depends(get_current_user)
 ) -> User:
     """Authorize admin access by checking the user's email against the
-    ADMIN_EMAILS env var. The DB is_admin column alone is NOT sufficient —
+    ADMIN_EMAILS env var. The DB is_admin column alone is NOT sufficient -
     the env var is the single source of truth."""
     email = (current_user.email or "").lower()
     if email not in settings.admin_email_set:

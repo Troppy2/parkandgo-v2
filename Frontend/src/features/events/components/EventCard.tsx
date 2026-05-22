@@ -2,7 +2,7 @@ import { useState } from "react"
 import clsx from "clsx"
 import type { CampusEvent } from "../../../types/campus_event.types"
 
-// Category badge color map — define outside the component so it's not recreated on each render
+// Category badge color map - define outside the component so it's not recreated on each render
 const CATEGORY_STYLES: Record<string, string> = {
   Sports:          "bg-maroon-light text-maroon border-maroon/20",
   "Student Life":  "bg-gold-light text-gold-dark border-gold/30",
@@ -22,12 +22,12 @@ interface EventCardProps {
 export default function EventCard({ event, onMapClick }: EventCardProps) {
   const [reminderSet, setReminderSet] = useState(false)
 
-  // Guard against null — backend marks starts_at/ends_at as Optional[datetime]
+  // Guard against null - backend marks starts_at/ends_at as Optional[datetime]
   const startsAt = event.starts_at ? new Date(event.starts_at) : null
   const endsAt = event.ends_at ? new Date(event.ends_at) : null
 
-  const month = startsAt?.toLocaleString("en-US", { month: "short" }).toUpperCase() ?? "—"
-  const day = startsAt?.getDate() ?? "—"
+  const month = startsAt?.toLocaleString("en-US", { month: "short" }).toUpperCase() ?? "-"
+  const day = startsAt?.getDate() ?? "-"
 
   // Format time range: "2:00 PM – 4:00 PM", fallback when dates are missing
   const timeRange = startsAt && endsAt
@@ -90,28 +90,28 @@ export default function EventCard({ event, onMapClick }: EventCardProps) {
       )}
     >
 
-      {/* Top row — matches .ev-row */}
+      {/* Top row - matches .ev-row */}
       <div className="flex gap-2.5 items-start mb-1.5">
 
-        {/* Date block — matches .ev-dc */}
+        {/* Date block - matches .ev-dc */}
         <div className="w-9 h-9 bg-white rounded-[8px] border border-black/9 flex flex-col items-center justify-center flex-shrink-0">
           <span className="text-[8px] font-bold text-maroon uppercase">{month}</span>
           <span className="text-base font-black leading-none">{day}</span>
         </div>
 
-        {/* Event info — matches .ev-inf */}
+        {/* Event info - matches .ev-inf */}
         <div className="flex-1 min-w-0">
-          {/* Event name — matches .ev-nm */}
+          {/* Event name - matches .ev-nm */}
           <div className="text-[12px] font-bold leading-snug mb-0.5 truncate">
             {event.title}
           </div>
-          {/* Location + time — matches .ev-meta */}
+          {/* Location + time - matches .ev-meta */}
           <div className="text-[10px] text-text2">
             {event.location_name} · {timeRange}
           </div>
         </div>
 
-        {/* Category badge — matches .ev-badge */}
+        {/* Category badge - matches .ev-badge */}
         <span
           className={clsx(
             "text-[9px] font-bold px-1.5 py-0.5 rounded-full border flex-shrink-0",
@@ -122,10 +122,10 @@ export default function EventCard({ event, onMapClick }: EventCardProps) {
         </span>
       </div>
 
-      {/* Action buttons — matches .ev-btns */}
+      {/* Action buttons - matches .ev-btns */}
       <div className="flex gap-1.5">
 
-        {/* Map button — matches .ev-map-btn, disabled if no coordinates */}
+        {/* Map button - matches .ev-map-btn, disabled if no coordinates */}
         <button
           onClick={() => onMapClick(event)}
           disabled={!hasCoordinates}
@@ -141,7 +141,7 @@ export default function EventCard({ event, onMapClick }: EventCardProps) {
           Map
         </button>
 
-        {/* Reminder button — matches .ev-rem-btn / .ev-rem-btn.set */}
+        {/* Reminder button - matches .ev-rem-btn / .ev-rem-btn.set */}
         <button
           onClick={handleReminderToggle}
           className={clsx(

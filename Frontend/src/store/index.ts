@@ -1,4 +1,4 @@
-/* Global Zustand store — re-export auth store and define map store */
+/* Global Zustand store - re-export auth store and define map store */
 
 import { create } from "zustand"
 

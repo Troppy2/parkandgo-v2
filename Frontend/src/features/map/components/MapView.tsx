@@ -8,7 +8,6 @@ import {
     STANDARD_STYLE,
     SATELLITE_STYLE,
     BUILDINGS_3D_STYLE,
-    DARK_STYLE,
 } from "../../../lib/map/mapStyles";
 import { snapToRoute } from "../../navigation/components/services/routingApi";
 import MapControls from "./MapControls";
@@ -87,7 +86,7 @@ export default function MapView() {
     const route = useNavStore((s) => s.route);
     const travelMode = useNavStore((s) => s.travelMode);
 
-    // All spots visible on the map — public endpoint, no auth required
+    // All spots visible on the map - public endpoint, no auth required
 
     // Track event markers so we can remove them when tab switches
     const eventMarkersRef = useRef<maplibregl.Marker[]>([]);
@@ -106,6 +105,7 @@ export default function MapView() {
             style: STANDARD_STYLE,
             center: UMN_CENTER,
             zoom: UMN_DEFAULT_ZOOM,
+            maxTileCacheSize: 800,
         });
 
         mapRef.current = map;
@@ -382,10 +382,6 @@ export default function MapView() {
         try {
             if (mapStyle === "standard") {
                 map.setStyle(STANDARD_STYLE);
-                map.setPitch(0);
-                map.setBearing(0);
-            } else if (mapStyle === "dark") {
-                map.setStyle(DARK_STYLE);
                 map.setPitch(0);
                 map.setBearing(0);
             } else if (mapStyle === "satellite") {

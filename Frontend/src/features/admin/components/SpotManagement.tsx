@@ -267,6 +267,7 @@ function SpotRow({
             <button
               onClick={onVerify}
               disabled={isPendingOp}
+              title="Mark as verified"
               className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 transition-colors min-h-[36px] disabled:opacity-50"
             >
               <i className="bi bi-check-lg mr-1" />
@@ -276,6 +277,7 @@ function SpotRow({
           <button
             onClick={onEdit}
             disabled={isPendingOp}
+            title="Edit spot details"
             className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-gray-50 text-text1 border border-black/10 hover:bg-gray-100 transition-colors min-h-[36px] disabled:opacity-50"
           >
             <i className="bi bi-pencil mr-1" />
@@ -284,6 +286,7 @@ function SpotRow({
           <button
             onClick={onDeleteRequest}
             disabled={isPendingOp}
+            title={tab === "pending" ? "Reject this pending spot" : "Delete spot permanently"}
             className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 transition-colors min-h-[36px] disabled:opacity-50"
           >
             <i className="bi bi-trash mr-1" />

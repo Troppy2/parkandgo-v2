@@ -6,7 +6,7 @@ import { useUIStore } from "./store/uiStore"
 import { getMe } from "./features/auth/services/authApi"
 import { checkHealthWithBackoff } from "./features/health/services/healthApi"
 
-// Reads isOffline from global UI store — renders above both the splash and the main app.
+// Reads isOffline from global UI store - renders above both the splash and the main app.
 function OfflineBanner() {
   const isOffline = useUIStore((state) => state.isOffline)
   if (!isOffline) return null
@@ -17,7 +17,7 @@ function OfflineBanner() {
       style={{ backgroundColor: "var(--color-gold)", color: "var(--color-maroon)" }}
       className="text-sm font-medium px-4 py-2 text-center"
     >
-      You're offline — some features may be unavailable
+      You're offline - some features may be unavailable
     </div>
   )
 }
@@ -152,7 +152,7 @@ function App() {
         <OfflineBanner />
         <div className="min-h-screen flex items-center justify-center bg-white text-[#7A0019] p-6">
           <div className="max-w-sm text-center space-y-3">
-            <h1 className="text-lg font-semibold">Connecting to server...</h1>
+            <h1 className="text-lg font-semibold">Loading Park &amp; Go...</h1>
 
             {startupStatus === "checking" && (
               <p className="text-sm">

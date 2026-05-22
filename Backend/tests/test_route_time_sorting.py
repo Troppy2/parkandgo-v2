@@ -24,7 +24,7 @@ from app.models.user import User
 # FAKE GEOLOCATION TEST DATA
 # ─────────────────────────────────────────────────────────────────────
 
-@pytest.mark.skip(reason="score_spots() not implemented — use RecommendationEngine.get_recommendations() async method instead")
+@pytest.mark.skip(reason="score_spots() not implemented - use RecommendationEngine.get_recommendations() async method instead")
 class TestRouteTimeSorting:
     """Test suite for route-time-based sorting in recommendations."""
 

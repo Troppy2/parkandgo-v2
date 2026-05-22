@@ -20,7 +20,7 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
         className="fixed inset-0 bg-black/45 backdrop-blur-sm z-40"
       />
 
-      {/* Panel — everything inside this one div */}
+      {/* Panel - everything inside this one div */}
       <div className={clsx(
         "fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-50",
         "pb-8"

@@ -19,7 +19,7 @@ async def run_event_sync():
 
         # check the pause switch before doing anything
         if enabled != "true":
-            print("Event sync is paused — skipping")
+            print("Event sync is paused - skipping")
             return
 
         # update last run timestamp immediately so admin can see it ran
@@ -30,7 +30,7 @@ async def run_event_sync():
 
         sync_service = EventSyncService(session)
         count = await sync_service.sync_events()
-        print(f"Event sync complete — {count} events inserted")
+        print(f"Event sync complete - {count} events inserted")
 
 async def run_event_cleanup():
     async with AsyncSessionLocal() as session:

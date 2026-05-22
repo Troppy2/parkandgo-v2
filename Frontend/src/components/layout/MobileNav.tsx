@@ -9,6 +9,8 @@ import type { SpotFilters } from "../../types/parking.types"
 import EventList from "../../features/events/components/EventList"
 import type { CampusEvent } from "../../types/campus_event.types"
 
+type ViewMode = "Recommended" | "All"
+
 interface MobileNavProps {
   children: ReactNode
   onSuggestSpotClick?: () => void
@@ -18,6 +20,7 @@ export default function MobileNav({ children, onSuggestSpotClick }: MobileNavPro
   const [isExpanded, setIsExpanded] = useState(false)
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [filters, setFilters] = useState<SpotFilters>({})
+  const [viewMode, setViewMode] = useState<ViewMode>("Recommended")
 
   const activeTab = useUIStore((s) => s.activeTab)
   const setActiveTab = useUIStore((s) => s.setActiveTab)
@@ -26,23 +29,33 @@ export default function MobileNav({ children, onSuggestSpotClick }: MobileNavPro
   const directionsOnly = useUIStore((s) => s.directionsOnly)
   const isGuest = useAuthStore((s) => s.isGuest)
 
+  const handleViewMode = (value: ViewMode) => {
+    setViewMode(value)
+    if (value === "Recommended") setFilters((prev) => ({ ...prev, parking_type: undefined }))
+    if (!isExpanded) setIsExpanded(true)
+  }
+
   // Merge global verifiedOnly preference into local filters before querying
   const effectiveFilters: SpotFilters = {
     ...filters,
     ...(verifiedOnly ? { verified_only: true } : {}),
   }
-  const { data: filterResults, isLoading: filterLoading } = useDebouncedSearch(effectiveFilters)
+  const { data: filterResults, isLoading: filterLoading } = useDebouncedSearch(effectiveFilters, {
+    includeAll: viewMode === "All",
+  })
 
   const hasActiveFilters =
-    !!filters.parking_type ||
     !!filters.campus_location ||
     (filters.max_cost !== undefined && filters.max_cost < 20) ||
     !!verifiedOnly ||
     !!directionsOnly
 
-  const resetFilters = () => setFilters({})
+  const resetFilters = () => {
+    setFilters({})
+    setViewMode("Recommended")
+  }
 
-  // Dynamic slider max — compute from filter results, fallback to 10
+  // Dynamic slider max - compute from filter results, fallback to 10
   const sliderMax = filterResults && filterResults.length > 0
     ? Math.max(10, Math.ceil(Math.max(...filterResults.map((s) => s.cost ?? 0))))
     : 10
@@ -91,19 +104,18 @@ export default function MobileNav({ children, onSuggestSpotClick }: MobileNavPro
         </button>
       </div>
 
-      {/* "See Filters" row — always visible when on spots tab, not inside the isExpanded gate */}
+      {/* "See Filters" row */}
       {activeTab === "spots" && (
         <button
           onClick={() => {
             setFiltersOpen(!filtersOpen)
-            // Opening filters should also expand the sheet
             if (!filtersOpen) setIsExpanded(true)
           }}
           className="flex items-center justify-between px-3.5 py-2.5 cursor-pointer w-full"
         >
           <span className="text-[12px] font-semibold text-maroon flex items-center gap-1.5">
             <i className="bi bi-sliders text-xs" />
-            {hasActiveFilters ? "Filters active" : "See Filters"}
+            {hasActiveFilters ? "Filters active" : "More Filters"}
           </span>
           <div className="flex items-center gap-1.5 ml-auto">
             {verifiedOnly && (
@@ -126,12 +138,19 @@ export default function MobileNav({ children, onSuggestSpotClick }: MobileNavPro
         </button>
       )}
 
-      {/* Filter panel — always rendered, transitions via max-height */}
+      {/* Filter panel */}
       {activeTab === "spots" && (
-        <SearchFilters filters={filters} onChange={setFilters} isOpen={filtersOpen} sliderMax={sliderMax} />
+        <SearchFilters
+          filters={filters}
+          onChange={setFilters}
+          isOpen={filtersOpen}
+          sliderMax={sliderMax}
+          viewMode={viewMode}
+          onViewModeChange={handleViewMode}
+        />
       )}
 
-      {/* Content — CSS max-height transition for open/close animation (no abrupt DOM removal) */}
+      {/* Content - CSS max-height transition for open/close animation (no abrupt DOM removal) */}
       <div
         className={clsx(
           "overflow-hidden transition-[max-height] duration-300 ease-in-out",
@@ -143,9 +162,9 @@ export default function MobileNav({ children, onSuggestSpotClick }: MobileNavPro
             <EventList onEventMapClick={handleEventMapClick} />
           ) : (
             <>
-              {hasActiveFilters
-                ? <SearchResults spots={filterResults} isLoading={filterLoading} query="" onReset={resetFilters} />
-                : children
+              {viewMode === "Recommended"
+                ? children
+                : <SearchResults spots={filterResults} isLoading={filterLoading} query="" onReset={resetFilters} />
               }
 
               {/* Suggest a Spot card */}

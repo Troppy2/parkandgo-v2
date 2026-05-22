@@ -19,7 +19,7 @@ const client = axios.create({
   },
 })
 
-/* Request interceptor — attach JWT token if it exists */
+/* Request interceptor - attach JWT token if it exists */
 client.interceptors.request.use((config) => {
   const token = localStorage.getItem("access_token")
   if (token) {
@@ -32,7 +32,7 @@ client.interceptors.request.use((config) => {
   return config
 })
 
-/* Response interceptor — refresh token on 401 */
+/* Response interceptor - refresh token on 401 */
 client.interceptors.response.use(
   (response) => response,
   async (error) => {

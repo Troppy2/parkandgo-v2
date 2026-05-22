@@ -6,43 +6,7 @@ import UserProfile from "./UserProfile"
 import SavedSpotsList from "./SavedSpotsList"
 import PrivateSpotsList from "./PrivateSpotsList"
 import Preferences from "./Preferences"
-
-function PrivacyPolicyModal({ onClose }: { onClose: () => void }) {
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose() }
-    document.addEventListener("keydown", handleKey)
-    return () => document.removeEventListener("keydown", handleKey)
-  }, [onClose])
-
-  return (
-    <div
-      className="fixed inset-0 bg-black/50 z-[120] flex items-center justify-center p-4 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      <div
-        className="bg-[var(--color-modal-surface)] rounded-[18px] w-full max-w-[360px] max-h-[70vh] overflow-y-auto p-5 shadow-xl"
-        style={{ scrollbarWidth: "none" }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between mb-4">
-          <span className="text-[16px] font-bold text-text1">Privacy Policy</span>
-          <button onClick={onClose} className="w-7 h-7 bg-black/7 rounded-full flex items-center justify-center text-text2">
-            <i className="bi bi-x-lg text-[11px]" />
-          </button>
-        </div>
-        <p className="text-[12px] text-text2 leading-relaxed mb-3">
-          Park &amp; Go collects your location data only while the app is in use to provide parking recommendations near UMN campuses.
-        </p>
-        <p className="text-[12px] text-text2 leading-relaxed mb-3">
-          We use Google OAuth to authenticate your identity. We store your name, email, and parking preferences to personalize recommendations. We do not sell your data to third parties.
-        </p>
-        <p className="text-[12px] text-text2 leading-relaxed">
-          Your saved spots and preferences are stored securely and can be deleted at any time by signing out or contacting us at jamesinah34@gmail.com.
-        </p>
-      </div>
-    </div>
-  )
-}
+import PrivacyPolicyModal from "../../../components/PrivacyPolicyModal"
 
 export default function SettingsModal() {
   const { settingsOpen, setSettingsOpen, mapStyle, setMapStyle } = useUIStore()
@@ -65,7 +29,7 @@ export default function SettingsModal() {
     }
   }, [settingsOpen, privacyOpen, setSettingsOpen])
 
-  // Don't render at all when closed — saves memory
+  // Don't render at all when closed - saves memory
   if (!settingsOpen) return null
 
   const handleSignOut = () => {
@@ -73,7 +37,7 @@ export default function SettingsModal() {
     setSettingsOpen(false)
   }
 
-  // All the inner content in one place — reused by both layouts below
+  // All the inner content in one place - reused by both layouts below
   const content = (
     <div>
       {/* Handle bar - mobile only */}
@@ -81,7 +45,7 @@ export default function SettingsModal() {
         <div className="w-9 h-1 bg-[var(--color-sheet-handle)] rounded-full mx-auto mt-3" />
       )}
 
-      {/* Title bar — matches .set-tbar / .am-sm-hd */}
+      {/* Title bar - matches .set-tbar / .am-sm-hd */}
       <div className="flex items-center justify-between px-5 py-3.5 border-b border-black/8">
         <span className="text-[17px] font-bold tracking-tight flex items-center gap-1.5">
           <i className="bi bi-gear text-text2 text-base" />
@@ -98,29 +62,28 @@ export default function SettingsModal() {
       {/* Body */}
       <div>
 
-        {/* Account + editable profile — Phase 17 component */}
+        {/* Account + editable profile - Phase 17 component */}
         <UserProfile />
 
-        {/* Saved spots list — Phase 17 component */}
+        {/* Saved spots list - Phase 17 component */}
         <SavedSpotsList />
 
         {/* Personal/private parking spots for quick navigation */}
         <PrivateSpotsList onFormOpenChange={setIsMinimizedForSpecialSpot} />
 
-        {/* Preferences toggles — Phase 17 component */}
+        {/* Preferences toggles - Phase 17 component */}
         <Preferences />
 
-        {/* Map Style picker — the main new thing in Phase 19 */}
+        {/* Map Style picker - the main new thing in Phase 19 */}
         <div className="px-5 pt-3 pb-2">
           <div className="text-[10px] font-bold uppercase tracking-[0.9px] text-text2 mb-3">
             Map Style
           </div>
 
-          {/* Three style options in a row — icon + label + active ring */}
-          <div className="grid grid-cols-4 gap-2">
+          {/* Three style options in a row - icon + label + active ring */}
+          <div className="grid grid-cols-3 gap-2">
             {[
               { value: "standard",  label: "Standard",  icon: "bi-map" },
-              { value: "dark",      label: "Dark",      icon: "bi-moon-fill" },
               { value: "satellite", label: "Satellite", icon: "bi-globe" },
               { value: "3d",        label: "3D View",   icon: "bi-buildings" },
             ].map(({ value, label, icon }) => (
@@ -146,7 +109,7 @@ export default function SettingsModal() {
           </div>
         </div>
 
-        {/* App info row — version + build */}
+        {/* App info row - version + build */}
         <div className="px-5 pt-2 pb-1">
           <div className="text-[10px] font-bold uppercase tracking-[0.9px] text-text2 mb-2">
             About
@@ -168,7 +131,7 @@ export default function SettingsModal() {
           </div>
         </div>
 
-        {/* Sign out — solid red with white text */}
+        {/* Sign out - solid red with white text */}
         <button
           onClick={handleSignOut}
           style={{ width: "calc(100% - 40px)" }}
@@ -188,7 +151,7 @@ export default function SettingsModal() {
       {privacyOpen && <PrivacyPolicyModal onClose={() => setPrivacyOpen(false)} />}
 
       {isDesktop ? (
-        // ── Desktop layout — centered modal overlay ──
+        // ── Desktop layout - centered modal overlay ──
         <div
           className="fixed inset-0 bg-black/30 z-[100] flex items-center justify-center backdrop-blur-sm"
           onClick={() => setSettingsOpen(false)}
@@ -204,7 +167,7 @@ export default function SettingsModal() {
           </div>
         </div>
       ) : (
-        // ── Mobile layout — bottom sheet ──
+        // ── Mobile layout - bottom sheet ──
         <div
           className="fixed inset-0 bg-black/45 z-[100] flex items-end backdrop-blur-[1px]"
           onClick={() => setSettingsOpen(false)}

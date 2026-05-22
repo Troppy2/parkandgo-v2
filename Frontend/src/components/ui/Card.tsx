@@ -2,7 +2,7 @@ import type { HTMLAttributes } from "react";
 import clsx from "clsx";
 
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
-  // No extra props needed — className override handles everything
+  // No extra props needed - className override handles everything
 
 }
 

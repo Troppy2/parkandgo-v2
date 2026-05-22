@@ -64,7 +64,7 @@ export async function deleteSpot(spotId: number): Promise<void> {
 }
 
 export async function triggerEventSync(): Promise<{ synced: number }> {
-  // Sync fetches multiple external iCal feeds — give it 30s instead of the default 10s
+  // Sync fetches multiple external iCal feeds - give it 30s instead of the default 10s
   const { data } = await client.post(ENDPOINTS.ADMIN.SYNC_EVENTS, {}, { timeout: 30000 })
   return data
 }

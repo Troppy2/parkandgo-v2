@@ -12,7 +12,7 @@ class _NullRedis:
 
 
 _redis_client: redis.Redis | None = None
-_redis_available: bool = USE_REDIS  # False when USE_REDIS=false — get_redis() returns _NullRedis immediately
+_redis_available: bool = USE_REDIS  # False when USE_REDIS=false - get_redis() returns _NullRedis immediately
 
 async def get_redis() -> redis.Redis | _NullRedis:
     global _redis_client, _redis_available
@@ -25,7 +25,7 @@ async def get_redis() -> redis.Redis | _NullRedis:
             _redis_client = client
         except Exception:
             _redis_available = False
-            print("WARNING: Redis unavailable — caching disabled, running without cache.")
+            print("WARNING: Redis unavailable - caching disabled, running without cache.")
             return _NullRedis()
     return _redis_client
 

@@ -12,7 +12,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'icons/*.png'],
       manifest: {
-        name: 'Park & Go — UMN Parking',
+        name: 'Park & Go - UMN Parking',
         short_name: 'Park & Go',
         description: 'Find the best parking spot near your UMN classes',
         theme_color: '#7A0019',
@@ -46,14 +46,31 @@ export default defineConfig({
             urlPattern: /^https:\/\/tiles\.openfreemap\.org\/.*/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'map-tiles',
-              expiration: { maxEntries: 500, maxAgeSeconds: 60 * 60 * 24 * 7 },
+              cacheName: 'map-tiles-vector',
+              expiration: { maxEntries: 800, maxAgeSeconds: 60 * 60 * 24 * 7 },
+            },
+          },
+          {
+            urlPattern: /^https:\/\/services\.arcgisonline\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'map-tiles-satellite',
+              expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 30 },
             },
           },
         ],
       },
     }),
   ],
+  build: {
+    rollupOptions: {
+      input: {
+        main:  path.resolve(__dirname, 'index.html'),
+        login: path.resolve(__dirname, 'login.html'),
+        admin: path.resolve(__dirname, 'admin.html'),
+      },
+    },
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

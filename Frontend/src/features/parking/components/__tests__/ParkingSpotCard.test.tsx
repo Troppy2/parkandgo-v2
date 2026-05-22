@@ -130,7 +130,7 @@ const UMN_SPOTS: ParkingSpot[] = [
   },
 ];
 
-// UMN campus bounding box — all verified spots must fall inside this box.
+// UMN campus bounding box - all verified spots must fall inside this box.
 const UMN_BOUNDS = { minLat: 44.96, maxLat: 44.99, minLng: -93.27, maxLng: -93.20 };
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
@@ -144,7 +144,7 @@ function renderCard(spot: ParkingSpot) {
   );
 }
 
-// ─── Suite 1: coordinate bounds (pure data — no render needed) ───────────────
+// ─── Suite 1: coordinate bounds (pure data - no render needed) ───────────────
 
 describe("UMN parking spot geolocation", () => {
   it.each(UMN_SPOTS)(
@@ -162,7 +162,7 @@ describe("UMN parking spot geolocation", () => {
 
 // ─── Suite 2: "Navigate Here" button ─────────────────────────────────────────
 
-describe("ParkingSpotCard — Navigate Here", () => {
+describe("ParkingSpotCard - Navigate Here", () => {
   beforeEach(() => {
     useNavStore.setState(useNavStore.getInitialState());
     useAuthStore.setState({ isAuthenticated: false, isGuest: false, user: null, token: null });
@@ -173,7 +173,7 @@ describe("ParkingSpotCard — Navigate Here", () => {
   });
 
   it.each(UMN_SPOTS)(
-    "$spot_name — 'Navigate Here' sets isNavigating=true with correct coordinates",
+    "$spot_name - 'Navigate Here' sets isNavigating=true with correct coordinates",
     (spot) => {
       renderCard(spot);
 
@@ -189,7 +189,7 @@ describe("ParkingSpotCard — Navigate Here", () => {
   );
 
   it.each(UMN_SPOTS)(
-    "$spot_name — 'Directions' icon also starts navigation with correct coordinates",
+    "$spot_name - 'Directions' icon also starts navigation with correct coordinates",
     (spot) => {
       renderCard(spot);
 

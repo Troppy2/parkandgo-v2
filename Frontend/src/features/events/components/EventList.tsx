@@ -5,7 +5,7 @@ import EventCard from "./EventCard"
 import Skeleton from "../../../components/ui/Skeleton"
 import type { CampusEvent, EventCategory } from "../../../types/campus_event.types"
 
-// All 5 categories — must match backend exactly
+// All 5 categories - must match backend exactly
 const CATEGORIES: EventCategory[] = [
     "Sports", "Student Life", "Academics", "STEM", "Arts"
 ]
@@ -22,11 +22,11 @@ export default function EventList({ onEventMapClick }: EventListProps) {
 
     return (
         <div>
-            {/* Category filter chips — matches .ev-cats */}
+            {/* Category filter chips - matches .ev-cats */}
             {/* Horizontally scrollable, no scrollbar visible */}
             <div className="flex gap-1.5 px-3.5 py-2 overflow-x-auto scrollbar-none border-b border-black/9">
 
-                {/* "All" chip — active when no category is selected */}
+                {/* "All" chip - active when no category is selected */}
                 <button
                     onClick={() => setActiveCategory(undefined)}
                     className={clsx(

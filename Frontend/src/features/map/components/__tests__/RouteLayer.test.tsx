@@ -59,7 +59,7 @@ function setNavState(overrides: Partial<NavSlice> = {}) {
     travelMode: 'walking',
     ...overrides,
   }
-  // RouteLayer calls useNavStore() with NO selector — mock must return state directly
+  // RouteLayer calls useNavStore() with NO selector - mock must return state directly
   vi.mocked(useNavStore).mockReturnValue(state as ReturnType<typeof useNavStore>)
 }
 
@@ -86,7 +86,7 @@ function makeMockMap(hasExistingSource = false) {
 /** Pull coordinates from the most recent addSource or setData call */
 function getLastCoords(mock: ReturnType<typeof vi.fn>): [number, number][] {
   const lastArg = mock.mock.calls[mock.mock.calls.length - 1]
-  // addSource: (id, { type, data }) — data is GeoJSON Feature
+  // addSource: (id, { type, data }) - data is GeoJSON Feature
   // setData:   (GeoJSON Feature)
   const raw = lastArg.length === 2 ? (lastArg[1] as { data: GeoJSON.Feature<GeoJSON.LineString> }).data : (lastArg[0] as GeoJSON.Feature<GeoJSON.LineString>)
   return raw.geometry.coordinates as [number, number][]
@@ -98,7 +98,7 @@ beforeEach(() => {
   setNavState()
 })
 
-describe('RouteLayer — route drawing', () => {
+describe('RouteLayer - route drawing', () => {
   it('does not draw any route while a live route request is still loading', () => {
     setNavState({ route: null, routeStatus: 'loading' })
     const { map, addSource, addLayer } = makeMockMap(false)
@@ -154,10 +154,10 @@ describe('RouteLayer — route drawing', () => {
   it('trims already-traversed waypoints as user advances along the route', () => {
     // Route: A → B → C → D (destination)
     const routeCoords: [number, number][] = [
-      [-93.2300, 44.9720], // A — start (already passed)
-      [-93.2305, 44.9725], // B — already passed
-      [-93.2310, 44.9730], // C — closest to user
-      [-93.2312, 44.9739], // D — destination
+      [-93.2300, 44.9720], // A - start (already passed)
+      [-93.2305, 44.9725], // B - already passed
+      [-93.2310, 44.9730], // C - closest to user
+      [-93.2312, 44.9739], // D - destination
     ]
 
     setNavState({

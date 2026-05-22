@@ -52,7 +52,7 @@ const fakeUser: User = {
   created_at: null,
 }
 
-describe("AuthGate — auth restore effect", () => {
+describe("AuthGate - auth restore effect", () => {
   beforeEach(() => {
     mockGetMe.mockReset()
     localStorage.clear()

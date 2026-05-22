@@ -8,14 +8,14 @@ interface UseRecommendationsParams {
   lon?: number
   limit?: number
   verifiedOnly?: boolean
+  travelMode?: string
 }
 
 export function useRecommendations(params: UseRecommendationsParams) {
   const query = useQuery({
-    // verifiedOnly is part of the key so TanStack Query auto-refetches when it changes
-    queryKey: ["recommendations", params.lat, params.lon, params.limit, params.verifiedOnly],
+    queryKey: ["recommendations", params.lat, params.lon, params.limit, params.verifiedOnly, params.travelMode],
     queryFn: () => getRecommendations(params),
-    // Fetch recommendations for all users (authenticated and guests) — allows viewing parking spots without login
+    // Fetch recommendations for all users (authenticated and guests) - allows viewing parking spots without login
     enabled: true,
   })
 

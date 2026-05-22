@@ -1,7 +1,7 @@
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
 import { loginWithGoogle } from "../services/authApi"
 import { useAuthStore } from "../../../store/authStore"
+import PrivacyPolicyModal from "../../../components/PrivacyPolicyModal"
 
 // Tell TypeScript that window.google exists (GIS SDK injected via script tag)
 interface GoogleTokenClient {
@@ -27,19 +27,19 @@ declare global {
 }
 
 export default function LoginPage() {
-  const navigate = useNavigate()
   const setAuth = useAuthStore((state) => state.setAuth)
   const setGuest = useAuthStore((state) => state.setGuest)
   const [loginError, setLoginError] = useState<string | null>(null)
+  const [privacyOpen, setPrivacyOpen] = useState(false)
 
   const handleGuestContinue = () => {
     setGuest()
-    navigate("/")
+    window.location.href = '/'
   }
 
   const handleGoogleLogin = () => {
     if (!window.google?.accounts?.oauth2) {
-      setLoginError("Google sign-in isn't ready yet — please wait a moment and try again.")
+      setLoginError("Google sign-in isn't ready yet - please wait a moment and try again.")
       return
     }
 
@@ -50,7 +50,7 @@ export default function LoginPage() {
         try {
           const result = await loginWithGoogle(response.access_token)
           setAuth(result.user, result.access_token, result.refresh_token)
-          navigate("/")
+          window.location.href = '/'
         } catch (error: unknown) {
           console.error("Login failed", error)
           if (error && typeof error === "object" && "code" in error) {
@@ -58,7 +58,7 @@ export default function LoginPage() {
             // ERR_NETWORK = CORS block or server unreachable
             // ECONNABORTED = axios request timeout
             if (code === "ERR_NETWORK" || code === "ECONNABORTED") {
-              setLoginError("Couldn't reach the server. It may be starting up — please wait 30 seconds and try again.")
+              setLoginError("Couldn't reach the server. It may be starting up - please wait 30 seconds and try again.")
               return
             }
           }
@@ -75,56 +75,114 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-green-gradient flex flex-col items-center justify-center px-4">
-      <div className="w-full max-w-sm bg-white/95 rounded-[16px] shadow-lg p-10 flex flex-col items-center gap-6 backdrop-blur-sm">
+    <div className="flex flex-col min-h-screen font-inter">
 
-        {/* Logo + wordmark */}
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-16 h-16 bg-[#7A0019] rounded-[16px] flex items-center justify-center shadow-md">
-            <span className="text-[#FFCC33] font-bold text-3xl leading-none">P</span>
-          </div>
+      {/* Main two-panel layout */}
+      <div className="flex flex-col lg:flex-row flex-1">
 
-          <div className="text-center">
-            <h1 className="text-2xl font-bold tracking-tight">
-              <span className="text-[#7A0019]">Park</span>
-              <span className="text-[#6b7280]"> &amp; </span>
-              <span className="text-[#c9a200]">Go</span>
-            </h1>
-            <p className="text-[#6b7280] text-sm mt-1">UMN Campus Parking</p>
-          </div>
-          
-        </div>
-
-        {/* Error message */}
-        {loginError && (
-          <p className="w-full text-sm text-red bg-red/10 rounded-sm px-4 py-2 text-center">
-            {loginError}
+        {/* Left - marketing panel */}
+        <section className="lg:w-3/5 bg-[#7A0019] px-10 py-16 flex flex-col justify-center">
+          <h1 className="text-6xl font-bold text-white leading-tight mb-4">
+            <span className="block">Stop guessing.</span>
+            <span className="block">Start parking.</span>
+          </h1>
+          <p className="text-xl text-white/75 mb-10 max-w-lg leading-relaxed">
+            Park &amp; Go finds the best spot near your classes - ranked by cost, walk time, and what's happening on campus today.
           </p>
-        )}
 
-        {/* Google sign-in button */}
-        <button
-          onClick={handleGoogleLogin}
-          className="google-sign-in-btn w-full flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-[#3c4043] font-medium text-sm py-3 px-5 rounded-sm border border-[#dadce0] shadow-sm transition-all duration-200 min-h-[44px] hover:-translate-y-[1px]"
-        >
-          <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-            <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4"/>
-            <path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/>
-            <path d="M3.964 10.707A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332z" fill="#FBBC05"/>
-            <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.961L3.964 7.293C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
-          </svg>
-          Sign in with Google
-        </button>
+          {/* Feature cards */}
+          <div className="flex flex-col gap-4 max-w-lg mb-12">
+            <div className="flex flex-col gap-1 bg-white/10 border border-white/20 rounded-2xl px-5 py-4 cursor-pointer transition-all duration-200 hover:bg-white/15 hover:-translate-y-1">
+              <div className="flex items-center gap-2">
+                <i className="bi bi-bar-chart-fill text-yellow-400 text-lg"></i>
+                <h3 className="text-base font-bold text-white">Smart Rankings</h3>
+              </div>
+              <p className="text-sm text-white/75 leading-snug">Every spot is scored on cost, travel time, your major, and live event proximity - not just distance.</p>
+            </div>
+            <div className="flex flex-col gap-1 bg-white/10 border border-white/20 rounded-2xl px-5 py-4 cursor-pointer transition-all duration-200 hover:bg-white/15 hover:-translate-y-1">
+              <div className="flex items-center gap-2">
+                <i className="bi bi-calendar-event-fill text-yellow-400 text-lg"></i>
+                <h3 className="text-base font-bold text-white">Event-Aware</h3>
+              </div>
+              <p className="text-sm text-white/75 leading-snug">UMN's event calendar syncs daily. Spots near a packed arena or stadium are automatically deprioritized.</p>
+            </div>
+            <div className="flex flex-col gap-1 bg-white/10 border border-white/20 rounded-2xl px-5 py-4 cursor-pointer transition-all duration-200 hover:bg-white/15 hover:-translate-y-1">
+              <div className="flex items-center gap-2">
+                <i className="bi bi-person-check-fill text-yellow-400 text-lg"></i>
+                <h3 className="text-base font-bold text-white">Personalized</h3>
+              </div>
+              <p className="text-sm text-white/75 leading-snug">Sign in once and your parking type preference and campus side are baked into every recommendation.</p>
+            </div>
+          </div>
 
-        {/* Guest skip button */}
-        <button
-          onClick={handleGuestContinue}
-          className="guest-btn"
-        >
-          Continue as Guest
-        </button>
+          {/* How it works */}
+          <div>
+            <h2 className="text-lg font-bold text-white mb-4">How it works</h2>
+            <div className="flex flex-col lg:flex-row gap-6">
+              <div className="flex-1">
+                <div className="inline-flex w-7 h-7 rounded-full bg-white/20 items-center justify-center text-sm font-bold text-white mb-2">1</div>
+                <p className="text-sm text-white/75 leading-snug"><strong className="text-white">Open the app</strong> - the map loads with ranked spots based on your location.</p>
+              </div>
+              <div className="flex-1">
+                <div className="inline-flex w-7 h-7 rounded-full bg-white/20 items-center justify-center text-sm font-bold text-white mb-2">2</div>
+                <p className="text-sm text-white/75 leading-snug"><strong className="text-white">Pick a spot</strong> - see the score breakdown: cost, travel time, your preferences.</p>
+              </div>
+              <div className="flex-1">
+                <div className="inline-flex w-7 h-7 rounded-full bg-white/20 items-center justify-center text-sm font-bold text-white mb-2">3</div>
+                <p className="text-sm text-white/75 leading-snug"><strong className="text-white">Navigate</strong> - turn-by-turn directions take you straight there.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Right - sign-in panel */}
+        <section className="lg:w-2/5 bg-gray-50 flex items-center justify-center px-8 py-16">
+          <div className="bg-white rounded-2xl shadow-lg px-8 py-10 w-full max-w-sm flex flex-col">
+            <h2 className="text-2xl font-bold text-gray-900 mb-1">Welcome to Park &amp; Go</h2>
+            <p className="text-sm text-gray-500 mb-8">University of Minnesota parking, ranked for you.</p>
+
+            <button
+              onClick={handleGoogleLogin}
+              className="flex items-center justify-center gap-3 w-full bg-white border border-gray-300 text-gray-800 font-semibold py-2.5 px-4 rounded-lg min-h-[44px] text-sm hover:bg-gray-50 transition-colors duration-200 shadow-sm mb-4"
+            >
+              <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+              </svg>
+              Sign in with Google
+            </button>
+
+            {loginError && <p className="text-red-500 text-sm mb-3">{loginError}</p>}
+
+            <p className="text-xs text-gray-400 leading-snug pb-4 border-b border-gray-100 mb-4">
+              Guest mode shows recommendations without saving your preferences.
+            </p>
+
+            <button
+              onClick={handleGuestContinue}
+              className="w-full text-gray-400 text-sm font-medium min-h-[44px] hover:text-gray-600 transition-colors duration-200"
+            >
+              Continue as Guest &rarr;
+            </button>
+          </div>
+        </section>
 
       </div>
+      {/* Footer */}
+      <footer className="w-full bg-white border-t border-gray-200 px-10 py-5 flex flex-col lg:flex-row justify-between items-center gap-2 text-sm text-gray-500">
+        <span>Built for UMN students &middot; v2.0</span>
+        <button
+          type="button"
+          onClick={() => setPrivacyOpen(true)}
+          className="hover:text-gray-900 underline underline-offset-2 transition-colors duration-200"
+        >
+          Privacy Policy
+        </button>
+        <span>Open source &middot; <a href="https://github.com/Troppy2/parkandgo-v2" className="hover:text-gray-900 transition-colors duration-200">GitHub</a></span>
+      </footer>
+      {privacyOpen && <PrivacyPolicyModal onClose={() => setPrivacyOpen(false)} />}
     </div>
   )
 }

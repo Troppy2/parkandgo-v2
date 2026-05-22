@@ -19,7 +19,7 @@ export default function Header({ onSettingsClick }: HeaderProps) {
         <SearchBar onSettingsClick={onSettingsClick} />
       </div>
 
-      {/* User avatar — profile pic if available, initials if signed in, bi-person if guest */}
+      {/* User avatar - profile pic if available, initials if signed in, bi-person if guest */}
       <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 shadow-md overflow-hidden ${user ? "bg-maroon" : "bg-bg2"}`}>
         {user?.profile_pic
           ? <img src={user.profile_pic} className="w-full h-full object-cover" alt="" />

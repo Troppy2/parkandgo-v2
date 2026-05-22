@@ -11,7 +11,7 @@ Scoring Rubric (total = 75 points base + up to 15 event bonus):
 3. Preferences (10pts): Matches user's preferred parking type
 4. Major (5pts):        Spot is on the same campus as the user's major
 5. Verified (5pts):     Verified spots are more trustworthy
-Note: distance_score is computed and surfaced in score_breakdown for display only —
+Note: distance_score is computed and surfaced in score_breakdown for display only -
       it does not contribute to the total score (travel_time replaced it).
 """
 
@@ -119,7 +119,7 @@ class RecommendationEngine:
 
         distance_miles = self._haversine_distance(user_lat, user_lon, spot.latitude, spot.longitude)
 
-        # Max distance we care about — beyond this, score is 0
+        # Max distance we care about - beyond this, score is 0
         max_distance = 2.0
         if distance_miles >= max_distance:
             return 0.0
@@ -222,7 +222,7 @@ class RecommendationEngine:
     def _score_verified(self, spot: ParkingSpot) -> float:
         """
         Weight = 5pts (reduced from 10pts)
-        Verified spots get full points — they're confirmed to exist
+        Verified spots get full points - they're confirmed to exist
         and be in a safe, legitimate area.
         """
         return 5.0 if spot.is_verified else 0.0  # CHANGED: 10.0 → 5.0

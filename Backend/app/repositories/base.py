@@ -35,6 +35,6 @@ class BaseRepository:
         # Adds the instance to the session (stages it for insert)
         self.session.add(instance)
         # flush() sends the INSERT to the DB so we get back the generated ID,
-        # but doesn't commit yet — commit happens in get_db()
+        # but doesn't commit yet - commit happens in get_db()
         await self.session.flush()
         return instance

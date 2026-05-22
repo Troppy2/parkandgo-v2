@@ -36,7 +36,7 @@ class EventSyncService:
         all_events: list[dict] = []
         for (category, url), result in zip(feed_tasks, raw_results):
             if isinstance(result, Exception):
-                # Log but don't crash — one bad feed shouldn't stop the rest
+                # Log but don't crash - one bad feed shouldn't stop the rest
                 print(f"Failed to fetch {url}: {result}")
                 continue
             try:

@@ -47,7 +47,7 @@ jobs:
     # always() lets this run even when create-neon-branch is skipped (e.g. workflow_dispatch)
     if: always() && github.event.action != 'closed'
     env:
-      # Dummy values so pydantic-settings boots — never used for actual connections
+      # Dummy values so pydantic-settings boots - never used for actual connections
       DATABASE_URL: postgresql+asyncpg://user:pass@localhost/test
       SECRET_KEY: ci-test-secret-key
       GOOGLE_CLIENT_ID: ci-test-client-id

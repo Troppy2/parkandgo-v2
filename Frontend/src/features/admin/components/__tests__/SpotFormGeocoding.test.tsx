@@ -58,7 +58,7 @@ function renderEditForm() {
 
 // ── Tests ─────────────────────────────────────────────────
 
-describe("SpotForm — geocoding button", () => {
+describe("SpotForm - geocoding button", () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })

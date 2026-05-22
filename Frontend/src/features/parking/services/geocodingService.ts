@@ -14,7 +14,7 @@ export interface GeocodeResult {
  * Geocode a free-text address string using the Nominatim OpenStreetMap API.
  * Results are biased toward the UMN campus area via a soft viewbox but not bounded
  * (bounded=0) so addresses outside it still resolve.
- * Rate limit: 1 request/second — fine for manual button clicks.
+ * Rate limit: 1 request/second - fine for manual button clicks.
  */
 export async function geocodeAddress(address: string): Promise<GeocodeResult> {
   if (!address.trim()) {

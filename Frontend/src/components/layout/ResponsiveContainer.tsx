@@ -32,12 +32,16 @@ export default function ResponsiveContainer({
     setSuggestSpotOpen(true);
   };
 
-  if (isDesktop) {
-    return (
-      // Desktop: flex row — sidebar on left, map fills the rest
-      <div className="flex h-screen w-screen overflow-hidden">
-        {/* Hide sidebar during navigation */}
-        {!isNavigating && (
+  // How many pixels the sidebar currently occupies - map offsets by this amount
+  const sidebarWidth = isDesktop && !isNavigating
+    ? (sidebarCollapsed ? 52 : 340)
+    : 0;
+
+  return (
+    <div className="relative w-screen h-screen overflow-hidden">
+      {/* Desktop sidebar - absolutely positioned on the left */}
+      {isDesktop && !isNavigating && (
+        <div className="absolute inset-y-0 left-0 z-10">
           <Sidebar
             onSettingsClick={() => setSettingsOpen(true)}
             onSuggestSpotClick={handleSuggestSpotClick}
@@ -46,30 +50,27 @@ export default function ResponsiveContainer({
           >
             {spotResults}
           </Sidebar>
-        )}
+        </div>
+      )}
 
-        {/* Map area fills remaining space — flex-1 auto-expands when sidebar collapses or during navigation */}
-        <div className="flex-1 relative">{mapContent}</div>
+      {/*
+        Map always rendered in the same DOM position.
+        Keeping it here prevents React from unmounting MapView when the
+        layout switches between desktop and mobile, which would destroy
+        the MapLibre GL canvas and cause a white screen.
+      */}
+      <div className="absolute inset-0" style={{ left: sidebarWidth }}>
+        {mapContent}
       </div>
-    );
-  }
 
-  // Mobile: map fills full screen, header + bottom sheet float on top (hidden during navigation)
-  return (
-    <div className="flex-1 relative w-screen h-screen overflow-hidden">
-      {/* Map fills the whole background */}
-      {mapContent}
-
-      {/* Header floats above the map — hide during navigation */}
-      {!isNavigating && <Header onSettingsClick={() => setSettingsOpen(true)} />}
-
-      {/* Bottom sheet floats above the map — hide during navigation */}
-      {!isNavigating && (
-        <MobileNav
-          onSuggestSpotClick={handleSuggestSpotClick}
-        >
-          {spotResults}
-        </MobileNav>
+      {/* Mobile chrome - floats above the map */}
+      {!isDesktop && !isNavigating && (
+        <>
+          <Header onSettingsClick={() => setSettingsOpen(true)} />
+          <MobileNav onSuggestSpotClick={handleSuggestSpotClick}>
+            {spotResults}
+          </MobileNav>
+        </>
       )}
     </div>
   );

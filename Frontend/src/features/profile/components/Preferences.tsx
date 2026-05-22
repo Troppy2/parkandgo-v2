@@ -34,13 +34,13 @@ export default function Preferences() {
     const handleNotificationsToggle = async () => {
         if (typeof Notification === "undefined") return
         if (notificationsEnabled) {
-            // Can't revoke programmatically — inform user
+            // Can't revoke programmatically - inform user
             setNotificationsEnabled(false)
             showToast("To fully disable, revoke in browser site settings", "error")
             return
         }
         if (Notification.permission === "denied") {
-            showToast("Notifications blocked — enable in browser site settings", "error")
+            showToast("Notifications blocked - enable in browser site settings", "error")
             return
         }
         const result = await Notification.requestPermission()
@@ -117,10 +117,10 @@ export default function Preferences() {
             showToast("To fully revoke, use browser site settings", "error")
             return
         }
-        // Always call with timeout — avoids UI freeze if browser hangs on permission prompt
+        // Always call with timeout - avoids UI freeze if browser hangs on permission prompt
         navigator.geolocation.getCurrentPosition(
             () => setLocationEnabled(true),
-            () => showToast("Location access denied — check browser site settings", "error"),
+            () => showToast("Location access denied - check browser site settings", "error"),
             { timeout: 8000, maximumAge: 60000 }
         )
     }

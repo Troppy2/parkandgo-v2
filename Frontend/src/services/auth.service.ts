@@ -1,4 +1,4 @@
-/* Authentication service — JWT management */
+/* Authentication service - JWT management */
 
 import client from "@/lib/api/client"
 import { ENDPOINTS } from "@/lib/api/endpoints"
