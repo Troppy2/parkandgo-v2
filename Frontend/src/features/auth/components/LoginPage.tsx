@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { loginWithGoogle } from "../services/authApi"
 import { useAuthStore } from "../../../store/authStore"
+import PrivacyPolicyModal from "../../../components/PrivacyPolicyModal"
 
 // Tell TypeScript that window.google exists (GIS SDK injected via script tag)
 interface GoogleTokenClient {
@@ -29,6 +30,7 @@ export default function LoginPage() {
   const setAuth = useAuthStore((state) => state.setAuth)
   const setGuest = useAuthStore((state) => state.setGuest)
   const [loginError, setLoginError] = useState<string | null>(null)
+  const [privacyOpen, setPrivacyOpen] = useState(false)
 
   const handleGuestContinue = () => {
     setGuest()
@@ -171,9 +173,16 @@ export default function LoginPage() {
       {/* Footer */}
       <footer className="w-full bg-white border-t border-gray-200 px-10 py-5 flex flex-col lg:flex-row justify-between items-center gap-2 text-sm text-gray-500">
         <span>Built for UMN students &middot; v2.0</span>
-        <span>Privacy Policy</span>
+        <button
+          type="button"
+          onClick={() => setPrivacyOpen(true)}
+          className="hover:text-gray-900 underline underline-offset-2 transition-colors duration-200"
+        >
+          Privacy Policy
+        </button>
         <span>Open source &middot; <a href="https://github.com/Troppy2/parkandgo-v2" className="hover:text-gray-900 transition-colors duration-200">GitHub</a></span>
       </footer>
+      {privacyOpen && <PrivacyPolicyModal onClose={() => setPrivacyOpen(false)} />}
     </div>
   )
 }

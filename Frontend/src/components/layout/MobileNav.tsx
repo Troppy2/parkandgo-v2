@@ -40,7 +40,9 @@ export default function MobileNav({ children, onSuggestSpotClick }: MobileNavPro
     ...filters,
     ...(verifiedOnly ? { verified_only: true } : {}),
   }
-  const { data: filterResults, isLoading: filterLoading } = useDebouncedSearch(effectiveFilters)
+  const { data: filterResults, isLoading: filterLoading } = useDebouncedSearch(effectiveFilters, {
+    includeAll: viewMode === "All",
+  })
 
   const hasActiveFilters =
     !!filters.campus_location ||

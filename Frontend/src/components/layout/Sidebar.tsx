@@ -92,7 +92,9 @@ export default function Sidebar({
 
   // Merge verifiedOnly global pref into filters so the API receives it
   const mergedFilters: SpotFilters = { ...filters, verified_only: verifiedOnly || undefined };
-  const { data: filterResults, isLoading: filterLoading } = useDebouncedSearch(mergedFilters);
+  const { data: filterResults, isLoading: filterLoading } = useDebouncedSearch(mergedFilters, {
+    includeAll: viewMode !== "Recommended",
+  });
 
   const hasActiveFilters =
     (filters.max_cost !== undefined && filters.max_cost < 20) ||

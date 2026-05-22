@@ -6,43 +6,7 @@ import UserProfile from "./UserProfile"
 import SavedSpotsList from "./SavedSpotsList"
 import PrivateSpotsList from "./PrivateSpotsList"
 import Preferences from "./Preferences"
-
-function PrivacyPolicyModal({ onClose }: { onClose: () => void }) {
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose() }
-    document.addEventListener("keydown", handleKey)
-    return () => document.removeEventListener("keydown", handleKey)
-  }, [onClose])
-
-  return (
-    <div
-      className="fixed inset-0 bg-black/50 z-[120] flex items-center justify-center p-4 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      <div
-        className="bg-[var(--color-modal-surface)] rounded-[18px] w-full max-w-[360px] max-h-[70vh] overflow-y-auto p-5 shadow-xl"
-        style={{ scrollbarWidth: "none" }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between mb-4">
-          <span className="text-[16px] font-bold text-text1">Privacy Policy</span>
-          <button onClick={onClose} className="w-7 h-7 bg-black/7 rounded-full flex items-center justify-center text-text2">
-            <i className="bi bi-x-lg text-[11px]" />
-          </button>
-        </div>
-        <p className="text-[12px] text-text2 leading-relaxed mb-3">
-          Park &amp; Go collects your location data only while the app is in use to provide parking recommendations near UMN campuses.
-        </p>
-        <p className="text-[12px] text-text2 leading-relaxed mb-3">
-          We use Google OAuth to authenticate your identity. We store your name, email, and parking preferences to personalize recommendations. We do not sell your data to third parties.
-        </p>
-        <p className="text-[12px] text-text2 leading-relaxed">
-          Your saved spots and preferences are stored securely and can be deleted at any time by signing out or contacting us at jamesinah34@gmail.com.
-        </p>
-      </div>
-    </div>
-  )
-}
+import PrivacyPolicyModal from "../../../components/PrivacyPolicyModal"
 
 export default function SettingsModal() {
   const { settingsOpen, setSettingsOpen, mapStyle, setMapStyle } = useUIStore()
