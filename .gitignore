@@ -33,3 +33,6 @@ parkandgo_db_postgres
 
 # Android build files - these can be regenerated and are not needed in version control
 Frontend/android/
+
+# Random markdown files
+env.md

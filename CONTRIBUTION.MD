@@ -7,9 +7,19 @@ Use this file as the short checklist before opening a pull request or committing
 ### Backend
 
 ```bash
-cd Backend
+# From anywhere in Windows PowerShell, quote paths that contain spaces:
+Set-Location -LiteralPath "C:\Users\parkandgo-v2\Backend"
+
+# Windows (PowerShell / CMD)
+# Install Python 3.11 first if needed, then create and activate the venv:
 py -3.11 -m venv venv
 venv\Scripts\activate
+
+# macOS / Linux
+cd Backend
+python3.11 -m venv venv
+source venv/bin/activate
+
 pip install -r requirements/dev.txt
 cp .env.example .env
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload

@@ -45,9 +45,16 @@ Guests can browse the map and see recommendations without signing in. Authentica
 ### Backend
 
 ```bash
+# Windows PowerShell, from anywhere:
+Set-Location -LiteralPath "C:\Users\parkandgo-v2\Backend"
+py -3.11 -m venv venv
+venv\Scripts\activate
+
+# macOS / Linux:
 cd Backend
-python -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
+python3.11 -m venv venv
+source venv/bin/activate
+
 pip install -r requirements/dev.txt
 cp .env.example .env            # fill in your values
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
