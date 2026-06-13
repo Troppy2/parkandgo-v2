@@ -1,6 +1,5 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "rootDirectory": "Frontend",
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
