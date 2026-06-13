@@ -80,6 +80,22 @@
         "documentation": {}
     },
     {
+        "label": "Sequence",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Union",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
         "label": "Iterable",
         "importPath": "typing",
         "description": "typing",
@@ -213,6 +229,14 @@
         "description": "typing",
         "isExtraImport": true,
         "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "op",
+        "importPath": "alembic",
+        "description": "alembic",
+        "isExtraImport": true,
+        "detail": "alembic",
         "documentation": {}
     },
     {
@@ -1086,6 +1110,14 @@
         "description": "app.core.database",
         "isExtraImport": true,
         "detail": "app.core.database",
+        "documentation": {}
+    },
+    {
+        "label": "settings",
+        "importPath": "app.core.config",
+        "description": "app.core.config",
+        "isExtraImport": true,
+        "detail": "app.core.config",
         "documentation": {}
     },
     {
@@ -3985,6 +4017,15 @@
         "documentation": {}
     },
     {
+        "label": "requests",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "requests",
+        "description": "requests",
+        "detail": "requests",
+        "documentation": {}
+    },
+    {
         "label": "asynccontextmanager",
         "importPath": "contextlib",
         "description": "contextlib",
@@ -4368,6 +4409,24 @@
         "description": "Backend.alembic.versions.phase8_add_data_models",
         "peekOfCode": "def downgrade() -> None:\n    op.drop_table('user_private_spots')\n    op.drop_table('recommendation_context_log')\n    op.drop_table('parking_history')\n    op.drop_table('spot_reviews')",
         "detail": "Backend.alembic.versions.phase8_add_data_models",
+        "documentation": {}
+    },
+    {
+        "label": "upgrade",
+        "kind": 2,
+        "importPath": "Backend.alembic.versions.seed_umn_parking_spots",
+        "description": "Backend.alembic.versions.seed_umn_parking_spots",
+        "peekOfCode": "def upgrade() -> None:\n    op.execute(sa.text(\"\"\"\n        INSERT INTO parking_spots\n            (spot_name, address, campus_location, parking_type, cost, walk_time, near_buildings, latitude, longitude, is_verified, submitted_by)\n        VALUES\n            ('19th Avenue Ramp',             '300 19th Ave S Minneapolis MN',        'West Bank', 'Parking Garage', 3.0, NULL, 'Humphrey School / Carlson School',              44.9701, -93.2452, TRUE, NULL),\n            ('21st Avenue Ramp',             '400 21st Ave S Minneapolis MN',        'West Bank', 'Parking Garage', 3.0, NULL, 'Carlson School / Hanson Hall',                  44.9686, -93.2435, TRUE, NULL),\n            ('Art Museum Garage',            '333 E River Pkwy Minneapolis MN',      'East Bank', 'Parking Garage', 3.0, NULL, 'Weisman Art Museum',                           44.9734, -93.2373, TRUE, NULL),\n            ('Church Street Garage',         '80 Church St SE Minneapolis MN',       'East Bank', 'Parking Garage', 3.0, NULL, 'Armory',                                       44.9739, -93.2325, TRUE, NULL),\n            ('East River Road Garage',       '391 E River Pkwy Minneapolis MN',      'East Bank', 'Parking Garage', 3.0, NULL, 'Coffman Memorial Union',                       44.9722, -93.2361, TRUE, NULL),",
+        "detail": "Backend.alembic.versions.seed_umn_parking_spots",
+        "documentation": {}
+    },
+    {
+        "label": "downgrade",
+        "kind": 2,
+        "importPath": "Backend.alembic.versions.seed_umn_parking_spots",
+        "description": "Backend.alembic.versions.seed_umn_parking_spots",
+        "peekOfCode": "def downgrade() -> None:\n    op.execute(sa.text(\"\"\"\n        DELETE FROM parking_spots WHERE spot_name IN (\n            '19th Avenue Ramp', '21st Avenue Ramp', 'Art Museum Garage',\n            'Church Street Garage', 'East River Road Garage', 'Fourth Street Ramp',\n            'Gopher Lot', 'Gortner Avenue Ramp', 'Lot 101 (Commonwealth Avenue)',\n            'Lot 103 (Bell Museum)', 'Lot 104 (Buford Avenue)', 'Lot 106 (Upper Buford Circle)',\n            'Lot 108 (State Fair Lot)', 'Lot 161 (Tatum Street)', 'Lot 37 (Athletics Area)',\n            'Lot 86 (2nd Street)', 'Lot 94 (5th Street)', 'Maroon Lot',\n            'Oak Street Ramp', 'Parkway South Ramp', 'Prospect Park Ramp',",
+        "detail": "Backend.alembic.versions.seed_umn_parking_spots",
         "documentation": {}
     },
     {
@@ -5280,11 +5339,20 @@
         "documentation": {}
     },
     {
+        "label": "get_weather",
+        "kind": 2,
+        "importPath": "Backend.app.utils.weather",
+        "description": "Backend.app.utils.weather",
+        "peekOfCode": "def get_weather(city_name, api_key):\n    # API endpoint for current weather\n    base_url = \"http://api.openweathermap.org/data/2.5/weather\"\n    # Parameters: q (city), appid (key), units (metric for Celsius)\n    params = {\n        \"q\": \"Minneapolis,US\",\n        \"appid\": api_key,\n        \"units\": \"imperial\"  # Changed to imperial for Fahrenheit\n    }\n    response = requests.get(base_url, params=params)",
+        "detail": "Backend.app.utils.weather",
+        "documentation": {}
+    },
+    {
         "label": "logger",
         "kind": 5,
         "importPath": "Backend.app.main",
         "description": "Backend.app.main",
-        "peekOfCode": "logger = logging.getLogger(\"app.main\")\n@asynccontextmanager\nasync def lifespan(app: FastAPI):\n    \"\"\"Startup: launch the scheduler and warm the Redis connection.\n    Shutdown: stop the scheduler and close the Redis connection cleanly.\"\"\"\n    scheduler_started = False\n    try:\n        await run_startup_health_checks()\n        start_scheduler()\n        scheduler_started = True",
+        "peekOfCode": "logger = logging.getLogger(\"app.main\")\nasync def _run_startup_checks_background() -> None:\n    \"\"\"Run schema/seed checks in the background so the app serves requests immediately.\"\"\"\n    try:\n        await run_startup_health_checks()\n    except Exception:\n        logger.exception(\n            \"Background startup health checks failed. \"\n            \"Check DATABASE_URL and PostgreSQL credentials.\"\n        )",
         "detail": "Backend.app.main",
         "documentation": {}
     },
@@ -5293,7 +5361,7 @@
         "kind": 5,
         "importPath": "Backend.app.main",
         "description": "Backend.app.main",
-        "peekOfCode": "app = FastAPI(title=\"ParkandGo Backend\", version=\"2.0\", lifespan=lifespan)\n# Attach the limiter to app state so slowapi middleware can read it,\n# and register the 429 error handler.\napp.state.limiter = limiter\napp.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)\n\"\"\"\nLocal host should use both development and netlify origins to allow testing from either environment.\nIn production, only the netlify origin is needed.\n\"\"\"\napp.add_middleware(",
+        "peekOfCode": "app = FastAPI(title=\"ParkandGo Backend\", version=\"2.0\", lifespan=lifespan)\n# Attach the limiter to app state so slowapi middleware can read it,\n# and register the 429 error handler.\napp.state.limiter = limiter\napp.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)\n\"\"\"\nLocal host should use both development and Vercel origins to allow testing from either environment.\nIn production, only the Vercel origin is needed.\n\"\"\"\napp.add_middleware(",
         "detail": "Backend.app.main",
         "documentation": {}
     },
@@ -5302,7 +5370,7 @@
         "kind": 5,
         "importPath": "Backend.app.main",
         "description": "Backend.app.main",
-        "peekOfCode": "app.state.limiter = limiter\napp.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)\n\"\"\"\nLocal host should use both development and netlify origins to allow testing from either environment.\nIn production, only the netlify origin is needed.\n\"\"\"\napp.add_middleware(\n    CORSMiddleware,\n    allow_origins=settings.allowed_origins_list,\n    allow_credentials=True,",
+        "peekOfCode": "app.state.limiter = limiter\napp.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)\n\"\"\"\nLocal host should use both development and Vercel origins to allow testing from either environment.\nIn production, only the Vercel origin is needed.\n\"\"\"\napp.add_middleware(\n    CORSMiddleware,\n    allow_origins=settings.allowed_origins_list,\n    allow_credentials=True,",
         "detail": "Backend.app.main",
         "documentation": {}
     },

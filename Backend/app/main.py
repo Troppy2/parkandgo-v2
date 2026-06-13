@@ -70,8 +70,8 @@ app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 """
-Local host should use both development and netlify origins to allow testing from either environment.
-In production, only the netlify origin is needed.
+Local host should use both development and Vercel origins to allow testing from either environment.
+In production, only the Vercel origin is needed.
 """
 app.add_middleware(
     CORSMiddleware,

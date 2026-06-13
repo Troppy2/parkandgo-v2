@@ -118,7 +118,7 @@ export default function MapView() {
                     coords: [pos.coords.longitude, pos.coords.latitude],
                     heading: pos.coords.heading ?? 0,
                 }),
-                () => {/* geolocation unavailable - map still works without it */},
+                () => {/* geolocation unavailable - map still works without it */ },
                 MAP_GEOLOCATION_OPTIONS,
             );
         }
@@ -129,7 +129,7 @@ export default function MapView() {
             }
             map.remove();
         };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [setCurrentUserLocation]);
 
     // Effect 2: Add/remove event pins when tab or events data changes
@@ -378,7 +378,7 @@ export default function MapView() {
     useEffect(() => {
         const map = mapRef.current;
         if (!map) return;
-        
+
         try {
             if (mapStyle === "standard") {
                 map.setStyle(STANDARD_STYLE);
