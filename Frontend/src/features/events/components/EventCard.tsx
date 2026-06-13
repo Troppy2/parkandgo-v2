@@ -102,11 +102,11 @@ export default function EventCard({ event, onMapClick }: EventCardProps) {
         {/* Event info - matches .ev-inf */}
         <div className="flex-1 min-w-0">
           {/* Event name - matches .ev-nm */}
-          <div className="text-[12px] font-bold leading-snug mb-0.5 truncate">
+          <div className="font-display text-[13px] font-bold leading-snug mb-0.5 truncate tracking-tight">
             {event.title}
           </div>
           {/* Location + time - matches .ev-meta */}
-          <div className="text-[10px] text-text2">
+          <div className="text-[11px] text-text2">
             {event.location_name} · {timeRange}
           </div>
         </div>

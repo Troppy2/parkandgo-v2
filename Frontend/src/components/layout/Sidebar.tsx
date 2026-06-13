@@ -53,7 +53,7 @@ function CollapsedRail({
       <button
         onClick={onToggleCollapse}
         title="Expand sidebar"
-        className="w-10 h-10 flex items-center justify-center hover:bg-maroon-light rounded-[10px] transition-colors duration-150 mb-1"
+        className="w-10 h-10 flex items-center justify-center hover:bg-maroon-light2 rounded-[10px] transition-colors duration-150 mb-1"
       >
         <i className="bi bi-layout-sidebar text-text2 text-lg" />
       </button>
@@ -63,7 +63,7 @@ function CollapsedRail({
           key={label}
           onClick={onClick}
           title={label}
-          className="w-10 h-10 flex items-center justify-center hover:bg-maroon-light rounded-[10px] transition-colors duration-150"
+          className="w-10 h-10 flex items-center justify-center hover:bg-maroon-light2 rounded-[10px] transition-colors duration-150"
         >
           <i className={`bi ${icon} text-text2 text-base`} />
         </button>
@@ -152,15 +152,15 @@ export default function Sidebar({
 
       {/* ── LOGO ROW ── (D2) */}
       <div className="flex items-center justify-between px-3.5 py-2.5 border-b border-black/8 flex-shrink-0">
-        <div className="flex items-center gap-0.5">
-          <span className="text-[15px] font-black text-maroon">Park</span>
-          <span className="text-[15px] font-black text-gold mx-0.5">&amp;</span>
-          <span className="text-[15px] font-black text-maroon">Go</span>
+        <div className="flex items-center font-display text-[19px] font-extrabold tracking-tight leading-none">
+          <span className="text-maroon">Park</span>
+          <span className="text-gold mx-0.5">&amp;</span>
+          <span className="text-maroon">Go</span>
         </div>
         <button
           onClick={onToggleCollapse}
           title="Collapse sidebar"
-          className="w-8 h-8 flex items-center justify-center rounded-[8px] hover:bg-maroon-light transition-colors duration-150"
+          className="w-8 h-8 flex items-center justify-center rounded-[8px] hover:bg-maroon-light2 transition-colors duration-150"
         >
           <i className="bi bi-layout-sidebar text-text2 text-base" />
         </button>
@@ -174,7 +174,7 @@ export default function Sidebar({
         </div>
 
         {/* User row: avatar + name/email + gear */}
-        <div className="flex items-center gap-2 px-2 py-1.5 bg-white/60 rounded-[10px] hover:bg-maroon-light transition-colors duration-150 cursor-pointer" onClick={onSettingsClick}>
+        <div className="flex items-center gap-2 px-2 py-1.5 bg-white/60 rounded-[10px] hover:bg-maroon-light2 transition-colors duration-150 cursor-pointer" onClick={onSettingsClick}>
           {/* Avatar */}
           <div className={clsx(
             "w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden",
@@ -191,7 +191,7 @@ export default function Sidebar({
             <div className="text-xs font-semibold text-text1 truncate">
               {user ? (user.prefered_name || user.first_name) : "Guest"}
             </div>
-            <div className="text-[10px] text-text2 truncate">
+            <div className="text-[11px] text-text2 truncate">
               {user ? user.email : "Guest"}
             </div>
           </div>
@@ -204,7 +204,7 @@ export default function Sidebar({
         <>
           {/* Filter header row with collapse toggle */}
           <div className="px-3.5 py-1.5 flex items-center justify-between border-b border-black/6 flex-shrink-0">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-text2">Filters</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-text2">Filters</span>
             <button
               onClick={() => setFiltersCollapsed(!filtersCollapsed)}
               aria-expanded={!filtersCollapsed}
@@ -255,7 +255,7 @@ export default function Sidebar({
             {/* Cost slider (D5) */}
             <div className="px-3.5 py-2.5 border-b border-black/6">
               <div className="flex items-center justify-between mb-1.5">
-                <div className="text-[10px] font-semibold text-text2 uppercase tracking-wider">
+                <div className="text-[11px] font-semibold text-text2 uppercase tracking-wider">
                   MAX COST / HR
                 </div>
                 <div className="text-xs font-bold text-maroon">

@@ -1,12 +1,14 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+/* Inter for body/UI text, Bricolage Grotesque as the display face for the brand and headings */
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&display=swap');
 
 /* Park & Go design tokens - these mirror the tailwind.config.js colors */
 :root {
   --color-maroon: #7A0019;
   --color-gold: #FFCC33;
   --color-maroon-dark: #5a0012;
-  --color-maroon-light: #9a1a2a;
+  /* Light maroon tint - matches the Tailwind `maroon.light` token used by .bg-maroon-light */
+  --color-maroon-light: rgba(122, 0, 25, 0.08);
   --color-gold-dark: #e6b800;
   --color-button-disabled-bg: #aeaeb2;
   --color-button-disabled-text: #ffffff;
@@ -335,10 +337,19 @@ button:not(:disabled):active,
   transition: transform 0.1s ease !important;
 }
 
-/* ── MapLibre Marker Fixes ─────────────────────── */
-/* Prevent custom pin inner elements from scaling - but NOT .maplibregl-marker
-   itself, which MapLibre positions via translate3d() inline transforms. */
-.event-pin {
-  transform: none !important;
-  transition: none !important;
+/* ── MapLibre custom marker animations ─────────────────────── */
+/* Keep these on child elements only. MapLibre positions the marker root via an
+   inline transform, so animating the root would fight its placement. */
+
+/* Gentle fade-in when a place pin is added to the map */
+@keyframes markerFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Soft pulsing accuracy halo behind the live user-location dot */
+@keyframes userPulse {
+  0%   { transform: scale(0.6); opacity: 0.6; }
+  70%  { transform: scale(1.6); opacity: 0; }
+  100% { transform: scale(1.6); opacity: 0; }
 }

@@ -65,6 +65,7 @@ export default {
       },
       fontFamily: {
         sans: ["Inter", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
+        display: ["'Bricolage Grotesque'", "Inter", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
       },
     },
   },

@@ -47,7 +47,7 @@ export default function SettingsModal() {
 
       {/* Title bar - matches .set-tbar / .am-sm-hd */}
       <div className="flex items-center justify-between px-5 py-3.5 border-b border-black/8">
-        <span className="text-[17px] font-bold tracking-tight flex items-center gap-1.5">
+        <span className="font-display text-[17px] font-bold tracking-tight flex items-center gap-1.5">
           <i className="bi bi-gear text-text2 text-base" />
           Settings
         </span>

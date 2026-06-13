@@ -111,12 +111,24 @@ export default function ParkingSpotCard({ spot, details }: ParkingSpotCardProps)
         await saveSpot(spot.spot_id)
       }
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["saved-spots"] }),
-    onError: () =>
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: ["saved-spots"] })
+      const prev = queryClient.getQueryData<ParkingSpot[]>(["saved-spots"])
+      queryClient.setQueryData<ParkingSpot[]>(["saved-spots"], (old = []) =>
+        isSaved
+          ? old.filter((s) => s.spot_id !== spot.spot_id)
+          : [...old, spot]
+      )
+      return { prev }
+    },
+    onError: (_err, _vars, ctx) => {
+      queryClient.setQueryData(["saved-spots"], ctx?.prev)
       showToast(
         isAuthenticated ? "Failed to save spot - please try again" : "Sign in to save spots",
         "error"
-      ),
+      )
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["saved-spots"] }),
   })
 
   return (
@@ -127,9 +139,8 @@ export default function ParkingSpotCard({ spot, details }: ParkingSpotCardProps)
       </div>
 
       <div className="p-3">
-        <div className="text-[13px] font-bold text-text1 mb-0.5 leading-snug">{spot.spot_name}</div>
-        <div className="text-[11px] text-text2">{spot.campus_location ?? "Campus N/A"}</div>
-        <div className="text-[11px] text-text2 mb-2.5">{spot.parking_type ?? "Parking type N/A"}</div>
+        <div className="font-display text-[15px] font-bold text-text1 mb-0.5 leading-snug tracking-tight">{spot.spot_name}</div>
+        <div className="text-[11px] text-text2 mb-2.5">{spot.campus_location ?? "Campus N/A"}</div>
 
         <div className="flex gap-2 mb-3">
           <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-black/15 text-text1">
@@ -178,7 +189,7 @@ export default function ParkingSpotCard({ spot, details }: ParkingSpotCardProps)
                 source: "recommendation_card",
               }).catch(() => undefined)
             }}
-            className="w-[44px] h-[44px] rounded-[10px] border-[1.5px] border-black/15 bg-[#e8e8ed] flex items-center justify-center flex-shrink-0 transition-all duration-150 hover:border-maroon hover:bg-maroon-light active:scale-[0.97]"
+            className="w-[44px] h-[44px] rounded-[10px] border-[1.5px] border-black/15 bg-[#e8e8ed] flex items-center justify-center flex-shrink-0 transition-all duration-150 hover:border-maroon hover:bg-[#d1d1d6] hover:-translate-y-[1px] active:scale-[0.97]"
             title="Directions"
           >
             <i className="bi bi-sign-turn-right text-text2 text-base" />
@@ -192,7 +203,7 @@ export default function ParkingSpotCard({ spot, details }: ParkingSpotCardProps)
               saveMutation.isPending && "opacity-50 cursor-not-allowed",
               isSaved
                 ? "bg-maroon border-maroon"
-                : "bg-[#e8e8ed] border-black/[0.15] hover:border-maroon hover:bg-maroon-light"
+                : "bg-[#e8e8ed] border-black/[0.15] hover:border-maroon hover:bg-[#d1d1d6] hover:-translate-y-[1px]"
             )}
           >
             <i
@@ -241,21 +252,22 @@ export default function ParkingSpotCard({ spot, details }: ParkingSpotCardProps)
                 </div>
               </div>
 
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-0.5">
                 {Array.from({ length: 5 }, (_, index) => index + 1).map((rating) => (
                   <button
                     key={rating}
                     type="button"
                     onClick={() => setReviewRating(rating)}
-                    className={clsx(
-                      "w-8 h-8 rounded-full border text-[12px] font-bold transition-colors",
-                      reviewRating >= rating
-                        ? "bg-gold border-gold text-maroon"
-                        : "bg-bg2 border-black/10 text-text2"
-                    )}
+                    className="w-9 h-9 flex items-center justify-center rounded-full transition-transform duration-150 hover:scale-110 active:scale-95"
                     aria-label={`Rate ${rating} star${rating === 1 ? "" : "s"}`}
+                    aria-pressed={reviewRating === rating}
                   >
-                    {rating}
+                    <i
+                      className={clsx(
+                        "bi text-[20px] transition-colors",
+                        reviewRating >= rating ? "bi-star-fill text-gold" : "bi-star text-text3"
+                      )}
+                    />
                   </button>
                 ))}
                 <button

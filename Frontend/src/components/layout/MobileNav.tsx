@@ -89,8 +89,8 @@ export default function MobileNav({ children, onSuggestSpotClick }: MobileNavPro
             activeTab === "spots" ? "text-maroon border-maroon" : "text-text3 border-transparent"
           )}
         >
-          <i className="bi bi-car-front-fill mr-1" />
-          Suggested Spots
+          <i className="bi bi-p-square-fill mr-1" />
+          Spots
         </button>
         <button
           onClick={() => { setActiveTab("events"); setIsExpanded(true) }}
@@ -100,7 +100,7 @@ export default function MobileNav({ children, onSuggestSpotClick }: MobileNavPro
           )}
         >
           <i className="bi bi-calendar-event-fill mr-1" />
-          Local Events
+          Events
         </button>
       </div>
 

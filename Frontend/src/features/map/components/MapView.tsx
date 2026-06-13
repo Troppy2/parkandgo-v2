@@ -13,6 +13,7 @@ import { snapToRoute } from "../../navigation/components/services/routingApi";
 import MapControls from "./MapControls";
 import RouteLayer from "./RouteLayer";
 import { useEvents } from "../../events/hooks/useEvents";
+import { createTeardropPin, createUserLocationMarker } from "../../../lib/map/markerElements";
 
 const MAP_GEOLOCATION_OPTIONS = {
     maximumAge: 5000,
@@ -147,28 +148,15 @@ export default function MapView() {
             if (event.latitude == null || event.longitude == null) return;
             const eventCenter: [number, number] = [event.longitude, event.latitude];
 
-            // Build a custom gold event pin element
-            const el = document.createElement("div");
-            el.className = "event-pin";
-            el.style.cssText = `
-                background: #FFCC33;
-                color: #7A0019;
-                border-radius: 50%;
-                width: 28px;
-                height: 28px;
-                min-width: 28px;
-                min-height: 28px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                flex-shrink: 0;
-                font-size: 13px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-                border: 2px solid #fff;
-                cursor: pointer;
-                box-sizing: border-box;
-            `;
-            el.innerHTML = `<i class="bi bi-calendar-event-fill" style="pointer-events: none;"></i>`;
+            // Gold teardrop event pin (Google/Apple Maps idiom). All transforms
+            // live on child elements, so MapLibre keeps full control of the root's
+            // positioning transform.
+            const el = createTeardropPin({
+                fill: "#FFCC33",
+                iconClass: "bi-calendar-event-fill",
+                iconColor: "#7A0019",
+                size: 28,
+            });
 
             el.addEventListener("click", () => {
                 mapRef.current?.flyTo({
@@ -179,10 +167,10 @@ export default function MapView() {
                 });
             });
 
-            const marker = new maplibregl.Marker({ element: el })
+            const marker = new maplibregl.Marker({ element: el, anchor: "bottom" })
                 .setLngLat(eventCenter)
                 .setPopup(
-                    new maplibregl.Popup({ offset: 16, closeButton: false })
+                    new maplibregl.Popup({ offset: 30, closeButton: false })
                         .setHTML(`<strong style="font-size:12px">${event.title}</strong><br/><span style="font-size:11px;color:#666">${event.location_name ?? ""}</span>`)
                 )
                 .addTo(mapRef.current!);
@@ -200,19 +188,12 @@ export default function MapView() {
         if (!destination || !mapRef.current) return;
         if (destination.longitude == null || destination.latitude == null) return;
 
-        // SVG teardrop pin - points straight down, no rotation tricks
-        const el = document.createElement("div");
-        el.style.cssText = `
-            width: 32px;
-            height: 44px;
-            cursor: pointer;
-            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.35));
-        `;
-        el.innerHTML = `<svg viewBox="0 0 32 44" width="32" height="44" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="16" cy="16" r="19" fill="rgba(122,0,25,0.18)"/>
-            <path d="M16 2 C8.27 2 2 8.27 2 16 C2 25.5 16 44 16 44 C16 44 30 25.5 30 16 C30 8.27 23.73 2 16 2 Z" fill="#7A0019"/>
-            <circle cx="16" cy="16" r="5" fill="white"/>
-        </svg>`;
+        // Clean maroon teardrop destination pin, matching the shared place-marker system.
+        const el = createTeardropPin({
+            fill: "#7A0019",
+            iconColor: "#7A0019",
+            size: 34,
+        });
 
         destinationMarkerRef.current = new maplibregl.Marker({ element: el, anchor: "bottom" })
             .setLngLat([destination.longitude, destination.latitude])
@@ -240,60 +221,16 @@ export default function MapView() {
 
         // If marker doesn't exist, create it once
         if (!userLocationMarkerRef.current) {
-            // Build the yellow arrow marker (UMN Gold) with fixed size
-            const el = document.createElement("div");
-            el.style.cssText = `
-                width: 40px;
-                height: 40px;
-                min-width: 40px;
-                min-height: 40px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-                flex-shrink: 0;
-            `;
-            el.setAttribute("data-user-location-marker", "true");
-
-            // Create SVG arrow that points north (up) with fixed dimensions
-            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-            svg.setAttribute("viewBox", "0 0 40 40");
-            svg.setAttribute("width", "40");
-            svg.setAttribute("height", "40");
-            svg.setAttribute("data-heading-transform", "true");
-            svg.style.cssText = `
-                display: block;
-                filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
-                flex-shrink: 0;
-                transition: transform 60ms linear;
-                transform-origin: center center;
-                transform-box: fill-box;
-            `;
-
-            // Outer circle (white border)
-            const outerCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-            outerCircle.setAttribute("cx", "20");
-            outerCircle.setAttribute("cy", "20");
-            outerCircle.setAttribute("r", "18");
-            outerCircle.setAttribute("fill", "#FFCC33");
-            outerCircle.setAttribute("stroke", "#fff");
-            outerCircle.setAttribute("stroke-width", "2");
-            svg.appendChild(outerCircle);
-
-            // Arrow pointing up
-            const arrow = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-            arrow.setAttribute("points", "20,8 28,24 20,20 12,24");
-            arrow.setAttribute("fill", "#fff");
-            svg.appendChild(arrow);
-
-            el.appendChild(svg);
+            // Google/Apple Maps style dot + white ring + pulsing halo + heading cone
+            const el = createUserLocationMarker();
 
             userLocationMarkerRef.current = new maplibregl.Marker({ element: el, anchor: "center" })
                 .setLngLat(displayCoords)
                 .addTo(mapRef.current);
 
-            // Initial rotation
-            svg.style.transform = `rotate(${userLocation.heading}deg)`;
+            // Initial heading rotation
+            const svg = el.querySelector('[data-heading-transform="true"]') as SVGElement | null;
+            if (svg) svg.style.transform = `rotate(${userLocation.heading}deg)`;
         } else {
             // Marker exists: update position + rotation only (no DOM recreation)
             userLocationMarkerRef.current.setLngLat(displayCoords);
@@ -394,7 +331,7 @@ export default function MapView() {
                 try {
                     map.setPitch(45);
                     map.setBearing(-17.6);
-                } catch (e) {
+                } catch {
                     console.warn("3D map features not supported on this device, using 2D mode");
                     // Fallback: reset to 2D
                     map.setPitch(0);

@@ -356,12 +356,12 @@ describe('Phase 4 - Geolocation & Map Stability', () => {
 
         expect(el).toBeDefined()
         // Must have explicit min-width / min-height so flex parents cannot squeeze it
-        expect(el!.style.minWidth).toBe('40px')
-        expect(el!.style.minHeight).toBe('40px')
+        expect(el!.style.minWidth).toBe('44px')
+        expect(el!.style.minHeight).toBe('44px')
       })
     })
 
-    it('user location SVG has transform-box fill-box for correct rotation origin on SVGs', async () => {
+    it('user location SVG has transform-box view-box so it rotates around the viewBox center', async () => {
       setupStoresWithLocation()
 
       render(
@@ -379,9 +379,9 @@ describe('Phase 4 - Geolocation & Map Stability', () => {
 
         const svg = el!.querySelector('[data-heading-transform="true"]') as SVGElement | null
         expect(svg).not.toBeNull()
-        // transform-box:fill-box makes transform-origin relative to the SVG's bounding box
-        // so rotate() anchors to the circle's visual center, not the SVG viewport origin
-        expect(svg!.style.transformBox).toBe('fill-box')
+        // transform-box:view-box anchors transform-origin to the SVG viewport center,
+        // where the location dot sits, so rotate() sweeps only the heading cone
+        expect(svg!.style.transformBox).toBe('view-box')
       })
     })
   })

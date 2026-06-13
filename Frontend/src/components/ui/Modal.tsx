@@ -31,7 +31,7 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
 
         {/* Title bar */}
         <div className="flex items-center justify-between px-5 py-3 border-b border-black/9">
-          {title && <h2 className="text-base font-bold">{title}</h2>}
+          {title && <h2 className="font-display text-base font-bold tracking-tight">{title}</h2>}
           <button onClick={onClose} className="ml-auto">
             <i className="bi bi-x text-xl text-text2" />
           </button>

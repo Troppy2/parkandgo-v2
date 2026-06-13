@@ -147,7 +147,7 @@ export default function RecommendationList() {
         </div>
       )}
       <div className="px-3.5 py-2.5 flex items-center gap-2">
-        <span className="text-[13px] font-bold text-text1">Suggested Spots</span>
+        <span className="font-display text-sm font-bold text-text1 tracking-tight">Suggested Spots</span>
         {verifiedOnly && (
           <span className="flex items-center gap-0.5 text-[10px] font-semibold text-maroon bg-maroon-light rounded-full px-2 py-0.5">
             <i className="bi bi-patch-check-fill text-[9px]" />

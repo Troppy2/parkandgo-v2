@@ -40,3 +40,6 @@ env.md
 #This is for new features---
 weather.py
 .vercel
+
+# MCP things
+.playwright-mcp/
