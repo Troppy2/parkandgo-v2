@@ -43,3 +43,7 @@ weather.py
 
 # MCP things
 .playwright-mcp/
+
+# Local keep-alive script and its log
+keep-alive.js
+keep-alive.txt
