@@ -47,3 +47,4 @@ weather.py
 # Local keep-alive script and its log
 keep-alive.js
 keep-alive.txt
+keep-alive.log
