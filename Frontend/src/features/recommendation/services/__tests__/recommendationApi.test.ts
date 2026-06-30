@@ -86,6 +86,7 @@ describe("getRecommendations", () => {
         user_lat: 44.974,
         user_lon: -93.228,
         limit: 5,
+        travel_mode: "walking",
         verified_only: true,
       },
     })

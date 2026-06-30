@@ -6,13 +6,18 @@ import { useAuthStore } from "@/store/authStore"
 const apiUrl = import.meta.env.VITE_API_URL
 const resolvedApiUrl = apiUrl?.trim()
 
-// This is a sanity check to prevent accidentally building a production bundle without setting VITE_API_URL
-if (!resolvedApiUrl) {
+// Guard production builds against a missing API URL. In dev and test (vitest)
+// we fall back to localhost so the app and the test suite can boot without a
+// .env file present.
+if (import.meta.env.PROD && !resolvedApiUrl) {
   throw new Error("VITE_API_URL is not set. Configure it before building for production.")
 }
+
+const baseURL = resolvedApiUrl || "http://localhost:8000/api"
+
 // This client instance is used for all API calls. Interceptors handle token attachment and refresh.
 const client = axios.create({
-  baseURL: resolvedApiUrl,
+  baseURL,
   timeout: 20000,
   headers: {
     "Content-Type": "application/json",
@@ -45,7 +50,7 @@ client.interceptors.response.use(
       if (refreshToken) {
         try {
           const res = await axios.post(
-            `${resolvedApiUrl}/auth/refresh`,
+            `${baseURL}/auth/refresh`,
             { refresh_token: refreshToken }
           )
           localStorage.setItem("access_token", res.data.access_token)
