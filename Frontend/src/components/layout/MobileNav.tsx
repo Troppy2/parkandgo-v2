@@ -70,22 +70,26 @@ export default function MobileNav({ children, onSuggestSpotClick }: MobileNavPro
   }
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-[22px] shadow-[0_-2px_24px_rgba(0,0,0,0.13)] z-20">
+    <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-[22px] shadow-[0_-2px_24px_rgba(0,0,0,0.13)] z-20 pb-safe">
 
-      {/* Drag handle - tap to expand/collapse */}
-      <div
-        className="flex justify-center pt-2.5 pb-1 cursor-pointer"
+      {/* Drag handle - tap to expand/collapse the sheet content */}
+      <button
+        type="button"
         onClick={() => setIsExpanded(!isExpanded)}
+        aria-expanded={isExpanded}
+        aria-controls="mobile-sheet-content"
+        aria-label={isExpanded ? "Collapse panel" : "Expand panel"}
+        className="flex justify-center w-full py-3"
       >
-        <div className="w-9 h-1 bg-[#d1d1d6] rounded" />
-      </div>
+        <span className="w-9 h-1 bg-[#d1d1d6] rounded" />
+      </button>
 
       {/* Tab switcher - always visible; tapping a tab also expands the sheet */}
       <div className="flex border-b border-black/9 mx-3.5">
         <button
           onClick={() => { setActiveTab("spots"); setIsExpanded(true) }}
           className={clsx(
-            "flex-1 pb-2 text-xs font-semibold border-b-2 -mb-px transition-colors",
+            "flex-1 py-2.5 text-xs font-semibold border-b-2 -mb-px transition-colors",
             activeTab === "spots" ? "text-maroon border-maroon" : "text-text3 border-transparent"
           )}
         >
@@ -95,7 +99,7 @@ export default function MobileNav({ children, onSuggestSpotClick }: MobileNavPro
         <button
           onClick={() => { setActiveTab("events"); setIsExpanded(true) }}
           className={clsx(
-            "flex-1 pb-2 text-xs font-semibold border-b-2 -mb-px transition-colors",
+            "flex-1 py-2.5 text-xs font-semibold border-b-2 -mb-px transition-colors",
             activeTab === "events" ? "text-maroon border-maroon" : "text-text3 border-transparent"
           )}
         >
@@ -150,8 +154,11 @@ export default function MobileNav({ children, onSuggestSpotClick }: MobileNavPro
         />
       )}
 
-      {/* Content - CSS max-height transition for open/close animation (no abrupt DOM removal) */}
+      {/* Content - CSS max-height transition for open/close animation (no abrupt DOM removal).
+          inert when collapsed so the hidden controls leave the tab order and a11y tree. */}
       <div
+        id="mobile-sheet-content"
+        inert={!isExpanded || undefined}
         className={clsx(
           "overflow-hidden transition-[max-height] duration-300 ease-in-out",
           isExpanded ? "max-h-[55vh]" : "max-h-0"

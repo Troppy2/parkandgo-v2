@@ -109,7 +109,7 @@ export default function RouteDisplay() {
     : `${formattedCost} / hr`
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-[22px] shadow-[0_-4px_20px_rgba(0,0,0,0.12)] overflow-hidden">
+    <div className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-[22px] shadow-[0_-4px_20px_rgba(0,0,0,0.12)] overflow-hidden pb-safe">
       <div className="grid grid-cols-3 gap-2 p-4 pb-0">
         <div className="bg-[#f2f2f7] rounded-[10px] p-2.5 text-center">
           <div className="text-[9px] text-text3 uppercase tracking-[0.5px] mb-0.5">Distance</div>

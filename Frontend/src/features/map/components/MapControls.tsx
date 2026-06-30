@@ -35,7 +35,7 @@ function ControlButton({ onClick, title, children, border }: ControlButtonProps)
 
 export default function MapControls({ onZoomIn, onZoomOut, onLocate }: MapControlsProps) {
   return (
-    <div className="absolute right-3 bottom-24 flex flex-col z-10">
+    <div className="absolute right-3 bottom-[calc(6rem+env(safe-area-inset-bottom))] flex flex-col z-10">
       {/* Zoom cluster */}
       <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.15)] border border-black/8 overflow-hidden mb-2">
         <ControlButton onClick={onZoomIn} title="Zoom in">
