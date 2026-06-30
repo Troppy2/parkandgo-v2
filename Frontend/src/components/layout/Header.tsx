@@ -13,7 +13,7 @@ export default function Header({ onSettingsClick }: HeaderProps) {
     : null
 
   return (
-    <div className="absolute top-10 left-3 right-3 z-20 flex items-center gap-2">
+    <div className="absolute top-[max(2.5rem,calc(env(safe-area-inset-top)+0.75rem))] left-3 right-3 z-20 flex items-center gap-2">
       {/* Search bar with integrated gear button */}
       <div className="flex-1">
         <SearchBar onSettingsClick={onSettingsClick} />

@@ -51,6 +51,17 @@
     animation: slideUp 0.25s ease-out;
   }
 
+  /* Safe-area insets for device chrome (status bar, notch, Android nav/gesture bar).
+     env(safe-area-inset-*) reports 0 on desktop and notch-less screens, so these
+     stay no-ops there and only grow on real devices. Requires viewport-fit=cover
+     on the viewport meta to report non-zero values. */
+  .pb-safe {
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+  .pt-safe {
+    padding-top: max(0.75rem, env(safe-area-inset-top));
+  }
+
   .scrollbar-none {
     -ms-overflow-style: none;
     scrollbar-width: none;
