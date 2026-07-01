@@ -3,3 +3,4 @@
 export * from "./useGeolocation"
 export * from "./useDebounce"
 export * from "./useMediaQuery"
+export * from "./useWakeLock"

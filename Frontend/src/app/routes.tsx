@@ -11,14 +11,21 @@ import RememberParkingSpotModal from "../features/navigation/components/Remember
 import SettingsModal from "../features/profile/components/SettingsModal";
 import SuggestSpotModal from "../features/parking/components/SuggestSpotModal";
 import { useUIStore } from "../store/uiStore";
+import { useNavStore } from "../store/navStore";
 import { useActiveNavigation } from "../features/navigation/hooks/useActiveNavigation";
+import { useWakeLock } from "../hooks/useWakeLock";
 import { initializeParkingReminderScheduler } from "../features/navigation/services/parkingReminderScheduler";
 
 function AppShell() {
   const darkMode = useUIStore((s) => s.darkMode)
+  const isNavigating = useNavStore((s) => s.isNavigating)
 
   // Enable active navigation tracking (real-time updates, step advancement, auto-end)
   useActiveNavigation()
+
+  // Keep the screen awake for the whole trip while navigation is active.
+  // No-op on browsers without the Screen Wake Lock API.
+  useWakeLock(isNavigating)
 
   // Sync dark mode preference to <html> data-theme attribute
   useEffect(() => {
