@@ -17,7 +17,8 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 class GoogleLoginRequest(BaseModel):
-    access_token: str
+    access_token: str | None = None
+    id_token: str | None = None
 
 
 @router.post("/google", response_model=TokenResponse, status_code=201)
@@ -27,10 +28,15 @@ async def login_with_google(
     body: GoogleLoginRequest,
     db: AsyncSession = Depends(get_db),
 ):
-    """Exchange a Google OAuth access token for a Park&Go JWT.
+    """Exchange a Google OAuth token for a Park&Go JWT.
+    Accepts either an access_token (web GIS flow) or an id_token (native Android flow).
     Creates the user record on first login."""
     try:
-        result = await google_login(db, body.access_token)
+        result = await google_login(
+            db,
+            google_access_token=body.access_token,
+            google_id_token=body.id_token,
+        )
     except ValueError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

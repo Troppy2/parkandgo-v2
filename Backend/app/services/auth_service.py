@@ -6,6 +6,7 @@ from app.core.config import settings
 from app.core.security import create_access_token, create_refresh_token
 
 GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo"
+GOOGLE_TOKENINFO_URL = "https://oauth2.googleapis.com/tokeninfo"
 
 
 async def verify_google_token(access_token: str) -> dict:
@@ -22,8 +23,36 @@ async def verify_google_token(access_token: str) -> dict:
     return response.json()
 
 
-async def google_login(db: AsyncSession, google_access_token: str) -> dict:
-    google_user = await verify_google_token(google_access_token)
+async def verify_google_id_token(id_token: str) -> dict:
+    """Verify a Google ID token (returned by native Android sign-in).
+
+    Uses the tokeninfo endpoint so we don't need the google-auth library.
+    The audience must match our web client ID so the token came from our app.
+    """
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(GOOGLE_TOKENINFO_URL, params={"id_token": id_token})
+    except httpx.HTTPError as exc:
+        raise ValueError(f"Could not reach Google to verify ID token: {exc}") from exc
+    if response.status_code != 200:
+        raise ValueError("Invalid Google ID token")
+    data = response.json()
+    if data.get("aud") != settings.google_client_id:
+        raise ValueError("Token audience mismatch")
+    return data
+
+
+async def google_login(
+    db: AsyncSession,
+    google_access_token: str | None = None,
+    google_id_token: str | None = None,
+) -> dict:
+    if google_id_token:
+        google_user = await verify_google_id_token(google_id_token)
+    elif google_access_token:
+        google_user = await verify_google_token(google_access_token)
+    else:
+        raise ValueError("No Google token provided")
 
     google_id = google_user["sub"]
     email = google_user.get("email")
