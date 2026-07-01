@@ -78,6 +78,8 @@ function makeMockMap(hasExistingSource = false) {
     removeLayer: vi.fn(),
     removeSource: vi.fn(),
     once: vi.fn(),
+    on: vi.fn(),
+    off: vi.fn(),
   } as unknown as import('maplibre-gl').Map
 
   return { map, setData, addSource, addLayer }
