@@ -4515,7 +4515,7 @@
         "kind": 6,
         "importPath": "Backend.app.api.auth",
         "description": "Backend.app.api.auth",
-        "peekOfCode": "class GoogleLoginRequest(BaseModel):\n    access_token: str\n@router.post(\"/google\", response_model=TokenResponse, status_code=201)\n@limiter.limit(\"30/minute\")\nasync def login_with_google(\n    request: Request,\n    body: GoogleLoginRequest,\n    db: AsyncSession = Depends(get_db),\n):\n    \"\"\"Exchange a Google OAuth access token for a Park&Go JWT.",
+        "peekOfCode": "class GoogleLoginRequest(BaseModel):\n    access_token: str | None = None\n    id_token: str | None = None\n@router.post(\"/google\", response_model=TokenResponse, status_code=201)\n@limiter.limit(\"30/minute\")\nasync def login_with_google(\n    request: Request,\n    body: GoogleLoginRequest,\n    db: AsyncSession = Depends(get_db),\n):",
         "detail": "Backend.app.api.auth",
         "documentation": {}
     },
@@ -4524,7 +4524,7 @@
         "kind": 5,
         "importPath": "Backend.app.api.auth",
         "description": "Backend.app.api.auth",
-        "peekOfCode": "router = APIRouter(prefix=\"/auth\", tags=[\"auth\"])\nclass GoogleLoginRequest(BaseModel):\n    access_token: str\n@router.post(\"/google\", response_model=TokenResponse, status_code=201)\n@limiter.limit(\"30/minute\")\nasync def login_with_google(\n    request: Request,\n    body: GoogleLoginRequest,\n    db: AsyncSession = Depends(get_db),\n):",
+        "peekOfCode": "router = APIRouter(prefix=\"/auth\", tags=[\"auth\"])\nclass GoogleLoginRequest(BaseModel):\n    access_token: str | None = None\n    id_token: str | None = None\n@router.post(\"/google\", response_model=TokenResponse, status_code=201)\n@limiter.limit(\"30/minute\")\nasync def login_with_google(\n    request: Request,\n    body: GoogleLoginRequest,\n    db: AsyncSession = Depends(get_db),",
         "detail": "Backend.app.api.auth",
         "documentation": {}
     },
@@ -5181,7 +5181,16 @@
         "kind": 5,
         "importPath": "Backend.app.services.auth_service",
         "description": "Backend.app.services.auth_service",
-        "peekOfCode": "GOOGLE_USERINFO_URL = \"https://www.googleapis.com/oauth2/v3/userinfo\"\nasync def verify_google_token(access_token: str) -> dict:\n    try:\n        async with httpx.AsyncClient(timeout=10.0) as client:\n            response = await client.get(\n                GOOGLE_USERINFO_URL,\n                headers={\"Authorization\": f\"Bearer {access_token}\"},\n            )\n    except httpx.HTTPError as exc:\n        raise ValueError(f\"Could not reach Google to verify token: {exc}\") from exc",
+        "peekOfCode": "GOOGLE_USERINFO_URL = \"https://www.googleapis.com/oauth2/v3/userinfo\"\nGOOGLE_TOKENINFO_URL = \"https://oauth2.googleapis.com/tokeninfo\"\nasync def verify_google_token(access_token: str) -> dict:\n    try:\n        async with httpx.AsyncClient(timeout=10.0) as client:\n            response = await client.get(\n                GOOGLE_USERINFO_URL,\n                headers={\"Authorization\": f\"Bearer {access_token}\"},\n            )\n    except httpx.HTTPError as exc:",
+        "detail": "Backend.app.services.auth_service",
+        "documentation": {}
+    },
+    {
+        "label": "GOOGLE_TOKENINFO_URL",
+        "kind": 5,
+        "importPath": "Backend.app.services.auth_service",
+        "description": "Backend.app.services.auth_service",
+        "peekOfCode": "GOOGLE_TOKENINFO_URL = \"https://oauth2.googleapis.com/tokeninfo\"\nasync def verify_google_token(access_token: str) -> dict:\n    try:\n        async with httpx.AsyncClient(timeout=10.0) as client:\n            response = await client.get(\n                GOOGLE_USERINFO_URL,\n                headers={\"Authorization\": f\"Bearer {access_token}\"},\n            )\n    except httpx.HTTPError as exc:\n        raise ValueError(f\"Could not reach Google to verify token: {exc}\") from exc",
         "detail": "Backend.app.services.auth_service",
         "documentation": {}
     },
