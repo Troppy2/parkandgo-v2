@@ -1,4 +1,6 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { Capacitor } from "@capacitor/core"
+import { GoogleAuth } from "@codetrix-studio/capacitor-google-auth"
 import { loginWithGoogle } from "../services/authApi"
 import { useAuthStore } from "../../../store/authStore"
 import PrivacyPolicyModal from "../../../components/PrivacyPolicyModal"
@@ -26,18 +28,73 @@ declare global {
   }
 }
 
+const isNative = Capacitor.isNativePlatform()
+
 export default function LoginPage() {
   const setAuth = useAuthStore((state) => state.setAuth)
   const setGuest = useAuthStore((state) => state.setGuest)
   const [loginError, setLoginError] = useState<string | null>(null)
   const [privacyOpen, setPrivacyOpen] = useState(false)
 
+  // Initialize the native Google Auth plugin once on mount (no-op on web)
+  useEffect(() => {
+    if (isNative) {
+      GoogleAuth.initialize({
+        clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+        scopes: ["profile", "email"],
+        grantOfflineAccess: false,
+      })
+    }
+  }, [])
+
   const handleGuestContinue = () => {
     setGuest()
     window.location.href = '/'
   }
 
-  const handleGoogleLogin = () => {
+  const handleAuthError = (error: unknown) => {
+    console.error("Login failed", error)
+    if (error && typeof error === "object" && "code" in error) {
+      const code = (error as { code: string }).code
+      if (code === "ERR_NETWORK" || code === "ECONNABORTED") {
+        setLoginError("Couldn't reach the server. It may be starting up - please wait 30 seconds and try again.")
+        return
+      }
+    }
+    if (error && typeof error === "object" && "response" in error) {
+      const res = (error as { response: { status: number; data?: { detail?: string } } }).response
+      setLoginError(`Server error ${res.status}: ${res.data?.detail ?? "Unknown error"}`)
+    } else {
+      setLoginError("Sign-in failed. Please try again.")
+    }
+  }
+
+  const handleNativeGoogleLogin = async () => {
+    try {
+      const googleUser = await GoogleAuth.signIn()
+      const idToken = googleUser.authentication?.idToken
+      if (!idToken) {
+        setLoginError("Google sign-in did not return a token. Please try again.")
+        return
+      }
+      const result = await loginWithGoogle(idToken, "id_token")
+      setAuth(result.user, result.access_token, result.refresh_token)
+      window.location.href = '/'
+    } catch (error: unknown) {
+      // User cancelled sign-in - no error to show
+      if (
+        error &&
+        typeof error === "object" &&
+        "error" in error &&
+        (error as { error: string }).error === "popup_closed_by_user"
+      ) {
+        return
+      }
+      handleAuthError(error)
+    }
+  }
+
+  const handleWebGoogleLogin = () => {
     if (!window.google?.accounts?.oauth2) {
       setLoginError("Google sign-in isn't ready yet - please wait a moment and try again.")
       return
@@ -52,26 +109,20 @@ export default function LoginPage() {
           setAuth(result.user, result.access_token, result.refresh_token)
           window.location.href = '/'
         } catch (error: unknown) {
-          console.error("Login failed", error)
-          if (error && typeof error === "object" && "code" in error) {
-            const code = (error as { code: string }).code
-            // ERR_NETWORK = CORS block or server unreachable
-            // ECONNABORTED = axios request timeout
-            if (code === "ERR_NETWORK" || code === "ECONNABORTED") {
-              setLoginError("Couldn't reach the server. It may be starting up - please wait 30 seconds and try again.")
-              return
-            }
-          }
-          if (error && typeof error === "object" && "response" in error) {
-            const res = (error as { response: { status: number; data?: { detail?: string } } }).response
-            setLoginError(`Server error ${res.status}: ${res.data?.detail ?? "Unknown error"}`)
-          } else {
-            setLoginError("Sign-in failed. Please try again.")
-          }
+          handleAuthError(error)
         }
       },
     })
     client.requestAccessToken()
+  }
+
+  const handleGoogleLogin = () => {
+    setLoginError(null)
+    if (isNative) {
+      handleNativeGoogleLogin()
+    } else {
+      handleWebGoogleLogin()
+    }
   }
 
   return (

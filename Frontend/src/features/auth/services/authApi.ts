@@ -10,8 +10,12 @@ interface LoginResponse {
   user: User
 }
 
-export async function loginWithGoogle(googleAccessToken: string): Promise<LoginResponse> {
-  const response = await apiClient.post(ENDPOINTS.AUTH.GOOGLE, { access_token: googleAccessToken })
+export async function loginWithGoogle(
+  token: string,
+  tokenType: "access_token" | "id_token" = "access_token",
+): Promise<LoginResponse> {
+  const payload = tokenType === "id_token" ? { id_token: token } : { access_token: token }
+  const response = await apiClient.post(ENDPOINTS.AUTH.GOOGLE, payload)
   return response.data
 }
 
