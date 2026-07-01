@@ -56,5 +56,10 @@
     "vite-plugin-pwa": "^1.2.0",
     "vitest": "^4.1.1",
     "workbox-window": "^7.4.0"
+  },
+  "overrides": {
+    "@codetrix-studio/capacitor-google-auth": {
+      "@capacitor/core": "$@capacitor/core"
+    }
   }
 }
