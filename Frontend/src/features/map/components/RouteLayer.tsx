@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import maplibregl from "maplibre-gl";
 import { useNavStore } from "../../../store/navStore";
 import { snapToRoute } from "../../navigation/components/services/routingApi";
@@ -77,6 +77,7 @@ function findClosestProjectedPoint(
 
 export default function RouteLayer({ map, userLocation }: RouteLayerProps) {
   const { isNavigating, destination, route, routeStatus, travelMode } = useNavStore();
+  const applyRouteRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     if (!map) return;
@@ -89,6 +90,7 @@ export default function RouteLayer({ map, userLocation }: RouteLayerProps) {
       destination.longitude == null ||
       destination.latitude == null
     ) {
+      applyRouteRef.current = null;
       removeRouteLayer(map);
       return;
     }
@@ -149,12 +151,21 @@ export default function RouteLayer({ map, userLocation }: RouteLayerProps) {
       }
     };
 
+    applyRouteRef.current = applyRoute;
+
     if (map.isStyleLoaded()) {
       applyRoute();
-    } else {
-      map.once("load", applyRoute);
     }
   }, [destination, isNavigating, map, route, routeStatus, travelMode, userLocation]);
+
+  // Persistent listener covers both the initial style load and every setStyle() call.
+  // Calling applyRouteRef.current is a no-op when navigation is inactive (ref is null).
+  useEffect(() => {
+    if (!map) return;
+    const onStyleLoad = () => applyRouteRef.current?.();
+    map.on("style.load", onStyleLoad);
+    return () => { map.off("style.load", onStyleLoad); };
+  }, [map]);
 
   useEffect(() => {
     return () => {
