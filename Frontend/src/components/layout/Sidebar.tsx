@@ -174,7 +174,7 @@ export default function Sidebar({
         </div>
 
         {/* User row: avatar + name/email + gear */}
-        <div className="flex items-center gap-2 px-2 py-1.5 bg-white/60 rounded-[10px] hover:bg-maroon-light2 transition-colors duration-150 cursor-pointer" onClick={onSettingsClick}>
+        <div className="group/account flex items-center gap-2 px-2 py-1.5 bg-white/60 rounded-[10px] ring-1 ring-transparent hover:bg-maroon-light2 hover:ring-maroon/25 transition-[background-color,box-shadow] duration-200 cursor-pointer" onClick={onSettingsClick}>
           {/* Avatar */}
           <div className={clsx(
             "w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden",
@@ -195,7 +195,9 @@ export default function Sidebar({
               {user ? user.email : "Guest"}
             </div>
           </div>
-          <i className="bi bi-gear-fill text-text2 text-sm hover:text-maroon transition-colors flex-shrink-0" />
+          <span className="grid place-items-center w-7 h-7 -mr-1 rounded-full text-text2 group-hover/account:text-maroon hover:bg-maroon-light2 transition-colors duration-200 flex-shrink-0">
+            <i className="bi bi-gear-fill text-sm transition-transform duration-300 ease-out group-hover/account:rotate-90" />
+          </span>
         </div>
       </div>
 

@@ -20,9 +20,9 @@ export default function SearchBar({ onSettingsClick }: SearchBarProps) {
     // Relative wrapper so the dropdown positions against it
     <div className="relative w-full">
       {/* Search pill - matches .gm-bar */}
-      <div className="flex items-center gap-2.5 bg-white rounded-[28px] h-12 px-3.5 shadow-[0_2px_8px_rgba(0,0,0,0.12)] border-[1.5px] border-transparent focus-within:shadow-[0_0_0_3px_rgba(122,0,25,0.12)] focus-within:border-maroon transition-[border-color,box-shadow] duration-150">
-        {/* Search icon - always visible on the left */}
-        <i className="bi bi-search text-text3 text-base flex-shrink-0" />
+      <div className="group flex items-center gap-2.5 bg-white rounded-[28px] h-12 px-3.5 shadow-[0_2px_8px_rgba(0,0,0,0.12)] border-[1.5px] border-transparent focus-within:shadow-[0_0_0_3px_rgba(122,0,25,0.12)] focus-within:border-maroon transition-[border-color,box-shadow] duration-150">
+        {/* Search icon - shifts darker on hover, maroon on focus to echo the focus border */}
+        <i className="bi bi-search text-text3 text-base flex-shrink-0 transition-colors duration-200 group-hover:text-text2 group-focus-within:text-maroon" />
         <input
           type="text"
           value={query}
@@ -48,10 +48,10 @@ export default function SearchBar({ onSettingsClick }: SearchBarProps) {
         {onSettingsClick && (
           <button
             onClick={onSettingsClick}
-            className="text-text2 flex-shrink-0 hover:text-maroon transition-colors duration-150"
+            className="group/cog grid place-items-center w-8 h-8 -mr-1 rounded-full text-text2 flex-shrink-0 hover:text-maroon hover:bg-maroon-light2 transition-colors duration-200"
             aria-label="Open settings"
           >
-            <i className="bi bi-gear-fill text-lg" />
+            <i className="bi bi-gear-fill text-lg transition-transform duration-300 ease-out group-hover/cog:rotate-90" />
           </button>
         )}
       </div>
