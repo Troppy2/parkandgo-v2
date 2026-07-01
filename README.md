@@ -266,3 +266,51 @@ Natural language chat interface. Describe what you need and get a direct recomme
 4. Open a PR against `main`
 
 ---
+
+## Building an Android APK (Android Studio)
+
+Park & Go ships as a web app wrapped with Capacitor. To produce an installable `.apk`, build the web bundle, sync it into the native Android project, then build from Android Studio.
+
+### Prerequisites
+
+- Android Studio (latest stable)
+- JDK 17 (bundled with recent Android Studio)
+- Android SDK + a configured device or emulator
+
+### Steps
+
+1. Build the web assets and sync them into the Android project:
+
+   ```bash
+   cd Frontend
+   npm install
+   npm run build
+   npx cap sync android
+   ```
+
+2. Open the native project in Android Studio:
+
+   ```bash
+   npx cap open android
+   ```
+
+   This opens `Frontend/android` in Android Studio. Let Gradle finish syncing before continuing.
+
+3. Generate the APK from the Android Studio menu:
+   - Go to `Build` > `Build Bundle(s) / APK(s)` > `Build APK(s)`.
+   - When the build finishes, click the `locate` link in the notification.
+
+4. The debug APK is written to:
+
+   ```text
+   Frontend/android/app/build/outputs/apk/debug/app-debug.apk
+   ```
+
+   Copy that file to a device and install it. The debug build is fine for testing and sideloading.
+
+### Notes
+
+- Re-run `npm run build && npx cap sync android` after any frontend change, otherwise the APK ships stale web assets.
+- For a release (signed) build, use `Build` > `Generate Signed Bundle / APK` and provide a keystore. The debug APK above is not suitable for the Play Store.
+
+---
