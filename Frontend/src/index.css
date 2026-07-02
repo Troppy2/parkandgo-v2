@@ -1,6 +1,11 @@
 @import "tailwindcss";
 /* Inter for body/UI text, Bricolage Grotesque as the display face for the brand and headings */
 @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&display=swap');
+/* Load the JS color/token config. Without this, @tailwindcss/vite (v4) does not
+   pick up tailwind.config.js, so named tokens (maroon, gold, bg2, text1/2/3)
+   emitted no light-mode utilities and only the dark-mode overrides below worked.
+   Must sit after all @import rules (CSS requires imports first). */
+@config "../tailwind.config.js";
 
 /* Park & Go design tokens - these mirror the tailwind.config.js colors */
 :root {

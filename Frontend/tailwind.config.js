@@ -11,7 +11,7 @@ export default {
           DEFAULT: "#7A0019",
           hover:   "#91253b",
           light:   "rgba(122,0,25,0.08)",
-          light2:  "rgba(122,0,25,0.14)",
+          light2:  "rgba(122,0,25,0.20)",
         },
         gold: {
           DEFAULT: "#FFCC33",
