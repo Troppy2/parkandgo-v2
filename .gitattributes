@@ -1,0 +1,33 @@
+# Normalize line endings.
+#
+# Working copies on Windows and on macOS had drifted to CRLF while origin/main
+# stored LF, so every file showed up as a full rewrite in git diff and real
+# changes were impossible to review. Git now stores LF for all text files and
+# checks LF back out, regardless of what the local editor writes.
+* text=auto eol=lf
+
+# Explicit binary marking, so git never tries to translate these.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.pdf binary
+*.zip binary
+*.jar binary
+*.keystore binary
+*.apk binary
+
+# Shell scripts and Gradle wrappers break if they ever pick up CRLF.
+*.sh text eol=lf
+gradlew text eol=lf
+
+# Windows-only scripts keep CRLF.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+gradlew.bat text eol=crlf
