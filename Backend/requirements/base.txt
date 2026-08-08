@@ -35,6 +35,10 @@ requests==2.32.3
 # Auth: JWT, password hashing, OAuth2
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
+# passlib 1.7.4 cannot drive bcrypt 4.1+, it fails with
+# "password cannot be longer than 72 bytes" on every hash call.
+# Keep bcrypt below 4.1 until passlib is replaced or upgraded.
+bcrypt==4.0.1
 oauthlib==3.2.2
 cryptography==44.0.0
 
