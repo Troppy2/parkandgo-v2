@@ -18,6 +18,12 @@ vi.mock("../../../events/hooks/useEvents", () => ({
   useEvents: () => ({ data: undefined }),
 }));
 
+// MapView pins nearby buildings in Campus Mode. Mocked for the same reason as
+// useEvents: these tests render MapView without a QueryClientProvider.
+vi.mock("../../../campus/hooks/useCampusBuildings", () => ({
+  useNearbyBuildings: () => ({ data: undefined }),
+}));
+
 vi.mock("../RouteLayer", () => ({
   default: routeLayerMock,
 }));

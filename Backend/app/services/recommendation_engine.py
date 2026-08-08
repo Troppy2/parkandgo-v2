@@ -1,8 +1,8 @@
 from dataclasses import dataclass
-from math import radians, sin, cos, sqrt, atan2
 from app.models.parking_spot import ParkingSpot
 from app.models.user import User
 from app.repositories.parking_repository import ParkingRepository
+from app.utils.geo import haversine_miles
 import re
 """
 Scoring Rubric (total = 75 points base + up to 15 event bonus):
@@ -231,21 +231,13 @@ class RecommendationEngine:
     def _haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
         """
         Calculates the real-world distance between two lat/lon points in miles.
-        Uses the Haversine formula which accounts for Earth's curvature.
+
+        Delegates to app.utils.geo.haversine_miles, which is the single
+        implementation shared with campus building proximity search. Kept as a
+        method so existing callers and tests are unaffected.
         """
-        EARTHS_RADIUS = 3959  # Earth's radius in miles
+        return haversine_miles(lat1, lon1, lat2, lon2)
 
-        # Convert degrees to radians (required for trig functions)
-        lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
-
-        dlat = lat2 - lat1
-        dlon = lon2 - lon1
-
-        # Haversine formula
-        a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
-        c = 2 * atan2(sqrt(a), sqrt(1 - a))
-
-        return EARTHS_RADIUS * c
     def _parse_walk_minutes(self, walk_time: str | None) -> float | None:
         """
         Converts a walk time string like "5 min walk" into a numeric value (5.0).

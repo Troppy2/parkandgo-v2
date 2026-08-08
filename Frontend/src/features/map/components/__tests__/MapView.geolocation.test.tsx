@@ -20,6 +20,12 @@ vi.mock('../../../../features/events/hooks/useEvents', () => ({
   useEvents: () => ({ data: undefined }),
 }))
 
+// MapView pins nearby buildings in Campus Mode. Mocked for the same reason as
+// useEvents: these tests render MapView without a QueryClientProvider.
+vi.mock('../../../../features/campus/hooks/useCampusBuildings', () => ({
+  useNearbyBuildings: () => ({ data: undefined }),
+}))
+
 const { routeLayerMock, capturedElements } = vi.hoisted(() => ({
   routeLayerMock: vi.fn(() => null),
   // Collects every HTMLElement passed to new maplibregl.Marker({ element })
@@ -110,6 +116,7 @@ function setupStores() {
     ttsEnabled: false,
     setTTSEnabled: vi.fn(),
     campusRoutingEnabled: true,
+    appMode: "parking" as const,
     setCampusRoutingEnabled: vi.fn(),
     locationEnabled: false,
     setLocationEnabled: vi.fn(),
@@ -287,6 +294,7 @@ describe('Phase 4 - Geolocation & Map Stability', () => {
         ttsEnabled: false,
         setTTSEnabled: vi.fn(),
         campusRoutingEnabled: true,
+    appMode: "parking" as const,
         setCampusRoutingEnabled: vi.fn(),
         locationEnabled: false,
         setLocationEnabled: vi.fn(),

@@ -5,6 +5,7 @@ import {
   fetchPreferences,
   setDataConsent as pushDataConsent,
   updatePreferences,
+  type AppMode,
   type PreferencesPatch,
   type ServerPreferences,
 } from "../services/preferences.service"
@@ -58,6 +59,13 @@ interface UIState {
   campusRoutingEnabled: boolean
   setCampusRoutingEnabled: (v: boolean) => void
 
+  // ── App mode (Campus Mode) ──
+  // "parking" shows parking spots, "campus" shows UMN buildings with walking
+  // only routing. Distinct from campusRoutingEnabled above, which only decides
+  // whether driving is offered as a travel mode.
+  appMode: AppMode
+  setAppMode: (mode: AppMode) => void
+
   // ── Map instance (from Phase 18) ──
   mapInstance: MaplibreMap | null
   setMapInstance: (map: MaplibreMap) => void
@@ -98,6 +106,9 @@ function fromServer(prefs: ServerPreferences) {
     ttsEnabled: prefs.tts_enabled,
     selectedTTSVoice: prefs.selected_tts_voice,
     campusRoutingEnabled: prefs.campus_routing_enabled,
+    // Older servers predate app_mode. Falling back keeps the client working
+    // against a backend that has not run the campus_buildings migration yet.
+    appMode: prefs.app_mode ?? "parking",
   }
 }
 
@@ -187,6 +198,12 @@ export const useUIStore = create<UIState>()(
         pushPreference({ campus_routing_enabled: v })
       },
 
+      appMode: "parking",
+      setAppMode: (mode) => {
+        set({ appMode: mode })
+        pushPreference({ app_mode: mode })
+      },
+
       // Server sync
       syncPreferencesFromServer: async () => {
         if (!useAuthStore.getState().isAuthenticated) return
@@ -219,6 +236,7 @@ export const useUIStore = create<UIState>()(
         ttsEnabled: state.ttsEnabled,
         selectedTTSVoice: state.selectedTTSVoice,
         campusRoutingEnabled: state.campusRoutingEnabled,
+        appMode: state.appMode,
       }),
     }
   )

@@ -14,6 +14,7 @@ const serverPrefs = (overrides: Partial<ServerPreferences> = {}): ServerPreferen
   tts_enabled: false,
   selected_tts_voice: null,
   campus_routing_enabled: true,
+  app_mode: "parking",
   ...overrides,
 })
 
@@ -37,6 +38,7 @@ describe("uiStore preference sync", () => {
       ttsEnabled: false,
       campusRoutingEnabled: true,
       selectedTTSVoice: null,
+      appMode: "parking",
     })
     continueAsGuest()
   })
@@ -172,6 +174,75 @@ describe("uiStore preference sync", () => {
 
       await Promise.resolve()
       expect(useUIStore.getState().dataConsent).toBe(true)
+    })
+  })
+
+  describe("app mode", () => {
+    it("defaults to parking", () => {
+      expect(useUIStore.getState().appMode).toBe("parking")
+    })
+
+    it("writes through to the server for signed-in users", () => {
+      signIn()
+      const update = vi
+        .spyOn(preferencesService, "updatePreferences")
+        .mockResolvedValue(serverPrefs({ app_mode: "campus" }))
+
+      useUIStore.getState().setAppMode("campus")
+
+      expect(useUIStore.getState().appMode).toBe("campus")
+      expect(update).toHaveBeenCalledWith({ app_mode: "campus" })
+    })
+
+    it("stays local for guests", () => {
+      continueAsGuest()
+      const update = vi.spyOn(preferencesService, "updatePreferences")
+
+      useUIStore.getState().setAppMode("campus")
+
+      expect(useUIStore.getState().appMode).toBe("campus")
+      expect(update).not.toHaveBeenCalled()
+    })
+
+    it("takes the server value on sync", async () => {
+      signIn()
+      vi.spyOn(preferencesService, "fetchPreferences").mockResolvedValue(
+        serverPrefs({ app_mode: "campus" })
+      )
+
+      await useUIStore.getState().syncPreferencesFromServer()
+
+      expect(useUIStore.getState().appMode).toBe("campus")
+    })
+
+    it("falls back to parking when the server omits app_mode", async () => {
+      // A backend that has not run the campus_buildings migration yet returns
+      // preferences without the field. The client must not end up undefined.
+      signIn()
+      const withoutAppMode = serverPrefs()
+      delete (withoutAppMode as Partial<ServerPreferences>).app_mode
+      vi.spyOn(preferencesService, "fetchPreferences").mockResolvedValue(withoutAppMode)
+
+      await useUIStore.getState().syncPreferencesFromServer()
+
+      expect(useUIStore.getState().appMode).toBe("parking")
+    })
+
+    it("is independent of campusRoutingEnabled", () => {
+      // The two settings have confusingly similar names and unrelated jobs.
+      signIn()
+      vi.spyOn(preferencesService, "updatePreferences").mockResolvedValue(serverPrefs())
+
+      useUIStore.getState().setAppMode("campus")
+
+      expect(useUIStore.getState().appMode).toBe("campus")
+      expect(useUIStore.getState().campusRoutingEnabled).toBe(true)
+    })
+
+    it("is persisted so the mode survives a reload", () => {
+      useUIStore.getState().setAppMode("campus")
+      const stored = JSON.parse(localStorage.getItem("parkandgo-ui") ?? "{}")
+      expect(stored.state.appMode).toBe("campus")
     })
   })
 })

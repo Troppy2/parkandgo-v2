@@ -40,6 +40,12 @@ class UserPreferences(Base, TimestampMixin):
     selected_tts_voice: Mapped[Optional[str]] = mapped_column(String(120), nullable=True)
     campus_routing_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
 
+    # Which mode the app opens in: "parking" for finding a spot, "campus" for
+    # walking directions to a building. Distinct from campus_routing_enabled
+    # above, which only controls whether driving is offered as a travel mode.
+    # The two are unrelated despite the similar names.
+    app_mode: Mapped[str] = mapped_column(String(20), nullable=False, default="parking")
+
     # TimestampMixin only supplies created_at, so updated_at is declared here,
     # matching the pattern in app/models/parking_history.py.
     updated_at: Mapped[datetime] = mapped_column(
@@ -60,6 +66,7 @@ class UserPreferences(Base, TimestampMixin):
             "tts_enabled": self.tts_enabled,
             "selected_tts_voice": self.selected_tts_voice,
             "campus_routing_enabled": self.campus_routing_enabled,
+            "app_mode": self.app_mode,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }

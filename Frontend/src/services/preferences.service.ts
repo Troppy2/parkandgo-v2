@@ -13,6 +13,13 @@ import { ENDPOINTS } from "../lib/api/endpoints"
 
 export type MapStyle = "standard" | "satellite" | "3d"
 
+/**
+ * Which mode the app opens in. Unrelated to campus_routing_enabled below,
+ * which only controls whether driving is offered as a travel mode. The two
+ * have similar names and completely separate jobs.
+ */
+export type AppMode = "parking" | "campus"
+
 export interface ServerPreferences {
   user_id: number
   data_consent: boolean
@@ -23,6 +30,7 @@ export interface ServerPreferences {
   tts_enabled: boolean
   selected_tts_voice: string | null
   campus_routing_enabled: boolean
+  app_mode: AppMode
 }
 
 /** Fields a client may PATCH. data_consent is deliberately absent. */
@@ -36,6 +44,7 @@ export type PreferencesPatch = Partial<
     | "tts_enabled"
     | "selected_tts_voice"
     | "campus_routing_enabled"
+    | "app_mode"
   >
 >
 

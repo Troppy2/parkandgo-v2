@@ -1,0 +1,2351 @@
+[
+  {
+    "osm_id": "way/40760470",
+    "name": "10 Church Street Building",
+    "short_name": "10CHURCH",
+    "campus_location": "East Bank",
+    "address": "10 Southeast Church Street",
+    "latitude": 44.977801,
+    "longitude": -93.23339
+  },
+  {
+    "osm_id": "way/66209592",
+    "name": "1301 University",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "1301 Southeast University Avenue",
+    "latitude": 44.980229,
+    "longitude": -93.237286
+  },
+  {
+    "osm_id": "way/66209574",
+    "name": "1425 University Avenue SE",
+    "short_name": "1425Univ",
+    "campus_location": "East Bank",
+    "address": "1425 Southeast University Avenue",
+    "latitude": 44.97927,
+    "longitude": -93.235315
+  },
+  {
+    "osm_id": "way/235398391",
+    "name": "17th Avenue Residence Hall",
+    "short_name": "17RH",
+    "campus_location": "East Bank",
+    "address": "326 Southeast 17th Avenue",
+    "latitude": 44.978266,
+    "longitude": -93.231319
+  },
+  {
+    "osm_id": "way/153929661",
+    "name": "1901 University Avenue SE",
+    "short_name": "1901_Univ",
+    "campus_location": "East Bank",
+    "address": "1901 University Avenue SE",
+    "latitude": 44.976818,
+    "longitude": -93.229296
+  },
+  {
+    "osm_id": "way/41784584",
+    "name": "3M Arena",
+    "short_name": "MarA",
+    "campus_location": "East Bank",
+    "address": "1901 Southeast 4th Street",
+    "latitude": 44.978048,
+    "longitude": -93.228005
+  },
+  {
+    "osm_id": "way/126010801",
+    "name": "4th Street Switch Station",
+    "short_name": "CampSub",
+    "campus_location": "East Bank",
+    "address": "1521 4th Street SE",
+    "latitude": 44.979791,
+    "longitude": -93.233198
+  },
+  {
+    "osm_id": "way/125240590",
+    "name": "624 Huron",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "624 Southeast Huron Boulevard",
+    "latitude": 44.969324,
+    "longitude": -93.223202
+  },
+  {
+    "osm_id": "way/266847060",
+    "name": "717 Delaware Street",
+    "short_name": "717Del",
+    "campus_location": "East Bank",
+    "address": "717 Southeast Delaware Street",
+    "latitude": 44.972841,
+    "longitude": -93.227915
+  },
+  {
+    "osm_id": "way/1544712660",
+    "name": "Advanced Operations Center",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": null,
+    "latitude": 44.97938,
+    "longitude": -93.226389
+  },
+  {
+    "osm_id": "way/172089954",
+    "name": "Akerman Hall",
+    "short_name": "AkerH",
+    "campus_location": "East Bank",
+    "address": "110 Union Street SE",
+    "latitude": 44.975302,
+    "longitude": -93.232315
+  },
+  {
+    "osm_id": "way/66209585",
+    "name": "Alpha Delta Phi Fraternity",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "1725 Southeast University Avenue",
+    "latitude": 44.977666,
+    "longitude": -93.231074
+  },
+  {
+    "osm_id": "way/153929658",
+    "name": "Alpha Tau Omega Fraternity",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "1821 Southeast University Avenue",
+    "latitude": 44.977185,
+    "longitude": -93.229924
+  },
+  {
+    "osm_id": "way/29335941",
+    "name": "Amundson Hall",
+    "short_name": "AmundH",
+    "campus_location": "East Bank",
+    "address": "421 Southeast Washington Avenue",
+    "latitude": 44.973952,
+    "longitude": -93.233041
+  },
+  {
+    "osm_id": "way/255808962",
+    "name": "Appleby Hall",
+    "short_name": "ApH",
+    "campus_location": "East Bank",
+    "address": "128 Southeast Pleasant Street",
+    "latitude": 44.974893,
+    "longitude": -93.237307
+  },
+  {
+    "osm_id": "way/170243253",
+    "name": "Apt on Essex East",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "2630 Southeast Essex Street",
+    "latitude": 44.970235,
+    "longitude": -93.220577
+  },
+  {
+    "osm_id": "way/170243255",
+    "name": "Apt on Essex West",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "2619 Southeast Essex Street",
+    "latitude": 44.970308,
+    "longitude": -93.220999
+  },
+  {
+    "osm_id": "way/88315819",
+    "name": "Argyle House",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "920 Southeast Delaware Street",
+    "latitude": 44.971925,
+    "longitude": -93.224957
+  },
+  {
+    "osm_id": "way/39187644",
+    "name": "Armory",
+    "short_name": "Armory",
+    "campus_location": "East Bank",
+    "address": "15 Southeast Church Street",
+    "latitude": 44.977186,
+    "longitude": -93.232254
+  },
+  {
+    "osm_id": "way/284697367",
+    "name": "Armory Garage",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "401 Pillsbury Drive Southeast",
+    "latitude": 44.977138,
+    "longitude": -93.231843
+  },
+  {
+    "osm_id": "way/66209603",
+    "name": "Arvonne Fraser Library",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "1222 Southeast 4th Street",
+    "latitude": 44.980929,
+    "longitude": -93.237743
+  },
+  {
+    "osm_id": "way/126010841",
+    "name": "Beta Theta Pi Fraternity",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "1625 Southeast University Avenue",
+    "latitude": 44.97813,
+    "longitude": -93.232553
+  },
+  {
+    "osm_id": "way/159118106",
+    "name": "Bierman Field Clubhouse",
+    "short_name": "BFC",
+    "campus_location": "East Bank",
+    "address": "1701 Southeast 6th Street",
+    "latitude": 44.980917,
+    "longitude": -93.229703
+  },
+  {
+    "osm_id": "way/255808956",
+    "name": "Boynton Health Service",
+    "short_name": "BoynHS",
+    "campus_location": "East Bank",
+    "address": "410 Southeast Church Street",
+    "latitude": 44.972077,
+    "longitude": -93.234499
+  },
+  {
+    "osm_id": "way/39186095",
+    "name": "Burton Hall",
+    "short_name": "BuH",
+    "campus_location": "East Bank",
+    "address": "178 Southeast Pillsbury Drive",
+    "latitude": 44.977746,
+    "longitude": -93.237542
+  },
+  {
+    "osm_id": "way/157966074",
+    "name": "Cancer and Cardiovascular Research Building",
+    "short_name": "CCRB",
+    "campus_location": "East Bank",
+    "address": "2231 Southeast 6th Street",
+    "latitude": 44.977961,
+    "longitude": -93.221598
+  },
+  {
+    "osm_id": "way/38892710",
+    "name": "Centennial Hall",
+    "short_name": "CenH",
+    "campus_location": "East Bank",
+    "address": "614 Southeast Delaware Street",
+    "latitude": 44.97197,
+    "longitude": -93.229495
+  },
+  {
+    "osm_id": "way/266866545",
+    "name": "Center for Magnetic Resonance Research",
+    "short_name": "CMRR",
+    "campus_location": "East Bank",
+    "address": "2021 Southeast 6th Street",
+    "latitude": 44.978985,
+    "longitude": -93.223907
+  },
+  {
+    "osm_id": "way/66209569",
+    "name": "Chi Psi Fraternity",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "1515 Southeast University Avenue",
+    "latitude": 44.978954,
+    "longitude": -93.234284
+  },
+  {
+    "osm_id": "way/266866805",
+    "name": "Child Development",
+    "short_name": "ChDev",
+    "campus_location": "East Bank",
+    "address": "51 East River Parkway",
+    "latitude": 44.978533,
+    "longitude": -93.23898
+  },
+  {
+    "osm_id": "way/77458524",
+    "name": "Children's Rehabilitation Center",
+    "short_name": "ChRC",
+    "campus_location": "East Bank",
+    "address": "426 Southeast Church Street",
+    "latitude": 44.971561,
+    "longitude": -93.234095
+  },
+  {
+    "osm_id": "way/86133535",
+    "name": "Civil Engineering Building",
+    "short_name": "CivE",
+    "campus_location": "East Bank",
+    "address": "500 Pillsbury Drive Southeast",
+    "latitude": 44.97622,
+    "longitude": -93.231422
+  },
+  {
+    "osm_id": "way/157631996",
+    "name": "Coal Unloading Facility",
+    "short_name": "COALUFAC",
+    "campus_location": "East Bank",
+    "address": "1185 Main Street SE",
+    "latitude": 44.979458,
+    "longitude": -93.240522
+  },
+  {
+    "osm_id": "way/30056874",
+    "name": "Coffman Memorial Union",
+    "short_name": "CMU",
+    "campus_location": "East Bank",
+    "address": "300 Southeast Washington Avenue",
+    "latitude": 44.972823,
+    "longitude": -93.23535
+  },
+  {
+    "osm_id": "way/37184291",
+    "name": "Comstock Hall",
+    "short_name": "ComH",
+    "campus_location": "East Bank",
+    "address": "210 Southeast Delaware Street",
+    "latitude": 44.972375,
+    "longitude": -93.236851
+  },
+  {
+    "osm_id": "way/174142465",
+    "name": "Cooke Hall",
+    "short_name": "CookeH",
+    "campus_location": "East Bank",
+    "address": "1900 Southeast University Avenue",
+    "latitude": 44.976011,
+    "longitude": -93.230388
+  },
+  {
+    "osm_id": "way/126010821",
+    "name": "Delta Chi Fraternity",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "1601 Southeast University Avenue",
+    "latitude": 44.978536,
+    "longitude": -93.233424
+  },
+  {
+    "osm_id": "way/66209598",
+    "name": "Delta Kappa Epsilon Fraternity",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "1711 Southeast University Avenue",
+    "latitude": 44.977879,
+    "longitude": -93.231619
+  },
+  {
+    "osm_id": "way/157629815",
+    "name": "Delta Sigma Delta Medical Fraternity",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "632 Southeast Ontario Street",
+    "latitude": 44.968976,
+    "longitude": -93.225997
+  },
+  {
+    "osm_id": "way/66209576",
+    "name": "Delta Tau Delta Fraternity",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "1717 Southeast University Avenue",
+    "latitude": 44.977805,
+    "longitude": -93.231432
+  },
+  {
+    "osm_id": "way/38892389",
+    "name": "Diehl Hall",
+    "short_name": "DiehlH",
+    "campus_location": "East Bank",
+    "address": "505 Southeast Essex Street",
+    "latitude": 44.971719,
+    "longitude": -93.231368
+  },
+  {
+    "osm_id": "way/66209587",
+    "name": "Dinkydale",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "1316 Southeast 4th Street",
+    "latitude": 44.980453,
+    "longitude": -93.23657
+  },
+  {
+    "osm_id": "way/38898382",
+    "name": "Dinkydome",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "1501 Southeast University Avenue",
+    "latitude": 44.979075,
+    "longitude": -93.234675
+  },
+  {
+    "osm_id": "way/88315826",
+    "name": "Dinnaken House",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "900 Southeast Washington Avenue",
+    "latitude": 44.973301,
+    "longitude": -93.224672
+  },
+  {
+    "osm_id": "way/266854648",
+    "name": "Dinnaken Office Building",
+    "short_name": "925DEL",
+    "campus_location": "East Bank",
+    "address": "925 Southeast Delaware Street",
+    "latitude": 44.972754,
+    "longitude": -93.224483
+  },
+  {
+    "osm_id": "way/166499559",
+    "name": "Donhowe Building",
+    "short_name": "DonhoweB",
+    "campus_location": "East Bank",
+    "address": "319 Southeast 15th Avenue",
+    "latitude": 44.979568,
+    "longitude": -93.235152
+  },
+  {
+    "osm_id": "way/174150701",
+    "name": "Dwan Variety Club Cardiovascular Research Center",
+    "short_name": "DVCCRC",
+    "campus_location": "East Bank",
+    "address": "425 East River Parkway",
+    "latitude": 44.971121,
+    "longitude": -93.232512
+  },
+  {
+    "osm_id": "way/66209572",
+    "name": "ERIK'S",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "1312 Southeast 4th Street",
+    "latitude": 44.980594,
+    "longitude": -93.236664
+  },
+  {
+    "osm_id": "way/125226317",
+    "name": "East Gateway District Steam Distribution",
+    "short_name": "EGDSB",
+    "campus_location": "East Bank",
+    "address": "2030 University Avenue SE",
+    "latitude": 44.974939,
+    "longitude": -93.225897
+  },
+  {
+    "osm_id": "way/289784616",
+    "name": "East River Road Garage",
+    "short_name": "ERivRdGar",
+    "campus_location": "East Bank",
+    "address": "385 East River Parkway",
+    "latitude": 44.971783,
+    "longitude": -93.235354
+  },
+  {
+    "osm_id": "way/62006965",
+    "name": "Eddy Hall",
+    "short_name": "EddyH",
+    "campus_location": "East Bank",
+    "address": "192 Southeast Pillsbury Drive",
+    "latitude": 44.977666,
+    "longitude": -93.236675
+  },
+  {
+    "osm_id": "way/39186402",
+    "name": "Education Sciences Building",
+    "short_name": "EdSciB",
+    "campus_location": "East Bank",
+    "address": "56 East River Road",
+    "latitude": 44.978552,
+    "longitude": -93.239638
+  },
+  {
+    "osm_id": "way/40760466",
+    "name": "Elliott Hall",
+    "short_name": "EltH",
+    "campus_location": "East Bank",
+    "address": "75 East River Parkway",
+    "latitude": 44.976905,
+    "longitude": -93.237841
+  },
+  {
+    "osm_id": "way/255808941",
+    "name": "Ferguson Hall",
+    "short_name": "FergH",
+    "campus_location": "East Bank",
+    "address": "2106 South 4th Street",
+    "latitude": 44.970817,
+    "longitude": -93.241573
+  },
+  {
+    "osm_id": "way/39187676",
+    "name": "Field House",
+    "short_name": "FieldHse",
+    "campus_location": "East Bank",
+    "address": "1800 Southeast University Avenue",
+    "latitude": 44.976788,
+    "longitude": -93.231045
+  },
+  {
+    "osm_id": "way/81140438",
+    "name": "Fire Station 19",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "200 Southeast Ontario Street",
+    "latitude": 44.974491,
+    "longitude": -93.22624
+  },
+  {
+    "osm_id": "way/51318520",
+    "name": "Folwell Hall",
+    "short_name": "FolH",
+    "campus_location": "East Bank",
+    "address": "9 Southeast Pleasant Street",
+    "latitude": 44.978276,
+    "longitude": -93.234451
+  },
+  {
+    "osm_id": "way/29120161",
+    "name": "Ford Hall",
+    "short_name": "FordH",
+    "campus_location": "East Bank",
+    "address": "224 Southeast Church Street",
+    "latitude": 44.973926,
+    "longitude": -93.23444
+  },
+  {
+    "osm_id": "way/255808963",
+    "name": "Fraser Hall",
+    "short_name": "FraserH",
+    "campus_location": "East Bank",
+    "address": "106 Southeast Pleasant Street",
+    "latitude": 44.975544,
+    "longitude": -93.23741
+  },
+  {
+    "osm_id": "way/41784585",
+    "name": "Freeman Aquatics Center",
+    "short_name": "FAqCtr",
+    "campus_location": "East Bank",
+    "address": "1910 Southeast University Avenue",
+    "latitude": 44.975514,
+    "longitude": -93.229155
+  },
+  {
+    "osm_id": "way/40760465",
+    "name": "Frontier Hall",
+    "short_name": "FronH",
+    "campus_location": "East Bank",
+    "address": "701 Southeast Fulton Street",
+    "latitude": 44.970866,
+    "longitude": -93.227913
+  },
+  {
+    "osm_id": "way/125240670",
+    "name": "Fulton Townhomes",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "904,906,908 Southeast Fulton Street",
+    "latitude": 44.970032,
+    "longitude": -93.225187
+  },
+  {
+    "osm_id": "way/68741999",
+    "name": "Grace University Lutheran Church",
+    "short_name": "Grace University Lutheran",
+    "campus_location": "East Bank",
+    "address": "324 Southeast Harvard Street",
+    "latitude": 44.9728,
+    "longitude": -93.230681
+  },
+  {
+    "osm_id": "way/255808894",
+    "name": "Health Partners Riverside Urgent Care",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "2220 Riverside Avenue",
+    "latitude": 44.968047,
+    "longitude": -93.24024
+  },
+  {
+    "osm_id": "way/1220638232",
+    "name": "Health Sciences Education Center",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": null,
+    "latitude": 44.972077,
+    "longitude": -93.230705
+  },
+  {
+    "osm_id": "way/66209583",
+    "name": "Hillel House",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "1521 Southeast University Avenue",
+    "latitude": 44.978865,
+    "longitude": -93.23406
+  },
+  {
+    "osm_id": "way/222804497",
+    "name": "Huntington Bank Stadium",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "420 Southeast 23rd Avenue",
+    "latitude": 44.976537,
+    "longitude": -93.224413
+  },
+  {
+    "osm_id": "way/973282093",
+    "name": "Identity Dinkytown",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "1408 Southeast 5th Street",
+    "latitude": 44.980745,
+    "longitude": -93.234532
+  },
+  {
+    "osm_id": "way/81140447",
+    "name": "Information Technology",
+    "short_name": "InfoTech",
+    "campus_location": "East Bank",
+    "address": "2218 Southeast University Avenue",
+    "latitude": 44.974361,
+    "longitude": -93.225178
+  },
+  {
+    "osm_id": "way/35091096",
+    "name": "Irene Claudia Kroll Boathouse",
+    "short_name": "BoatH",
+    "campus_location": "East Bank",
+    "address": "550 East River Parkway",
+    "latitude": 44.969974,
+    "longitude": -93.232182
+  },
+  {
+    "osm_id": "way/41424187",
+    "name": "Jackson Hall",
+    "short_name": "JacH",
+    "campus_location": "East Bank",
+    "address": "321 Southeast Church Street",
+    "latitude": 44.973127,
+    "longitude": -93.233381
+  },
+  {
+    "osm_id": "way/23158786",
+    "name": "Johnston Hall",
+    "short_name": "JohH",
+    "campus_location": "East Bank",
+    "address": "101 Southeast Pleasant Street",
+    "latitude": 44.975864,
+    "longitude": -93.236275
+  },
+  {
+    "osm_id": "way/51318542",
+    "name": "Jones Hall",
+    "short_name": "JonesH",
+    "campus_location": "East Bank",
+    "address": "27 Southeast Pleasant Street",
+    "latitude": 44.977957,
+    "longitude": -93.235287
+  },
+  {
+    "osm_id": "way/66209601",
+    "name": "Keeler Apartments",
+    "short_name": "UIC",
+    "campus_location": "East Bank",
+    "address": "331 Southeast 17th Avenue",
+    "latitude": 44.978549,
+    "longitude": -93.232228
+  },
+  {
+    "osm_id": "way/29335936",
+    "name": "Kenneth H Keller Hall",
+    "short_name": "KHKH",
+    "campus_location": "East Bank",
+    "address": "200 Southeast Union Street",
+    "latitude": 44.974517,
+    "longitude": -93.232563
+  },
+  {
+    "osm_id": "way/30875878",
+    "name": "Kolthoff Hall",
+    "short_name": "KoltH",
+    "campus_location": "East Bank",
+    "address": "225 Southeast Pleasant Street",
+    "latitude": 44.973928,
+    "longitude": -93.236235
+  },
+  {
+    "osm_id": "way/39187076",
+    "name": "Lind Hall",
+    "short_name": "LindH",
+    "campus_location": "East Bank",
+    "address": "207 Southeast Church Street",
+    "latitude": 44.974516,
+    "longitude": -93.233384
+  },
+  {
+    "osm_id": "way/125240656",
+    "name": "Lions Research Building/McGuire Translational Research Facility",
+    "short_name": "LRBMTRF",
+    "campus_location": "East Bank",
+    "address": "2001 Southeast 6th Street",
+    "latitude": 44.979127,
+    "longitude": -93.225354
+  },
+  {
+    "osm_id": "way/39186994",
+    "name": "Mark G Yudof Hall",
+    "short_name": "MGYH",
+    "campus_location": "East Bank",
+    "address": "220 Southeast Delaware Street",
+    "latitude": 44.97191,
+    "longitude": -93.236192
+  },
+  {
+    "osm_id": "way/88315824",
+    "name": "Max Minneapolis",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "150 Southeast 26th Avenue",
+    "latitude": 44.971295,
+    "longitude": -93.220876
+  },
+  {
+    "osm_id": "way/197082146",
+    "name": "Mayo Meditation Space",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": null,
+    "latitude": 44.971879,
+    "longitude": -93.232667
+  },
+  {
+    "osm_id": "way/77458523",
+    "name": "Mayo Memorial Auditorium",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "420 Southeast Delaware Street",
+    "latitude": 44.972718,
+    "longitude": -93.23279
+  },
+  {
+    "osm_id": "way/77458520",
+    "name": "Mayo Memorial Building",
+    "short_name": "Mayo",
+    "campus_location": "East Bank",
+    "address": "420 Delaware Street SE",
+    "latitude": 44.972001,
+    "longitude": -93.232908
+  },
+  {
+    "osm_id": "way/86133533",
+    "name": "McNamara Alumni Center",
+    "short_name": "McNamara",
+    "campus_location": "East Bank",
+    "address": "200 Southeast Oak Street",
+    "latitude": 44.975221,
+    "longitude": -93.227915
+  },
+  {
+    "osm_id": "relation/16122796",
+    "name": "Mechanical Engineering",
+    "short_name": "MechE",
+    "campus_location": "East Bank",
+    "address": "111 Southeast Church Street",
+    "latitude": 44.975418,
+    "longitude": -93.23309
+  },
+  {
+    "osm_id": "way/503149062",
+    "name": "Microbiology Research Facility",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "689 Southeast 23rd Avenue",
+    "latitude": 44.978553,
+    "longitude": -93.221699
+  },
+  {
+    "osm_id": "way/255808940",
+    "name": "Middlebrook Hall",
+    "short_name": "MdbH",
+    "campus_location": "East Bank",
+    "address": "412 22nd Avenue South",
+    "latitude": 44.969735,
+    "longitude": -93.240881
+  },
+  {
+    "osm_id": "way/165264376",
+    "name": "Minneapolis Energy Center Riverside Plant",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "2406 Riverside Avenue",
+    "latitude": 44.968165,
+    "longitude": -93.237047
+  },
+  {
+    "osm_id": "way/77458514",
+    "name": "Molecular & Cellular Biology",
+    "short_name": "MCB",
+    "campus_location": "East Bank",
+    "address": "420 Southeast Washington Avenue",
+    "latitude": 44.97318,
+    "longitude": -93.232594
+  },
+  {
+    "osm_id": "way/41424184",
+    "name": "Moos Health Sciences Tower",
+    "short_name": "MoosT",
+    "campus_location": "East Bank",
+    "address": "515 Southeast Delaware Street",
+    "latitude": 44.972971,
+    "longitude": -93.23142
+  },
+  {
+    "osm_id": "way/28989390",
+    "name": "Morrill Hall",
+    "short_name": "MorH",
+    "campus_location": "East Bank",
+    "address": "100 Southeast Church Street",
+    "latitude": 44.975872,
+    "longitude": -93.234472
+  },
+  {
+    "osm_id": "way/23158781",
+    "name": "Murphy Hall",
+    "short_name": "MurH",
+    "campus_location": "East Bank",
+    "address": "206 Southeast Church Street",
+    "latitude": 44.974511,
+    "longitude": -93.234213
+  },
+  {
+    "osm_id": "way/40760467",
+    "name": "Nicholson Hall",
+    "short_name": "NichH",
+    "campus_location": "East Bank",
+    "address": "216 Southeast Pillsbury Drive",
+    "latitude": 44.977244,
+    "longitude": -93.235668
+  },
+  {
+    "osm_id": "way/37184292",
+    "name": "Nils Hasselmo Hall",
+    "short_name": "NHH",
+    "campus_location": "East Bank",
+    "address": "312 Southeast Church Street",
+    "latitude": 44.972971,
+    "longitude": -93.234214
+  },
+  {
+    "osm_id": "way/88040354",
+    "name": "Nolte Center",
+    "short_name": "NCCE",
+    "campus_location": "East Bank",
+    "address": "315 Southeast Pillsbury Drive",
+    "latitude": 44.977286,
+    "longitude": -93.233914
+  },
+  {
+    "osm_id": "way/283221422",
+    "name": "Nolte Center Garage",
+    "short_name": "NCCE",
+    "campus_location": "East Bank",
+    "address": "14 Church Street SE",
+    "latitude": 44.977573,
+    "longitude": -93.233778
+  },
+  {
+    "osm_id": "way/142440519",
+    "name": "North Building",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "525 23rd Avenue South",
+    "latitude": 44.968824,
+    "longitude": -93.238756
+  },
+  {
+    "osm_id": "way/255808964",
+    "name": "Northrop Memorial Auditorium",
+    "short_name": "NMA",
+    "campus_location": "East Bank",
+    "address": "84 Southeast Church Street",
+    "latitude": 44.976478,
+    "longitude": -93.235369
+  },
+  {
+    "osm_id": "way/27440619",
+    "name": "Pattee Hall",
+    "short_name": "PtH",
+    "campus_location": "East Bank",
+    "address": "150 Southeast Pillsbury Drive",
+    "latitude": 44.978745,
+    "longitude": -93.238286
+  },
+  {
+    "osm_id": "way/39769844",
+    "name": "Peik Hall",
+    "short_name": "PeikH",
+    "campus_location": "East Bank",
+    "address": "159 Southeast Pillsbury Drive",
+    "latitude": 44.978919,
+    "longitude": -93.237104
+  },
+  {
+    "osm_id": "way/143901661",
+    "name": "Phi Chi Medical Fraternity",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "325 Southeast Harvard Street",
+    "latitude": 44.972799,
+    "longitude": -93.230053
+  },
+  {
+    "osm_id": "way/126010832",
+    "name": "Phi Kappa Psi Fraternity",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "1609 Southeast University Avenue",
+    "latitude": 44.978431,
+    "longitude": -93.233178
+  },
+  {
+    "osm_id": "way/66209575",
+    "name": "Phi Sigma Kappa Fraternity",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "317 Southeast 18th Avenue",
+    "latitude": 44.977977,
+    "longitude": -93.230921
+  },
+  {
+    "osm_id": "way/41424185",
+    "name": "Phillips-Wangensteen Building",
+    "short_name": "PWB",
+    "campus_location": "East Bank",
+    "address": "516 Southeast Delaware Street",
+    "latitude": 44.972327,
+    "longitude": -93.231395
+  },
+  {
+    "osm_id": "way/153915800",
+    "name": "Physics and Nanotechnology Building",
+    "short_name": "PAN",
+    "campus_location": "East Bank",
+    "address": "115 Southeast Union Street",
+    "latitude": 44.97533,
+    "longitude": -93.23154
+  },
+  {
+    "osm_id": "way/153929657",
+    "name": "Pi Kappa Alpha Fraternity",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "1813 Southeast University Avenue",
+    "latitude": 44.977338,
+    "longitude": -93.23037
+  },
+  {
+    "osm_id": "way/29120193",
+    "name": "Pillsbury Hall",
+    "short_name": "PillsH",
+    "campus_location": "East Bank",
+    "address": "310 Southeast Pillsbury Drive",
+    "latitude": 44.9769,
+    "longitude": -93.234436
+  },
+  {
+    "osm_id": "way/40760464",
+    "name": "Pioneer Hall",
+    "short_name": "PioH",
+    "campus_location": "East Bank",
+    "address": "615 Southeast Fulton Street",
+    "latitude": 44.970847,
+    "longitude": -93.229422
+  },
+  {
+    "osm_id": "way/29120176",
+    "name": "Ralph Rapson Hall",
+    "short_name": "RapsonH",
+    "campus_location": "East Bank",
+    "address": "89 Southeast Church Street",
+    "latitude": 44.976397,
+    "longitude": -93.233176
+  },
+  {
+    "osm_id": "way/255808939",
+    "name": "Regis Center For Art (East)",
+    "short_name": "RegCtrW",
+    "campus_location": "East Bank",
+    "address": "405 21st Avenue South",
+    "latitude": 44.969373,
+    "longitude": -93.241967
+  },
+  {
+    "osm_id": "way/32014036",
+    "name": "Ridder Arena & Baseline Tennis Facility",
+    "short_name": "RidderA",
+    "campus_location": "East Bank",
+    "address": "1815 Southeast 4th Street",
+    "latitude": 44.978737,
+    "longitude": -93.229558
+  },
+  {
+    "osm_id": "way/255808960",
+    "name": "Robert H. Bruininks Hall",
+    "short_name": "Bruininks Hall",
+    "campus_location": "East Bank",
+    "address": "222 Southeast Pleasant Street",
+    "latitude": 44.974103,
+    "longitude": -93.237323
+  },
+  {
+    "osm_id": "relation/17540042",
+    "name": "Ronald McDonald House",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": null,
+    "latitude": 44.96969,
+    "longitude": -93.226328
+  },
+  {
+    "osm_id": "way/62006958",
+    "name": "Roy Wilkins Hall",
+    "short_name": "WilkinsH",
+    "campus_location": "East Bank",
+    "address": "1212 Southeast University Avenue",
+    "latitude": 44.980182,
+    "longitude": -93.239076
+  },
+  {
+    "osm_id": "way/88040175",
+    "name": "Sanford Hall",
+    "short_name": "SanH",
+    "campus_location": "East Bank",
+    "address": "1122 Southeast University Avenue",
+    "latitude": 44.980465,
+    "longitude": -93.240346
+  },
+  {
+    "osm_id": "way/40760469",
+    "name": "Scott Hall",
+    "short_name": "ScottH",
+    "campus_location": "East Bank",
+    "address": "72 Southeast Pleasant Street",
+    "latitude": 44.976823,
+    "longitude": -93.237037
+  },
+  {
+    "osm_id": "way/41405167",
+    "name": "Shepherd Laboratories",
+    "short_name": "ShepLab",
+    "campus_location": "East Bank",
+    "address": "100 Union Street SE",
+    "latitude": 44.975867,
+    "longitude": -93.232342
+  },
+  {
+    "osm_id": "way/27440623",
+    "name": "Shevlin Hall",
+    "short_name": "ShevH",
+    "campus_location": "East Bank",
+    "address": "164 Southeast Pillsbury Drive",
+    "latitude": 44.978252,
+    "longitude": -93.238045
+  },
+  {
+    "osm_id": "way/153929655",
+    "name": "Sigma Alpha Epsilon Fraternity",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "1815 Southeast University Avenue",
+    "latitude": 44.977294,
+    "longitude": -93.230114
+  },
+  {
+    "osm_id": "way/126010869",
+    "name": "Sigma Chi Fraternity",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "1617 Southeast University Avenue",
+    "latitude": 44.978251,
+    "longitude": -93.232754
+  },
+  {
+    "osm_id": "way/66209584",
+    "name": "Sigma Nu Fraternity",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "307 Southeast 16th Avenue",
+    "latitude": 44.97869,
+    "longitude": -93.233864
+  },
+  {
+    "osm_id": "way/153929659",
+    "name": "Sigma Pi Fraternity",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": null,
+    "latitude": 44.977058,
+    "longitude": -93.229753
+  },
+  {
+    "osm_id": "way/24039199",
+    "name": "Smith Hall",
+    "short_name": "SmithH",
+    "campus_location": "East Bank",
+    "address": "207 Southeast Pleasant Street",
+    "latitude": 44.974503,
+    "longitude": -93.236231
+  },
+  {
+    "osm_id": "way/125240613",
+    "name": "Solhaus",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "2428 Southeast Delaware Street",
+    "latitude": 44.972128,
+    "longitude": -93.222462
+  },
+  {
+    "osm_id": "way/142212835",
+    "name": "Solhaus Tower",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "515 Huron Boulevard",
+    "latitude": 44.970686,
+    "longitude": -93.222446
+  },
+  {
+    "osm_id": "way/88315813",
+    "name": "Stadium Village Apartments",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "1015 Southeast Essex Street",
+    "latitude": 44.971624,
+    "longitude": -93.223335
+  },
+  {
+    "osm_id": "way/88316000",
+    "name": "Stadium Village Flats",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "850 Southeast Washington Avenue",
+    "latitude": 44.973291,
+    "longitude": -93.226164
+  },
+  {
+    "osm_id": "way/81140441",
+    "name": "Stadium Village Mall",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "825 Southeast Washington Avenue",
+    "latitude": 44.973833,
+    "longitude": -93.225966
+  },
+  {
+    "osm_id": "way/66209604",
+    "name": "Students' Cooperative",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "1721 Southeast University Avenue",
+    "latitude": 44.977757,
+    "longitude": -93.231263
+  },
+  {
+    "osm_id": "way/66209578",
+    "name": "Sydney Hall",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "310 Southeast 15th Avenue",
+    "latitude": 44.979468,
+    "longitude": -93.234376
+  },
+  {
+    "osm_id": "way/125240676",
+    "name": "Tairrie House",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "609 Southeast Oak Street",
+    "latitude": 44.969865,
+    "longitude": -93.226672
+  },
+  {
+    "osm_id": "way/28989549",
+    "name": "Tate Laboratory of Physics",
+    "short_name": "Phys",
+    "campus_location": "East Bank",
+    "address": "116 Southeast Church Street",
+    "latitude": 44.975301,
+    "longitude": -93.234451
+  },
+  {
+    "osm_id": "way/153930013",
+    "name": "Ted Mann Concert Hall",
+    "short_name": "MannConc",
+    "campus_location": "East Bank",
+    "address": "2128 South 4th Street",
+    "latitude": 44.970605,
+    "longitude": -93.241273
+  },
+  {
+    "osm_id": "way/27440851",
+    "name": "Territorial Hall",
+    "short_name": "TerH",
+    "campus_location": "East Bank",
+    "address": "417 Southeast Walnut Street",
+    "latitude": 44.97199,
+    "longitude": -93.227931
+  },
+  {
+    "osm_id": "way/232830624",
+    "name": "The 700 on Washington",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "301 Southeast Walnut Street",
+    "latitude": 44.973388,
+    "longitude": -93.228239
+  },
+  {
+    "osm_id": "way/62006973",
+    "name": "The Church of Jesus Christ of Latter-day Saints",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "1205 Southeast University Avenue",
+    "latitude": 44.980693,
+    "longitude": -93.238824
+  },
+  {
+    "osm_id": "way/132949414",
+    "name": "The Edge on Oak",
+    "short_name": "Oak Street Flats",
+    "campus_location": "East Bank",
+    "address": "313 Southeast Oak Street",
+    "latitude": 44.973111,
+    "longitude": -93.226699
+  },
+  {
+    "osm_id": "way/77458516",
+    "name": "The Hub",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": null,
+    "latitude": 44.973346,
+    "longitude": -93.229816
+  },
+  {
+    "osm_id": "way/88315814",
+    "name": "The Quad on Delaware",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "2508 Southeast Delaware Street",
+    "latitude": 44.97161,
+    "longitude": -93.221759
+  },
+  {
+    "osm_id": "way/184790792",
+    "name": "The Station on Washington",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "Southeast Washington Avenue",
+    "latitude": 44.973381,
+    "longitude": -93.229181
+  },
+  {
+    "osm_id": "way/153929662",
+    "name": "Theta Chi Fraternity, Alpha Pi Chapter",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "315 Southeast 19th Avenue",
+    "latitude": 44.977316,
+    "longitude": -93.229517
+  },
+  {
+    "osm_id": "way/43196932",
+    "name": "Thompson Center for Environmental Management",
+    "short_name": "ThompCtr",
+    "campus_location": "East Bank",
+    "address": "501 Southeast 23rd Avenue",
+    "latitude": 44.976195,
+    "longitude": -93.221435
+  },
+  {
+    "osm_id": "way/139466222",
+    "name": "Transportation and Safety Building",
+    "short_name": "TSB",
+    "campus_location": "East Bank",
+    "address": "511 Southeast Washington Avenue",
+    "latitude": 44.9739,
+    "longitude": -93.23094
+  },
+  {
+    "osm_id": "way/125240669",
+    "name": "Uflats",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "2600 Southeast University Avenue",
+    "latitude": 44.972279,
+    "longitude": -93.220059
+  },
+  {
+    "osm_id": "way/66209586",
+    "name": "University Baptist Church",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "1219 Southeast University Avenue",
+    "latitude": 44.980519,
+    "longitude": -93.238107
+  },
+  {
+    "osm_id": "way/81140444",
+    "name": "University Office Plaza",
+    "short_name": "2221UnivAvSE",
+    "campus_location": "East Bank",
+    "address": "2221 University Avenue SE",
+    "latitude": 44.974935,
+    "longitude": -93.224009
+  },
+  {
+    "osm_id": "way/77964158",
+    "name": "University Recreation and Wellness Center",
+    "short_name": "URecCtr",
+    "campus_location": "East Bank",
+    "address": "123 Southeast Harvard Street",
+    "latitude": 44.975795,
+    "longitude": -93.22985
+  },
+  {
+    "osm_id": "way/125240568",
+    "name": "University of Minnesota Health Clinics and Surgery Center",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "909 Fulton Street Southeast",
+    "latitude": 44.970812,
+    "longitude": -93.224955
+  },
+  {
+    "osm_id": "way/174150700",
+    "name": "University of Minnesota Medical Center East Bank Hospital",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "500 Southeast Harvard Street",
+    "latitude": 44.971073,
+    "longitude": -93.231371
+  },
+  {
+    "osm_id": "way/77458512",
+    "name": "Variety Club Research Center",
+    "short_name": "VCRC",
+    "campus_location": "East Bank",
+    "address": "401 East River Parkway",
+    "latitude": 44.971162,
+    "longitude": -93.233476
+  },
+  {
+    "osm_id": "way/174392151",
+    "name": "Vincent Hall",
+    "short_name": "VinH",
+    "campus_location": "East Bank",
+    "address": "206 Southeast Church Street",
+    "latitude": 44.974511,
+    "longitude": -93.234611
+  },
+  {
+    "osm_id": "way/151362026",
+    "name": "WaHu",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "1016 Southeast Washington Avenue",
+    "latitude": 44.973126,
+    "longitude": -93.222837
+  },
+  {
+    "osm_id": "way/128667336",
+    "name": "Wallin Medical Biosciences Building",
+    "short_name": "WMBB",
+    "campus_location": "East Bank",
+    "address": "2101 Southeast 6th Street",
+    "latitude": 44.978303,
+    "longitude": -93.222695
+  },
+  {
+    "osm_id": "way/23014165",
+    "name": "Walter Library",
+    "short_name": "WaLib",
+    "campus_location": "East Bank",
+    "address": "117 Southeast Pleasant Street",
+    "latitude": 44.97528,
+    "longitude": -93.236294
+  },
+  {
+    "osm_id": "way/266860001",
+    "name": "Weaver-Densford Hall",
+    "short_name": "WDH",
+    "campus_location": "East Bank",
+    "address": "308 Southeast Harvard Street",
+    "latitude": 44.973325,
+    "longitude": -93.230915
+  },
+  {
+    "osm_id": "way/35091113",
+    "name": "Weisman Art Museum",
+    "short_name": "WeismanArt",
+    "campus_location": "East Bank",
+    "address": "333 East River Parkway",
+    "latitude": 44.973091,
+    "longitude": -93.23704
+  },
+  {
+    "osm_id": "way/165265498",
+    "name": "West Bank Student Housing",
+    "short_name": "WBStuH",
+    "campus_location": "East Bank",
+    "address": "520 22nd Avenue South",
+    "latitude": 44.968038,
+    "longitude": -93.241148
+  },
+  {
+    "osm_id": "way/142440524",
+    "name": "West Building",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "2312 South 6th Street",
+    "latitude": 44.968064,
+    "longitude": -93.238416
+  },
+  {
+    "osm_id": "way/38400986",
+    "name": "Williams Arena",
+    "short_name": "WmsA",
+    "campus_location": "East Bank",
+    "address": "1925 Southeast University Avenue",
+    "latitude": 44.976978,
+    "longitude": -93.228273
+  },
+  {
+    "osm_id": "way/51318548",
+    "name": "Williamson Hall",
+    "short_name": "WmsonH",
+    "campus_location": "East Bank",
+    "address": "231 Southeast Pillsbury Drive",
+    "latitude": 44.977686,
+    "longitude": -93.234677
+  },
+  {
+    "osm_id": "way/267223140",
+    "name": "Wulling Hall",
+    "short_name": "WullH",
+    "campus_location": "East Bank",
+    "address": "86 Southeast Pleasant Street",
+    "latitude": 44.976259,
+    "longitude": -93.23736
+  },
+  {
+    "osm_id": "way/153929660",
+    "name": "YMCA",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "1801 Southeast University Avenue",
+    "latitude": 44.977385,
+    "longitude": -93.230654
+  },
+  {
+    "osm_id": "way/1298682887",
+    "name": "YMCA Child Care",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": null,
+    "latitude": 44.978881,
+    "longitude": -93.23264
+  },
+  {
+    "osm_id": "way/142440523",
+    "name": "Yellow Ramp",
+    "short_name": null,
+    "campus_location": "East Bank",
+    "address": "524 23rd Avenue South",
+    "latitude": 44.968751,
+    "longitude": -93.2402
+  },
+  {
+    "osm_id": "way/166507364",
+    "name": "Agriculture and Landscape Building",
+    "short_name": "AgLndBldg",
+    "campus_location": "St. Paul",
+    "address": "1847 Buford Place",
+    "latitude": 44.985494,
+    "longitude": -93.177984
+  },
+  {
+    "osm_id": "way/41424569",
+    "name": "Agronomy Seed House",
+    "short_name": "AgrSH",
+    "campus_location": "St. Paul",
+    "address": "1472 Gortner Avenue",
+    "latitude": 44.98552,
+    "longitude": -93.181448
+  },
+  {
+    "osm_id": "way/51964079",
+    "name": "Agronomy and Plant Genetics Greenhouse",
+    "short_name": "AgrPGGh",
+    "campus_location": "St. Paul",
+    "address": "1529 Lindig Street",
+    "latitude": 44.98738,
+    "longitude": -93.180113
+  },
+  {
+    "osm_id": "way/46146006",
+    "name": "Alderman Hall",
+    "short_name": "AlderH",
+    "campus_location": "St. Paul",
+    "address": "1970 Folwell Avenue",
+    "latitude": 44.987488,
+    "longitude": -93.183508
+  },
+  {
+    "osm_id": "way/166523865",
+    "name": "Animal Arena",
+    "short_name": "AnAren",
+    "campus_location": "St. Paul",
+    "address": "421 Carter Avenue",
+    "latitude": 44.981653,
+    "longitude": -93.180015
+  },
+  {
+    "osm_id": "way/166523866",
+    "name": "Animal Science & Veterinary Medicine",
+    "short_name": "AnSciVM",
+    "campus_location": "St. Paul",
+    "address": "1988 Fitch Avenue",
+    "latitude": 44.982279,
+    "longitude": -93.184106
+  },
+  {
+    "osm_id": "way/166523867",
+    "name": "Animal Waste Treatment Center",
+    "short_name": "AnWTCtr",
+    "campus_location": "St. Paul",
+    "address": "1830 Buford Place",
+    "latitude": 44.984966,
+    "longitude": -93.177131
+  },
+  {
+    "osm_id": "way/1169761754",
+    "name": "Bee Lab",
+    "short_name": null,
+    "campus_location": "St. Paul",
+    "address": "1634 Gortner Avenue",
+    "latitude": 44.989231,
+    "longitude": -93.181394
+  },
+  {
+    "osm_id": "way/41424568",
+    "name": "Beef Cattle Barn",
+    "short_name": "BCB",
+    "campus_location": "St. Paul",
+    "address": "1920 Buford Place",
+    "latitude": 44.985002,
+    "longitude": -93.18126
+  },
+  {
+    "osm_id": "way/41424549",
+    "name": "Ben Pomeroy Student/Alumni Learning Center",
+    "short_name": "PomH",
+    "campus_location": "St. Paul",
+    "address": "1964 Fitch Avenue",
+    "latitude": 44.982566,
+    "longitude": -93.183171
+  },
+  {
+    "osm_id": "way/41424566",
+    "name": "Biological Sciences",
+    "short_name": "BioSci",
+    "campus_location": "St. Paul",
+    "address": "1445 Gortner Avenue",
+    "latitude": 44.984819,
+    "longitude": -93.182438
+  },
+  {
+    "osm_id": "way/166523868",
+    "name": "Borlaug Hall",
+    "short_name": "BorH",
+    "campus_location": "St. Paul",
+    "address": "1991 Upper Buford Circle",
+    "latitude": 44.986645,
+    "longitude": -93.183111
+  },
+  {
+    "osm_id": "way/41424550",
+    "name": "Boss Laboratory of Meat Science",
+    "short_name": "ABLMS",
+    "campus_location": "St. Paul",
+    "address": "1354 Eckles Avenue",
+    "latitude": 44.981802,
+    "longitude": -93.184691
+  },
+  {
+    "osm_id": "way/238570337",
+    "name": "Breeding House",
+    "short_name": "BreedH",
+    "campus_location": "St. Paul",
+    "address": "1825 Buford Place",
+    "latitude": 44.985912,
+    "longitude": -93.177321
+  },
+  {
+    "osm_id": "way/177770026",
+    "name": "Cargill Building - Microbial & Plant Genomics",
+    "short_name": "CargillB",
+    "campus_location": "St. Paul",
+    "address": "1500 Gortner Avenue",
+    "latitude": 44.986253,
+    "longitude": -93.181141
+  },
+  {
+    "osm_id": "way/166523871",
+    "name": "Christensen Laboratory",
+    "short_name": "CrstnL",
+    "campus_location": "St. Paul",
+    "address": "1515 Gortner Avenue",
+    "latitude": 44.986686,
+    "longitude": -93.182262
+  },
+  {
+    "osm_id": "way/41424567",
+    "name": "Continuing Education and Conference Center",
+    "short_name": "CECC",
+    "campus_location": "St. Paul",
+    "address": "1890 Buford Avenue",
+    "latitude": 44.983751,
+    "longitude": -93.180566
+  },
+  {
+    "osm_id": "way/177770138",
+    "name": "Crop Service Building",
+    "short_name": "CrServ",
+    "campus_location": "St. Paul",
+    "address": "1895 Hendon Avenue",
+    "latitude": 44.986315,
+    "longitude": -93.179974
+  },
+  {
+    "osm_id": "way/177770130",
+    "name": "Crops Research Building",
+    "short_name": "CrRes",
+    "campus_location": "St. Paul",
+    "address": "1902 Dudley Avenue",
+    "latitude": 44.986333,
+    "longitude": -93.180537
+  },
+  {
+    "osm_id": "way/166507372",
+    "name": "Dairy Cattle Teaching and Research",
+    "short_name": "DCTRC",
+    "campus_location": "St. Paul",
+    "address": "1478 Fairview Avenue",
+    "latitude": 44.985961,
+    "longitude": -93.176723
+  },
+  {
+    "osm_id": "way/51961369",
+    "name": "Ecology Building",
+    "short_name": "Ecology",
+    "campus_location": "St. Paul",
+    "address": "1987 Upper Buford Circle",
+    "latitude": 44.985878,
+    "longitude": -93.182982
+  },
+  {
+    "osm_id": "way/41424560",
+    "name": "Engineering And Fisheries Laboratory",
+    "short_name": "EngFishL",
+    "campus_location": "St. Paul",
+    "address": "1995 Fitch Avenue",
+    "latitude": 44.982892,
+    "longitude": -93.184689
+  },
+  {
+    "osm_id": "way/267248993",
+    "name": "Equine Center Overflow Building",
+    "short_name": "EqBldg",
+    "campus_location": "St. Paul",
+    "address": "1809 Dudley Avenue",
+    "latitude": 44.987462,
+    "longitude": -93.175002
+  },
+  {
+    "osm_id": "way/51964115",
+    "name": "Facilities Management Building",
+    "short_name": "FMB",
+    "campus_location": "St. Paul",
+    "address": "1936 Commonwealth Avenue",
+    "latitude": 44.980012,
+    "longitude": -93.181849
+  },
+  {
+    "osm_id": "way/43276107",
+    "name": "Falcon Heights City Hall",
+    "short_name": null,
+    "campus_location": "St. Paul",
+    "address": null,
+    "latitude": 44.992765,
+    "longitude": -93.183657
+  },
+  {
+    "osm_id": "way/41424570",
+    "name": "Farm Crops Field House",
+    "short_name": "FCFH",
+    "campus_location": "St. Paul",
+    "address": "1922 Hendon Avenue",
+    "latitude": 44.985772,
+    "longitude": -93.181359
+  },
+  {
+    "osm_id": "way/177770058",
+    "name": "Farm and Grounds Maintenance Building",
+    "short_name": "FGMnt",
+    "campus_location": "St. Paul",
+    "address": "1866 Dudley Avenue",
+    "latitude": 44.986314,
+    "longitude": -93.1792
+  },
+  {
+    "osm_id": "way/238570336",
+    "name": "Field Operations Building",
+    "short_name": "FieldOp",
+    "campus_location": "St. Paul",
+    "address": "1606 Fairview Avenue",
+    "latitude": 44.989502,
+    "longitude": -93.177997
+  },
+  {
+    "osm_id": "way/41424551",
+    "name": "Food Science and Nutrition",
+    "short_name": "FScN",
+    "campus_location": "St. Paul",
+    "address": "1334 Eckles Avenue",
+    "latitude": 44.981286,
+    "longitude": -93.184943
+  },
+  {
+    "osm_id": "way/51964112",
+    "name": "Gabbert Raptor Center",
+    "short_name": "GRaptCtr",
+    "campus_location": "St. Paul",
+    "address": "1920 Fitch Avenue",
+    "latitude": 44.982718,
+    "longitude": -93.181278
+  },
+  {
+    "osm_id": "way/51961370",
+    "name": "Gortner Laboratory",
+    "short_name": "GorL",
+    "campus_location": "St. Paul",
+    "address": "1479 Gortner Avenue",
+    "latitude": 44.985849,
+    "longitude": -93.182413
+  },
+  {
+    "osm_id": "way/177770020",
+    "name": "Greenhouse Annex",
+    "short_name": "GRNHSE",
+    "campus_location": "St. Paul",
+    "address": "1561 Lindig Street",
+    "latitude": 44.988508,
+    "longitude": -93.179975
+  },
+  {
+    "osm_id": "way/166523873",
+    "name": "Hayes Hall",
+    "short_name": "HayesH",
+    "campus_location": "St. Paul",
+    "address": "1509 Gortner Avenue",
+    "latitude": 44.986427,
+    "longitude": -93.18252
+  },
+  {
+    "osm_id": "way/46146017",
+    "name": "Hodson Hall",
+    "short_name": "HodsonH",
+    "campus_location": "St. Paul",
+    "address": "1980 Folwell Avenue",
+    "latitude": 44.98784,
+    "longitude": -93.183817
+  },
+  {
+    "osm_id": "way/51964107",
+    "name": "Large Animal Holding",
+    "short_name": "LgAnH",
+    "campus_location": "St. Paul",
+    "address": "1907 Carter Avenue",
+    "latitude": 44.982207,
+    "longitude": -93.180758
+  },
+  {
+    "osm_id": "way/177770087",
+    "name": "Large Animal Shelter",
+    "short_name": "LgAnSh",
+    "campus_location": "St. Paul",
+    "address": "1907 Carter Avenue",
+    "latitude": 44.982479,
+    "longitude": -93.180688
+  },
+  {
+    "osm_id": "way/41424571",
+    "name": "Learning and Environmental Sciences",
+    "short_name": "LES",
+    "campus_location": "St. Paul",
+    "address": "1954 Buford Avenue",
+    "latitude": 44.984097,
+    "longitude": -93.182368
+  },
+  {
+    "osm_id": "way/120551775",
+    "name": "Louise and Doug Leatherdale Equine Center",
+    "short_name": "LEqCtr",
+    "campus_location": "St. Paul",
+    "address": "1801 Dudley Avenue",
+    "latitude": 44.98736,
+    "longitude": -93.176366
+  },
+  {
+    "osm_id": "way/41424572",
+    "name": "Magrath Library",
+    "short_name": "MagrathLib",
+    "campus_location": "St. Paul",
+    "address": "1984 Buford Avenue",
+    "latitude": 44.984083,
+    "longitude": -93.183626
+  },
+  {
+    "osm_id": "way/77712291",
+    "name": "McNeal Hall",
+    "short_name": "McNH",
+    "campus_location": "St. Paul",
+    "address": "1985 Buford Avenue",
+    "latitude": 44.985352,
+    "longitude": -93.183397
+  },
+  {
+    "osm_id": "way/177770147",
+    "name": "Minnesota Crop Improvement Center",
+    "short_name": "MCIC",
+    "campus_location": "St. Paul",
+    "address": "1900 Hendon Avenue",
+    "latitude": 44.985763,
+    "longitude": -93.180518
+  },
+  {
+    "osm_id": "way/177770096",
+    "name": "Molecular and Cellular Therapeutics",
+    "short_name": "MMCT",
+    "campus_location": "St. Paul",
+    "address": "1900 Fitch Avenue",
+    "latitude": 44.982811,
+    "longitude": -93.180279
+  },
+  {
+    "osm_id": "way/201054320",
+    "name": "National Dentex",
+    "short_name": null,
+    "campus_location": "St. Paul",
+    "address": null,
+    "latitude": 44.992902,
+    "longitude": -93.182025
+  },
+  {
+    "osm_id": "way/51964101",
+    "name": "Peters Hall",
+    "short_name": "PetH",
+    "campus_location": "St. Paul",
+    "address": "1404 Gortner Avenue",
+    "latitude": 44.983462,
+    "longitude": -93.180957
+  },
+  {
+    "osm_id": "way/51964067",
+    "name": "Plant Growth Facilities - West",
+    "short_name": "PGFW",
+    "campus_location": "St. Paul",
+    "address": "1538 Gortner Avenue",
+    "latitude": 44.987894,
+    "longitude": -93.181197
+  },
+  {
+    "osm_id": "way/166523875",
+    "name": "Plant Growth Facility/MDA East",
+    "short_name": "PGFE",
+    "campus_location": "St. Paul",
+    "address": "1907 Dudley Avenue",
+    "latitude": 44.986953,
+    "longitude": -93.180029
+  },
+  {
+    "osm_id": "way/120555366",
+    "name": "Poultry Teaching & Research",
+    "short_name": null,
+    "campus_location": "St. Paul",
+    "address": null,
+    "latitude": 44.986378,
+    "longitude": -93.176839
+  },
+  {
+    "osm_id": "way/177774439",
+    "name": "Poultry Teaching and Research Facility",
+    "short_name": "PTRF",
+    "campus_location": "St. Paul",
+    "address": "1835 Buford Place",
+    "latitude": 44.986348,
+    "longitude": -93.177673
+  },
+  {
+    "osm_id": "way/120555367",
+    "name": "Research Animal Resources",
+    "short_name": "ResAnR",
+    "campus_location": "St. Paul",
+    "address": "1861 Buford Place",
+    "latitude": 44.985436,
+    "longitude": -93.178622
+  },
+  {
+    "osm_id": "way/267262924",
+    "name": "Research Weather Station",
+    "short_name": "RWS",
+    "campus_location": "St. Paul",
+    "address": "1635 Lindig Street",
+    "latitude": 44.990255,
+    "longitude": -93.179953
+  },
+  {
+    "osm_id": "way/51961363",
+    "name": "Ruttan Hall",
+    "short_name": "RuttanH",
+    "campus_location": "St. Paul",
+    "address": "1994 Buford Avenue",
+    "latitude": 44.983539,
+    "longitude": -93.184391
+  },
+  {
+    "osm_id": "way/51964117",
+    "name": "Saint Paul Heating Plant",
+    "short_name": "STPHP",
+    "campus_location": "St. Paul",
+    "address": "1952 Commonwealth Avenue",
+    "latitude": 44.980151,
+    "longitude": -93.182448
+  },
+  {
+    "osm_id": "way/267286647",
+    "name": "Seed Stocks",
+    "short_name": "SS",
+    "campus_location": "St. Paul",
+    "address": "1904 Hendon Avenue",
+    "latitude": 44.985835,
+    "longitude": -93.1807
+  },
+  {
+    "osm_id": "way/120551772",
+    "name": "Sheep Research",
+    "short_name": "SheepR",
+    "campus_location": "St. Paul",
+    "address": "1794 Dudley Avenue",
+    "latitude": 44.986023,
+    "longitude": -93.175962
+  },
+  {
+    "osm_id": "way/203043793",
+    "name": "Snyder Hall",
+    "short_name": "SnH",
+    "campus_location": "St. Paul",
+    "address": "1475 Gortner Avenue",
+    "latitude": 44.985406,
+    "longitude": -93.182525
+  },
+  {
+    "osm_id": "way/166523876",
+    "name": "Soil Science",
+    "short_name": "Soils",
+    "campus_location": "St. Paul",
+    "address": "1529 Gortner Avenue",
+    "latitude": 44.987096,
+    "longitude": -93.183335
+  },
+  {
+    "osm_id": "way/278676915",
+    "name": "Spherical Water Tank",
+    "short_name": "Wat",
+    "campus_location": "St. Paul",
+    "address": "2000 Upper Buford Circle",
+    "latitude": 44.987385,
+    "longitude": -93.184497
+  },
+  {
+    "osm_id": "way/166523877",
+    "name": "Stakman Hall",
+    "short_name": "StakH",
+    "campus_location": "St. Paul",
+    "address": "1519 Gortner Avenue",
+    "latitude": 44.986795,
+    "longitude": -93.18268
+  },
+  {
+    "osm_id": "way/166523878",
+    "name": "Swine Research Facility",
+    "short_name": "SwnResFac",
+    "campus_location": "St. Paul",
+    "address": "1850 Buford Place",
+    "latitude": 44.984967,
+    "longitude": -93.178145
+  },
+  {
+    "osm_id": "way/267292885",
+    "name": "Turf Shed",
+    "short_name": "TurfS",
+    "campus_location": "St. Paul",
+    "address": "1604 Fairview Avenue",
+    "latitude": 44.989478,
+    "longitude": -93.177719
+  },
+  {
+    "osm_id": "way/166523879",
+    "name": "USDA Cereal Disease Lab",
+    "short_name": "CDL",
+    "campus_location": "St. Paul",
+    "address": "1551 Lindig Street",
+    "latitude": 44.987861,
+    "longitude": -93.18007
+  },
+  {
+    "osm_id": "way/46146016",
+    "name": "USDA North Central Forestry Experiment Station",
+    "short_name": "NCFES",
+    "campus_location": "St. Paul",
+    "address": "1992 Folwell Avenue",
+    "latitude": 44.987867,
+    "longitude": -93.18442
+  },
+  {
+    "osm_id": "way/51961361",
+    "name": "Veterinary Diagnostic Laboratory",
+    "short_name": "VetDL",
+    "campus_location": "St. Paul",
+    "address": "1333 Gortner Avenue",
+    "latitude": 44.981381,
+    "longitude": -93.182271
+  },
+  {
+    "osm_id": "way/781360142",
+    "name": "Veterinary Isolation Facility",
+    "short_name": "VetAnF",
+    "campus_location": "St. Paul",
+    "address": "1346 Gortner Avenue",
+    "latitude": 44.98159,
+    "longitude": -93.180923
+  },
+  {
+    "osm_id": "way/51961358",
+    "name": "Veterinary Medical Center North",
+    "short_name": "VetMedCtr",
+    "campus_location": "St. Paul",
+    "address": "1365 Gortner Avenue",
+    "latitude": 44.982117,
+    "longitude": -93.183054
+  },
+  {
+    "osm_id": "way/51961360",
+    "name": "Veterinary Medical Center South",
+    "short_name": "VetMedCtr",
+    "campus_location": "St. Paul",
+    "address": "1352 Boyd Avenue",
+    "latitude": 44.981613,
+    "longitude": -93.18331
+  },
+  {
+    "osm_id": "way/51961362",
+    "name": "Veterinary Science",
+    "short_name": "VetS",
+    "campus_location": "St. Paul",
+    "address": "1971 Commonwealth Avenue",
+    "latitude": 44.981094,
+    "longitude": -93.183431
+  },
+  {
+    "osm_id": "way/29060575",
+    "name": "19th Avenue Ramp",
+    "short_name": "19Ramp",
+    "campus_location": "West Bank",
+    "address": "300 19th Avenue South",
+    "latitude": 44.970543,
+    "longitude": -93.246047
+  },
+  {
+    "osm_id": "way/153930019",
+    "name": "21st Avenue Ramp",
+    "short_name": null,
+    "campus_location": "West Bank",
+    "address": "400 21st Avenue South",
+    "latitude": 44.969674,
+    "longitude": -93.243321
+  },
+  {
+    "osm_id": "way/158119242",
+    "name": "7 West Apartment Homes",
+    "short_name": "1800 Apartments",
+    "campus_location": "West Bank",
+    "address": "1800 Washington Avenue South",
+    "latitude": 44.973823,
+    "longitude": -93.246533
+  },
+  {
+    "osm_id": "way/30875938",
+    "name": "Anderson Hall",
+    "short_name": "AndH",
+    "campus_location": "West Bank",
+    "address": "257 19th Avenue South",
+    "latitude": 44.971977,
+    "longitude": -93.242334
+  },
+  {
+    "osm_id": "way/30875983",
+    "name": "Barbara Barker Center For Dance",
+    "short_name": "BarkerCtr",
+    "campus_location": "West Bank",
+    "address": "500 21st Avenue South",
+    "latitude": 44.968695,
+    "longitude": -93.242837
+  },
+  {
+    "osm_id": "way/255808947",
+    "name": "Blegen Hall",
+    "short_name": "BlegH",
+    "campus_location": "West Bank",
+    "address": "269 19th Avenue South",
+    "latitude": 44.971839,
+    "longitude": -93.243341
+  },
+  {
+    "osm_id": "way/29124068",
+    "name": "Carlson School of Management",
+    "short_name": "CarlSMgmt",
+    "campus_location": "West Bank",
+    "address": "321 19th Avenue South",
+    "latitude": 44.970492,
+    "longitude": -93.244612
+  },
+  {
+    "osm_id": "way/88039934",
+    "name": "Cedar Cultural Center",
+    "short_name": null,
+    "campus_location": "West Bank",
+    "address": "416 Cedar Avenue South",
+    "latitude": 44.969422,
+    "longitude": -93.247649
+  },
+  {
+    "osm_id": "way/1208085545",
+    "name": "Dar Al-Hijrah Mosque",
+    "short_name": null,
+    "campus_location": "West Bank",
+    "address": "504 Cedar Avenue South",
+    "latitude": 44.968526,
+    "longitude": -93.24759
+  },
+  {
+    "osm_id": "way/39186750",
+    "name": "Elmer L. Andersen Library",
+    "short_name": "EALib",
+    "campus_location": "West Bank",
+    "address": "222 21st Avenue South",
+    "latitude": 44.973173,
+    "longitude": -93.243051
+  },
+  {
+    "osm_id": "relation/2123458",
+    "name": "Grandmarc Seven Corners",
+    "short_name": null,
+    "campus_location": "West Bank",
+    "address": "1849 Washington Avenue South",
+    "latitude": 44.972819,
+    "longitude": -93.246522
+  },
+  {
+    "osm_id": "way/255808945",
+    "name": "Heller Hall",
+    "short_name": "HellerH",
+    "campus_location": "West Bank",
+    "address": "271 19th Avenue South",
+    "latitude": 44.971653,
+    "longitude": -93.243762
+  },
+  {
+    "osm_id": "way/255808937",
+    "name": "Herbert M. Hanson Jr. Hall",
+    "short_name": "HMH",
+    "campus_location": "West Bank",
+    "address": "1925 South 4th Street",
+    "latitude": 44.96949,
+    "longitude": -93.244657
+  },
+  {
+    "osm_id": "way/29124071",
+    "name": "Humphrey School of Public Affairs",
+    "short_name": "HHHSPA",
+    "campus_location": "West Bank",
+    "address": "301 19th Avenue South",
+    "latitude": 44.971387,
+    "longitude": -93.244639
+  },
+  {
+    "osm_id": "way/39716837",
+    "name": "J.O. Peterson Building",
+    "short_name": null,
+    "campus_location": "West Bank",
+    "address": null,
+    "latitude": 44.972753,
+    "longitude": -93.24772
+  },
+  {
+    "osm_id": "way/29060603",
+    "name": "O. Meredith Wilson Library",
+    "short_name": "OMWL",
+    "campus_location": "West Bank",
+    "address": "309 19th Avenue South",
+    "latitude": 44.970948,
+    "longitude": -93.243586
+  },
+  {
+    "osm_id": "way/146029488",
+    "name": "Oren Gateway Center",
+    "short_name": null,
+    "campus_location": "West Bank",
+    "address": "610 22nd Avenue South",
+    "latitude": 44.96733,
+    "longitude": -93.241697
+  },
+  {
+    "osm_id": "way/255808942",
+    "name": "Rarig Center",
+    "short_name": "RarigC",
+    "campus_location": "West Bank",
+    "address": "330 21st Avenue South",
+    "latitude": 44.970437,
+    "longitude": -93.242465
+  },
+  {
+    "osm_id": "way/142429771",
+    "name": "Red Ramp",
+    "short_name": null,
+    "campus_location": "West Bank",
+    "address": "616 24th Avenue South",
+    "latitude": 44.96715,
+    "longitude": -93.239063
+  },
+  {
+    "osm_id": "way/255808938",
+    "name": "Regis Center For Art (West)",
+    "short_name": "RegCtrW",
+    "campus_location": "West Bank",
+    "address": "418 21st Avenue South",
+    "latitude": 44.969237,
+    "longitude": -93.243056
+  },
+  {
+    "osm_id": "way/142440518",
+    "name": "Riverside Professional Builiding",
+    "short_name": null,
+    "campus_location": "West Bank",
+    "address": "606 24th Avenue South",
+    "latitude": 44.967271,
+    "longitude": -93.238186
+  },
+  {
+    "osm_id": "way/116671796",
+    "name": "Ross Westbank Pharmacy",
+    "short_name": null,
+    "campus_location": "West Bank",
+    "address": null,
+    "latitude": 44.970401,
+    "longitude": -93.246994
+  },
+  {
+    "osm_id": "way/39765251",
+    "name": "Seven Corners Apartments",
+    "short_name": null,
+    "campus_location": "West Bank",
+    "address": "1400 South 2nd Street",
+    "latitude": 44.97479,
+    "longitude": -93.246765
+  },
+  {
+    "osm_id": "way/255808946",
+    "name": "Social Sciences Building",
+    "short_name": "SocSci",
+    "campus_location": "West Bank",
+    "address": "267 19th Avenue South",
+    "latitude": 44.971517,
+    "longitude": -93.242922
+  },
+  {
+    "osm_id": "way/267787439",
+    "name": "Sportsfield Service Building",
+    "short_name": "SpFldSer",
+    "campus_location": "West Bank",
+    "address": "133 19th Avenue South",
+    "latitude": 44.97445,
+    "longitude": -93.245118
+  },
+  {
+    "osm_id": "way/39713006",
+    "name": "The Southern Theater",
+    "short_name": null,
+    "campus_location": "West Bank",
+    "address": "1420 Washington Avenue South",
+    "latitude": 44.973544,
+    "longitude": -93.247969
+  },
+  {
+    "osm_id": "way/39716995",
+    "name": "Theatre in the Round",
+    "short_name": null,
+    "campus_location": "West Bank",
+    "address": "245 Cedar Avenue South",
+    "latitude": 44.972505,
+    "longitude": -93.246877
+  },
+  {
+    "osm_id": "way/255808950",
+    "name": "Walter F. Mondale Hall",
+    "short_name": "MondaleH",
+    "campus_location": "West Bank",
+    "address": "229 19th Avenue South",
+    "latitude": 44.973097,
+    "longitude": -93.244677
+  },
+  {
+    "osm_id": "way/255808949",
+    "name": "West Bank Skyway",
+    "short_name": "WBU",
+    "campus_location": "West Bank",
+    "address": "219 19th Avenue South",
+    "latitude": 44.972481,
+    "longitude": -93.243343
+  },
+  {
+    "osm_id": "way/39186682",
+    "name": "Willey Hall",
+    "short_name": "WilleyH",
+    "campus_location": "West Bank",
+    "address": "225 19th Avenue South",
+    "latitude": 44.973071,
+    "longitude": -93.243557
+  }
+]

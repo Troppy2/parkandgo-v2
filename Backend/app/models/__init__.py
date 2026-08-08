@@ -9,6 +9,8 @@ from app.models.recommendation_context_log import RecommendationContextLog
 from app.models.user_private_spots import UserPrivateSpot
 from app.models.user_preferences import UserPreferences
 from app.models.consent_event import ConsentEvent
+from app.models.campus_building import CampusBuilding
+from app.models.saved_building import SavedBuilding
 
 __all__ = [
     "User",
@@ -22,4 +24,6 @@ __all__ = [
     "UserPrivateSpot",
     "UserPreferences",
     "ConsentEvent",
+    "CampusBuilding",
+    "SavedBuilding",
 ]

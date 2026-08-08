@@ -26,8 +26,16 @@ export const ENDPOINTS = {
   USERS: {
     ME:    "/users/me",
     SAVED: (spotId?: number) => spotId !== undefined ? `/users/me/saved/${spotId}` : "/users/me/saved",
+    SAVED_BUILDINGS: (buildingId?: number) =>
+      buildingId !== undefined ? `/users/me/saved-buildings/${buildingId}` : "/users/me/saved-buildings",
     PREFERENCES: "/users/me/preferences",
     CONSENT: "/users/me/preferences/consent",
+  },
+  CAMPUS_BUILDINGS: {
+    LIST:   "/campus-buildings/",
+    SEARCH: "/campus-buildings/search",
+    NEARBY: "/campus-buildings/nearby",
+    DETAIL: (id: number) => `/campus-buildings/${id}`,
   },
   PRIVATE_SPOTS: {
     BASE: "/private-spots/",

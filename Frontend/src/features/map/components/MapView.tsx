@@ -13,6 +13,7 @@ import { snapToRoute } from "../../navigation/components/services/routingApi";
 import MapControls from "./MapControls";
 import RouteLayer from "./RouteLayer";
 import { useEvents } from "../../events/hooks/useEvents";
+import { useNearbyBuildings } from "../../campus/hooks/useCampusBuildings";
 import { createTeardropPin, createUserLocationMarker } from "../../../lib/map/markerElements";
 
 const MAP_GEOLOCATION_OPTIONS = {
@@ -78,6 +79,7 @@ export default function MapView() {
     const setMapInstance = useUIStore((s) => s.setMapInstance);
 
     const activeTab = useUIStore((s) => s.activeTab);
+    const appMode = useUIStore((s) => s.appMode);
     const { data: events } = useEvents();
     const destination = useNavStore((s) => s.destination);
     const isNavigating = useNavStore((s) => s.isNavigating);
@@ -87,10 +89,17 @@ export default function MapView() {
     const route = useNavStore((s) => s.route);
     const travelMode = useNavStore((s) => s.travelMode);
 
+    // Campus building pins, only fetched while Campus Mode is active.
+    const { data: nearbyBuildings } = useNearbyBuildings(
+        appMode === "campus" ? userLocation?.coords ?? null : null,
+    );
+
     // All spots visible on the map - public endpoint, no auth required
 
     // Track event markers so we can remove them when tab switches
     const eventMarkersRef = useRef<maplibregl.Marker[]>([]);
+    // Track campus building markers so we can remove them when mode switches
+    const buildingMarkersRef = useRef<maplibregl.Marker[]>([]);
     // Track the single destination marker
     const destinationMarkerRef = useRef<maplibregl.Marker | null>(null);
     // Track the user location marker
@@ -178,6 +187,53 @@ export default function MapView() {
             eventMarkersRef.current.push(marker);
         });
     }, [activeTab, events]);
+
+    // Effect 2b: Add/remove campus building pins when the app mode changes.
+    //
+    // Only the nearby set is pinned, never all 261 buildings: at campus zoom
+    // the East Bank becomes an unreadable wall of markers otherwise. Mirrors
+    // the clear-then-rebuild shape of the event marker effect above.
+    useEffect(() => {
+        if (!mapRef.current) return;
+
+        buildingMarkersRef.current.forEach((m) => m.remove());
+        buildingMarkersRef.current = [];
+
+        if (appMode !== "campus" || activeTab === "events" || !nearbyBuildings) return;
+
+        nearbyBuildings.forEach((building) => {
+            const center: [number, number] = [building.longitude, building.latitude];
+
+            // Maroon pin with a gold building glyph, so campus destinations read
+            // as distinct from the gold event pins and the bare maroon
+            // destination pin without introducing a new colour to the system.
+            const el = createTeardropPin({
+                fill: "#7A0019",
+                iconClass: "bi-building",
+                iconColor: "#FFCC33",
+                size: 26,
+            });
+
+            el.addEventListener("click", () => {
+                mapRef.current?.flyTo({
+                    center,
+                    zoom: 17,
+                    duration: 600,
+                    essential: true,
+                });
+            });
+
+            const marker = new maplibregl.Marker({ element: el, anchor: "bottom" })
+                .setLngLat(center)
+                .setPopup(
+                    new maplibregl.Popup({ offset: 30, closeButton: false })
+                        .setHTML(`<strong style="font-size:12px">${building.name}</strong><br/><span style="font-size:11px;color:#666">${building.short_name ?? building.campus_location ?? ""}</span>`)
+                )
+                .addTo(mapRef.current!);
+
+            buildingMarkersRef.current.push(marker);
+        });
+    }, [appMode, activeTab, nearbyBuildings]);
 
     // Effect 3: Add/remove destination marker when navStore.destination changes
     useEffect(() => {

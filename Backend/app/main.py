@@ -7,7 +7,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
-from app.api import admin, auth, events, health, parking, recommendations, reviews, users
+from app.api import (
+    admin, auth, campus_buildings, events, health, parking, recommendations, reviews, users
+)
 import app.api.logging as logging_api
 import app.api.private_spots as private_spots
 from app.core.startup_health import run_startup_health_checks
@@ -91,6 +93,7 @@ app.include_router(private_spots.router, prefix="/api")
 app.include_router(users.router, prefix="/api")
 app.include_router(admin.router, prefix="/api")
 app.include_router(events.router, prefix="/api")
+app.include_router(campus_buildings.router, prefix="/api")
 app.include_router(health.router, prefix="/api")
 
 

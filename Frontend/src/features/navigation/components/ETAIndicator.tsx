@@ -48,6 +48,9 @@ export default function ETAIndicator() {
     setCurrentStepIndex,
   } = useNavStore();
   const campusRoutingEnabled = useUIStore((s) => s.campusRoutingEnabled);
+  const appMode = useUIStore((s) => s.appMode);
+  // Campus Mode is walking only, same rule RouteDisplay applies to the pills.
+  const walkingOnly = !campusRoutingEnabled || appMode === "campus";
 
   const launchedRequestRef = useRef<string | null>(null);
 
@@ -80,7 +83,7 @@ export default function ETAIndicator() {
     }
     if (destination.latitude == null || destination.longitude == null) return;
 
-    const effectiveTravelMode = campusRoutingEnabled ? travelMode : "walking";
+    const effectiveTravelMode = walkingOnly ? "walking" : travelMode;
     const requestKey = `${routeRequestId}:${effectiveTravelMode}:${destination.spot_id}`;
     if (launchedRequestRef.current === requestKey) return;
 
@@ -154,6 +157,9 @@ export default function ETAIndicator() {
       cancelled = true;
     };
   }, [
+    walkingOnly,
+    // Still read directly inside the effect, for the navigation_route_loaded
+    // log payload, so it stays a dependency in its own right.
     campusRoutingEnabled,
     destination,
     hasStartedNavigation,

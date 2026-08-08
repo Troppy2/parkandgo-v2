@@ -11,9 +11,12 @@ from app.schemas.user_preferences import (
     UserPreferencesResponse,
     UserPreferencesUpdate,
 )
+from app.schemas.campus_building import SavedBuildingCreate, SavedBuildingResponse
 from app.repositories.saved_spot_repository import SavedSpotRepository
 from app.repositories.parking_repository import ParkingRepository
 from app.repositories.user_preferences_repository import UserPreferencesRepository
+from app.repositories.campus_building_repository import CampusBuildingRepository
+from app.repositories.saved_building_repository import SavedBuildingRepository
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -148,3 +151,51 @@ async def rename_saved_spot(
     saved.custom_name = body.custom_name
     await db.flush()
     return saved
+
+
+# ── Saved campus buildings ──
+# Separate from saved spots above because saved_spots.spot_id is bound by a
+# foreign key to parking_spots. Same shape, different table.
+
+
+@router.get("/me/saved-buildings", response_model=list[SavedBuildingResponse])
+async def get_saved_buildings(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    repo = SavedBuildingRepository(db)
+    return await repo.get_by_user(current_user.user_id)
+
+
+@router.post("/me/saved-buildings", response_model=SavedBuildingResponse, status_code=201)
+async def save_building(
+    body: SavedBuildingCreate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    building_repo = CampusBuildingRepository(db)
+    building = await building_repo.get_by_id(body.building_id)
+    if not building:
+        raise HTTPException(status_code=404, detail="Campus building not found")
+
+    repo = SavedBuildingRepository(db)
+    existing = await repo.get_by_user_and_building(current_user.user_id, body.building_id)
+    if existing:
+        raise HTTPException(status_code=409, detail="Building already saved")
+
+    return await repo.create({
+        "user_id": current_user.user_id,
+        "building_id": body.building_id,
+    })
+
+
+@router.delete("/me/saved-buildings/{building_id}", status_code=204)
+async def unsave_building(
+    building_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    repo = SavedBuildingRepository(db)
+    deleted = await repo.delete_by_user_and_building(current_user.user_id, building_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Saved building not found")

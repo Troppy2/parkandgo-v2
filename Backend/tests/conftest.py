@@ -21,6 +21,8 @@ from app.models.spot_reviews import SpotReview
 from app.models.parking_history import ParkingHistory
 from app.models.recommendation_context_log import RecommendationContextLog
 from app.models.user_private_spots import UserPrivateSpot
+from app.models.campus_building import CampusBuilding
+from app.models.saved_building import SavedBuilding
 from app.main import app
 
 # ── In-memory SQLite engine (async via aiosqlite) ──
@@ -181,6 +183,58 @@ async def multiple_spots(db_session: AsyncSession) -> list[ParkingSpot]:
         spots.append(spot)
     await db_session.flush()
     return spots
+
+
+@pytest_asyncio.fixture
+async def test_building(db_session: AsyncSession) -> CampusBuilding:
+    """Insert a single campus building on East Bank."""
+    building = CampusBuilding(
+        name="Coffman Memorial Union",
+        short_name="CMU",
+        campus_location="East Bank",
+        address="300 Washington Ave SE",
+        latitude=44.972823,
+        longitude=-93.235350,
+        osm_id="way/30056874",
+    )
+    db_session.add(building)
+    await db_session.flush()
+    return building
+
+
+@pytest_asyncio.fixture
+async def multiple_buildings(db_session: AsyncSession) -> list[CampusBuilding]:
+    """
+    Insert buildings at known distances from Coffman for proximity testing.
+
+    Coordinates are real, so the expected ordering below is a fact about UMN
+    rather than something arranged to make the test pass.
+    """
+    buildings_data = [
+        # Ordered nearest to farthest from Coffman (44.972823, -93.235350).
+        {"name": "Coffman Memorial Union", "short_name": "CMU", "campus_location": "East Bank",
+         "address": "300 Washington Ave SE", "latitude": 44.972823, "longitude": -93.235350,
+         "osm_id": "way/1"},
+        {"name": "Walter Library", "short_name": "WaLib", "campus_location": "East Bank",
+         "address": "117 Pleasant St SE", "latitude": 44.975500, "longitude": -93.235700,
+         "osm_id": "way/2"},
+        {"name": "Kenneth H Keller Hall", "short_name": "KHKH", "campus_location": "East Bank",
+         "address": "200 Union St SE", "latitude": 44.974700, "longitude": -93.232100,
+         "osm_id": "way/3"},
+        {"name": "Blegen Hall", "short_name": "BlegH", "campus_location": "West Bank",
+         "address": "269 19th Ave S", "latitude": 44.971400, "longitude": -93.243600,
+         "osm_id": "way/4"},
+        {"name": "Borlaug Hall", "short_name": "BorH", "campus_location": "St. Paul",
+         "address": "1991 Upper Buford Cir", "latitude": 44.986608, "longitude": -93.183128,
+         "osm_id": "way/5"},
+    ]
+    buildings = []
+    for data in buildings_data:
+        building = CampusBuilding(**data)
+        db_session.add(building)
+        buildings.append(building)
+    await db_session.flush()
+    return buildings
 
 
 def auth_header(user: User) -> dict[str, str]:

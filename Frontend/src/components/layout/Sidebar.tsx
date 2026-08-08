@@ -4,6 +4,7 @@ import { useState } from "react";
 import clsx from "clsx";
 import SearchBar from "../../features/search/components/SearchBar";
 import EventList from "../../features/events/components/EventList";
+import CampusBuildingList from "../../features/campus/components/CampusBuildingList";
 import SearchResults from "../../features/search/components/SearchResults";
 import { useDebouncedSearch } from "../../features/search/hooks/useDebouncedSearch";
 import type { CampusEvent } from "../../types/campus_event.types";
@@ -34,14 +35,20 @@ function CollapsedRail({
   onSettingsClick,
   setActiveTab,
   isGuest,
+  isCampusMode,
 }: {
   onToggleCollapse: () => void;
   onSettingsClick: () => void;
   setActiveTab: (tab: "spots" | "events") => void;
   isGuest: boolean;
+  isCampusMode: boolean;
 }) {
   const railItems = [
-    { icon: "bi-p-square-fill",      label: "Spots",    onClick: () => { setActiveTab("spots"); onToggleCollapse(); } },
+    {
+      icon: isCampusMode ? "bi-building" : "bi-p-square-fill",
+      label: isCampusMode ? "Buildings" : "Spots",
+      onClick: () => { setActiveTab("spots"); onToggleCollapse(); },
+    },
     ...(!isGuest ? [{ icon: "bi-calendar-event-fill", label: "Events", onClick: () => { setActiveTab("events"); onToggleCollapse(); } }] : []),
     { icon: "bi-gear-fill",           label: "Settings", onClick: onSettingsClick },
     { icon: "bi-person-circle",       label: "Profile",  onClick: onSettingsClick },
@@ -87,6 +94,8 @@ export default function Sidebar({
 
   const verifiedOnly = useUIStore((s) => s.verifiedOnly);
   const directionsOnly = useUIStore((s) => s.directionsOnly);
+  const appMode = useUIStore((s) => s.appMode);
+  const isCampusMode = appMode === "campus";
   const [filters, setFilters] = useState<SpotFilters>({});
   const [viewMode, setViewMode] = useState<ViewMode>("Recommended");
 
@@ -143,6 +152,7 @@ export default function Sidebar({
         onSettingsClick={onSettingsClick}
         setActiveTab={setActiveTab}
         isGuest={isGuest}
+        isCampusMode={isCampusMode}
       />
     )
   }
@@ -202,7 +212,9 @@ export default function Sidebar({
       </div>
 
       {/* ── FILTERS (collapsible) ── */}
-      {activeTab === "spots" && (
+      {/* Hidden in Campus Mode: parking type and cost per hour mean nothing for
+          a building. CampusBuildingList carries its own campus filter row. */}
+      {activeTab === "spots" && !isCampusMode && (
         <>
           {/* Filter header row with collapse toggle */}
           <div className="px-3.5 py-1.5 flex items-center justify-between border-b border-black/6 flex-shrink-0">
@@ -290,8 +302,8 @@ export default function Sidebar({
             activeTab === "spots" ? "text-maroon border-maroon" : "text-text3 border-transparent"
           )}
         >
-          <i className="bi bi-p-square-fill mr-1" />
-          Spots
+          <i className={clsx("mr-1 bi", isCampusMode ? "bi-building" : "bi-p-square-fill")} />
+          {isCampusMode ? "Buildings" : "Spots"}
         </button>
         {!isGuest && (
           <button
@@ -308,7 +320,7 @@ export default function Sidebar({
       </div>
 
       {/* ── SPOT COUNT ROW - only visible when not in Recommended mode ── */}
-      {activeTab === "spots" && viewMode !== "Recommended" && (filterResults?.length ?? 0) > 0 && (
+      {activeTab === "spots" && !isCampusMode && viewMode !== "Recommended" && (filterResults?.length ?? 0) > 0 && (
         <div className="px-3.5 py-1.5 flex items-center gap-2 border-b border-black/5 flex-shrink-0">
           <span className="text-[11px] font-semibold text-text1">
             {viewMode === "All" ? "All spots" : `${viewMode} spots`}
@@ -333,14 +345,18 @@ export default function Sidebar({
       <div className="flex-1 overflow-y-auto scrollbar-none">
         {activeTab === "events" && !isGuest
           ? <EventList onEventMapClick={handleEventMapClick} />
-          : viewMode === "Recommended"
-            ? children
-            : <SearchResults spots={filterResults} isLoading={filterLoading} query="" onReset={resetFilters} />
+          : isCampusMode
+            ? <CampusBuildingList />
+            : viewMode === "Recommended"
+              ? children
+              : <SearchResults spots={filterResults} isLoading={filterLoading} query="" onReset={resetFilters} />
         }
       </div>
 
       {/* ── FOOTER: Suggest a Spot + Admin link ── (D8) */}
-      {activeTab === "spots" && (
+      {/* Suggesting a parking spot has no meaning in Campus Mode, where the
+          building list is seeded reference data rather than user submissions. */}
+      {activeTab === "spots" && !isCampusMode && (
         <div className="p-2.5 border-t border-black/8 flex-shrink-0 space-y-2">
           {!isGuest && (
             <button

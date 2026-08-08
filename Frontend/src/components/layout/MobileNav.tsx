@@ -7,6 +7,7 @@ import SearchResults from "../../features/search/components/SearchResults"
 import { useDebouncedSearch } from "../../features/search/hooks/useDebouncedSearch"
 import type { SpotFilters } from "../../types/parking.types"
 import EventList from "../../features/events/components/EventList"
+import CampusBuildingList from "../../features/campus/components/CampusBuildingList"
 import type { CampusEvent } from "../../types/campus_event.types"
 
 type ViewMode = "Recommended" | "All"
@@ -27,6 +28,8 @@ export default function MobileNav({ children, onSuggestSpotClick }: MobileNavPro
   const mapInstance = useUIStore((s) => s.mapInstance)
   const verifiedOnly = useUIStore((s) => s.verifiedOnly)
   const directionsOnly = useUIStore((s) => s.directionsOnly)
+  const appMode = useUIStore((s) => s.appMode)
+  const isCampusMode = appMode === "campus"
   const isGuest = useAuthStore((s) => s.isGuest)
 
   const handleViewMode = (value: ViewMode) => {
@@ -93,8 +96,8 @@ export default function MobileNav({ children, onSuggestSpotClick }: MobileNavPro
             activeTab === "spots" ? "text-maroon border-maroon" : "text-text3 border-transparent"
           )}
         >
-          <i className="bi bi-p-square-fill mr-1" />
-          Spots
+          <i className={clsx("mr-1 bi", isCampusMode ? "bi-building" : "bi-p-square-fill")} />
+          {isCampusMode ? "Buildings" : "Spots"}
         </button>
         <button
           onClick={() => { setActiveTab("events"); setIsExpanded(true) }}
@@ -109,7 +112,8 @@ export default function MobileNav({ children, onSuggestSpotClick }: MobileNavPro
       </div>
 
       {/* "See Filters" row */}
-      {activeTab === "spots" && (
+      {/* Hidden in Campus Mode: the parking filters do not apply to buildings. */}
+      {activeTab === "spots" && !isCampusMode && (
         <button
           onClick={() => {
             setFiltersOpen(!filtersOpen)
@@ -167,6 +171,8 @@ export default function MobileNav({ children, onSuggestSpotClick }: MobileNavPro
         <div className="overflow-y-auto max-h-[55vh] pb-4 scrollbar-none">
           {activeTab === "events" ? (
             <EventList onEventMapClick={handleEventMapClick} />
+          ) : isCampusMode ? (
+            <CampusBuildingList />
           ) : (
             <>
               {viewMode === "Recommended"

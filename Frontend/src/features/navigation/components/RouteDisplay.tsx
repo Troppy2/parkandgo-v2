@@ -29,6 +29,10 @@ export default function RouteDisplay() {
     setRouteError,
   } = useNavStore()
   const campusRoutingEnabled = useUIStore((s) => s.campusRoutingEnabled)
+  const appMode = useUIStore((s) => s.appMode)
+  // Campus Mode routes to buildings, and you cannot drive across a sidewalk.
+  // Reuses the existing walking lock rather than adding a parallel mechanism.
+  const walkingOnly = !campusRoutingEnabled || appMode === "campus"
 
   const [detailsOpen, setDetailsOpen] = useState(false)
   const [isStarting, setIsStarting] = useState(false)
@@ -49,7 +53,7 @@ export default function RouteDisplay() {
   const logNavigationStart = (source: "cached_location" | "gps" | "manual_fallback") => {
     void logContextEvent("navigation_start", {
       spot_id: destination.spot_id,
-      travel_mode: campusRoutingEnabled ? travelMode : "walking",
+      travel_mode: walkingOnly ? "walking" : travelMode,
       campus_routing_enabled: campusRoutingEnabled,
       source,
     }).catch(() => undefined)
@@ -148,16 +152,18 @@ export default function RouteDisplay() {
       </div>
 
       <div className="flex gap-2 px-3.5 py-2.5 flex-wrap">
-        {!campusRoutingEnabled && (
+        {walkingOnly && (
           <div className="w-full rounded-[10px] bg-maroon-light px-3 py-2 text-[11px] text-maroon">
-            Campus routing is off. Walking is used for campus directions.
+            {appMode === "campus"
+              ? "Campus Mode uses walking directions."
+              : "Campus routing is off. Walking is used for campus directions."}
           </div>
         )}
         {(["driving", "walking"] as const).map((mode) => {
           const icon = { driving: "bi-car-front-fill", walking: "bi-person-walking" }[mode]
           const label = { driving: "Driving", walking: "Walking" }[mode]
-          const active = (campusRoutingEnabled ? travelMode : "walking") === mode
-          const disabled = !campusRoutingEnabled && mode !== "walking"
+          const active = (walkingOnly ? "walking" : travelMode) === mode
+          const disabled = walkingOnly && mode !== "walking"
           return (
             <button
               key={mode}
@@ -226,9 +232,15 @@ export default function RouteDisplay() {
           <div className="text-[10px] font-bold uppercase tracking-[0.8px] text-text3 mb-2">Trip Details</div>
           {[
             { k: "Destination", v: destination.spot_name, maroon: false },
-            { k: "Parking Cost", v: priceLabel, maroon: true },
+            // Cost and type are parking concepts. A campus building destination
+            // has neither, so these rows are dropped rather than shown as "--".
+            ...(destination.cost !== null
+              ? [{ k: "Parking Cost", v: priceLabel, maroon: true }]
+              : []),
             { k: "Campus", v: destination.campus_location ?? "--", maroon: false },
-            { k: "Parking Type", v: destination.parking_type ?? "--", maroon: false },
+            ...(destination.parking_type !== null
+              ? [{ k: "Parking Type", v: destination.parking_type, maroon: false }]
+              : []),
           ].map(({ k, v, maroon }) => (
             <div key={k} className="flex justify-between py-1.5 border-b border-black/5 last:border-b-0">
               <span className="text-[12px] text-text2">{k}</span>

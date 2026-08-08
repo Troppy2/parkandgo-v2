@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { useUIStore, type MapStyle } from "../../../store/uiStore"
+import type { AppMode } from "../../../services/preferences.service"
 import { useAuthStore } from "../../../store/authStore"
 import { useMediaQuery } from "../../../hooks/useMediaQuery"
 import UserProfile from "./UserProfile"
@@ -9,7 +10,7 @@ import Preferences from "./Preferences"
 import PrivacyPolicyModal from "../../../components/PrivacyPolicyModal"
 
 export default function SettingsModal() {
-  const { settingsOpen, setSettingsOpen, mapStyle, setMapStyle } = useUIStore()
+  const { settingsOpen, setSettingsOpen, mapStyle, setMapStyle, appMode, setAppMode } = useUIStore()
   const { clearAuth } = useAuthStore()
   const isDesktop = useMediaQuery("(min-width: 768px)")
   const [privacyOpen, setPrivacyOpen] = useState(false)
@@ -73,6 +74,51 @@ export default function SettingsModal() {
 
         {/* Preferences toggles - Phase 17 component */}
         <Preferences />
+
+        {/* App mode: parking spots vs campus buildings */}
+        <div className="px-5 pt-3 pb-2">
+          <div className="text-[10px] font-bold uppercase tracking-[0.9px] text-text2 mb-3">
+            Mode
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              {
+                value: "parking",
+                label: "Parking Mode",
+                icon: "bi-p-square-fill",
+                hint: "Find a spot",
+              },
+              {
+                value: "campus",
+                label: "Campus Mode",
+                icon: "bi-building",
+                hint: "Walk to a building",
+              },
+            ].map(({ value, label, icon, hint }) => (
+              <button
+                key={value}
+                onClick={() => setAppMode(value as AppMode)}
+                aria-pressed={appMode === value}
+                className={`flex flex-col items-center gap-1.5 p-3 rounded-[12px] border-[1.5px] transition-colors ${
+                  appMode === value
+                    ? "border-maroon bg-maroon-light"
+                    : "border-black/9 bg-white"
+                }`}
+              >
+                <i className={`bi ${icon} text-xl ${
+                  appMode === value ? "text-maroon" : "text-text2"
+                }`} />
+                <span className={`text-[11px] font-semibold ${
+                  appMode === value ? "text-maroon" : "text-text2"
+                }`}>
+                  {label}
+                </span>
+                <span className="text-[10px] text-text3">{hint}</span>
+              </button>
+            ))}
+          </div>
+        </div>
 
         {/* Map Style picker - the main new thing in Phase 19 */}
         <div className="px-5 pt-3 pb-2">
