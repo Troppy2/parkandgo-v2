@@ -12,26 +12,40 @@ from app.repositories.recommendation_context_log_repository import (
 )
 from app.schemas.parking_history import ParkingHistoryCreate, ParkingHistoryResponse
 from app.schemas.recommendation_context_log import (
+    ContextLogAck,
     RecommendationContextLogCreate,
-    RecommendationContextLogResponse,
 )
+from app.services.consent_service import has_consent
 
 router = APIRouter(prefix="/logging", tags=["logging"])
 history_router = APIRouter(prefix="/history", tags=["history"])
 
 
-@router.post("/context", response_model=RecommendationContextLogResponse, status_code=201)
+@router.post("/context", response_model=ContextLogAck, status_code=201)
 async def create_context_log(
     body: RecommendationContextLogCreate,
     user: User | None = Depends(get_optional_user),
     db: AsyncSession = Depends(get_db),
 ):
+    """
+    Record an analytics context event, if and only if the server says the user
+    has granted data consent.
+
+    Consent is read from the database, never from the request body or the
+    X-Data-Consent header, so a client cannot opt itself in. Guests and
+    unauthenticated callers always fail closed. The endpoint still returns 201
+    when nothing is stored, so callers need no new error handling.
+    """
+    if not await has_consent(db, user):
+        return ContextLogAck(stored=False, log_id=None)
+
     repo = RecommendationContextLogRepository(db)
-    return await repo.create_log(
+    log = await repo.create_log(
         action=body.action,
         context_data=body.context_data,
         user_id=user.user_id if user else None,
     )
+    return ContextLogAck(stored=True, log_id=log.log_id)
 
 
 @history_router.get("/me", response_model=list[ParkingHistoryResponse])
@@ -49,9 +63,19 @@ async def create_history(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    """
+    Record a parking history row for the signed in user.
+
+    The row is always written: this is the user's own parking history, a
+    product feature, not analytics. What consent controls is `consent_flag`,
+    which marks whether the row may be used for analytics and recommendations.
+    That flag is stamped from the server's stored consent and any value sent by
+    the client is ignored.
+    """
     repo = ParkingHistoryRepository(db)
     payload = body.model_dump()
     if payload.get("start_time") is None:
         payload["start_time"] = datetime.now(timezone.utc)
+    payload["consent_flag"] = await has_consent(db, current_user)
     history = await repo.create_history(current_user.user_id, ParkingHistoryCreate(**payload))
     return history

@@ -5,10 +5,73 @@ from app.api.deps import get_current_user
 from app.models.user import User
 from app.schemas.user import UserProfileUpdate, UserResponse
 from app.schemas.saved_spot import SavedSpotCreate, SavedSpotRename, SavedSpotResponse
+from app.schemas.user_preferences import (
+    ConsentResponse,
+    ConsentUpdate,
+    UserPreferencesResponse,
+    UserPreferencesUpdate,
+)
 from app.repositories.saved_spot_repository import SavedSpotRepository
 from app.repositories.parking_repository import ParkingRepository
+from app.repositories.user_preferences_repository import UserPreferencesRepository
 
 router = APIRouter(prefix="/users", tags=["users"])
+
+
+@router.get("/me/preferences", response_model=UserPreferencesResponse)
+async def get_preferences(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Return the current user's preferences, creating defaults on first read.
+
+    This is the value the client should treat as authoritative on app load.
+    """
+    repo = UserPreferencesRepository(db)
+    return await repo.get_or_create(current_user.user_id)
+
+
+@router.patch("/me/preferences", response_model=UserPreferencesResponse)
+async def update_preferences(
+    body: UserPreferencesUpdate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Update ordinary preferences. Only provided fields change.
+
+    data_consent is not accepted here, the schema forbids extra keys so an
+    attempt to set it returns 422. Use PUT /users/me/preferences/consent.
+    """
+    repo = UserPreferencesRepository(db)
+    return await repo.update(current_user.user_id, body)
+
+
+@router.put("/me/preferences/consent", response_model=ConsentResponse)
+async def set_data_consent(
+    body: ConsentUpdate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Grant or revoke data consent. Every real transition appends a ConsentEvent.
+
+    This is the only way consent changes, which is what makes the audit trail
+    complete and the flag trustworthy for collection decisions.
+    """
+    repo = UserPreferencesRepository(db)
+    prefs, changed = await repo.set_consent(
+        current_user.user_id,
+        granted=body.granted,
+        client_platform=body.client_platform,
+    )
+    return ConsentResponse(
+        user_id=prefs.user_id,
+        data_consent=prefs.data_consent,
+        changed=changed,
+        updated_at=prefs.updated_at,
+    )
 
 
 @router.patch("/me", response_model=UserResponse)

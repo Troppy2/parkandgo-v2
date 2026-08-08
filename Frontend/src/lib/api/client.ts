@@ -30,10 +30,9 @@ client.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
-  const dataConsent = localStorage.getItem("parkandgo-data-consent")
-  if (dataConsent !== null) {
-    config.headers["X-Data-Consent"] = dataConsent
-  }
+  // No consent header is sent. Consent is decided server side from the user's
+  // stored preferences, so a client-supplied value would be meaningless at
+  // best and misleading at worst. See Backend/app/services/consent_service.py.
   return config
 })
 

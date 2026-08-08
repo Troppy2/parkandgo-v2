@@ -7,6 +7,8 @@ from app.models.spot_reviews import SpotReview
 from app.models.parking_history import ParkingHistory
 from app.models.recommendation_context_log import RecommendationContextLog
 from app.models.user_private_spots import UserPrivateSpot
+from app.models.user_preferences import UserPreferences
+from app.models.consent_event import ConsentEvent
 
 __all__ = [
     "User",
@@ -18,4 +20,6 @@ __all__ = [
     "ParkingHistory",
     "RecommendationContextLog",
     "UserPrivateSpot",
+    "UserPreferences",
+    "ConsentEvent",
 ]

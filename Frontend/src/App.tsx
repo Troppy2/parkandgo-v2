@@ -30,6 +30,7 @@ function AuthGate({ children }: { children: ReactNode }) {
   const token = useAuthStore((state) => state.token)
   const setAuth = useAuthStore((state) => state.setAuth)
   const clearAuth = useAuthStore((state) => state.clearAuth)
+  const syncPreferencesFromServer = useUIStore((state) => state.syncPreferencesFromServer)
   const [isBootstrappingAuth, setIsBootstrappingAuth] = useState(true)
 
   // After hydration: reconcile auth from token if persisted state is incomplete or stale.
@@ -74,6 +75,14 @@ function AuthGate({ children }: { children: ReactNode }) {
     }
   }, [isReady, isAuthenticated, isGuest, user, token, setAuth, clearAuth])
 
+  // Once auth has settled, pull the authoritative preferences for this account.
+  // Server wins over the local cache, which is what makes the app look the same
+  // on a second device and stops a stale local value from resurfacing.
+  useEffect(() => {
+    if (isBootstrappingAuth || !isAuthenticated) return
+    void syncPreferencesFromServer()
+  }, [isBootstrappingAuth, isAuthenticated, syncPreferencesFromServer])
+
   if (!isReady || isBootstrappingAuth) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white text-[#7A0019]">
@@ -95,11 +104,6 @@ function App() {
   const [maxAttempts] = useState(5)
   const [nextDelayMs, setNextDelayMs] = useState(0)
   const setOffline = useUIStore((state) => state.setOffline)
-  const dataConsent = useUIStore((state) => state.dataConsent)
-
-  useEffect(() => {
-    localStorage.setItem("parkandgo-data-consent", dataConsent ? "true" : "false")
-  }, [dataConsent])
 
   // Sync network status into global UI store so any component can read it.
   useEffect(() => {

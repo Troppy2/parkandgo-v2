@@ -27,7 +27,6 @@ export default function ParkingSpotCard({ spot, details }: ParkingSpotCardProps)
   const beginNavigation = useNavStore((s) => s.beginNavigation)
   const setTravelMode = useNavStore((s) => s.setTravelMode)
   const showToast = useUIStore((s) => s.showToast)
-  const dataConsent = useUIStore((s) => s.dataConsent)
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
   const queryClient = useQueryClient()
 
@@ -60,7 +59,6 @@ export default function ParkingSpotCard({ spot, details }: ParkingSpotCardProps)
       createParkingHistory({
         spot_id: spot.spot_id,
         start_time: new Date().toISOString(),
-        consent_flag: dataConsent,
       }),
   })
 

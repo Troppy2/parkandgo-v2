@@ -14,6 +14,8 @@ from app.models import (  # noqa: F401
     parking_history,
     recommendation_context_log,
     user_private_spots,
+    user_preferences,
+    consent_event,
 )
 from app.core.database import Base
 from app.core.config import settings

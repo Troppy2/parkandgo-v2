@@ -84,10 +84,6 @@ export default function Preferences() {
         })
     }, [])
 
-    useEffect(() => {
-        localStorage.setItem("parkandgo-data-consent", dataConsent ? "true" : "false")
-    }, [dataConsent])
-
     const handleTTSToggle = () => {
         const next = !ttsEnabled
         setTTSEnabled(next)
@@ -127,8 +123,9 @@ export default function Preferences() {
 
     const handleConsentToggle = () => {
         const next = !dataConsent
+        // setDataConsent writes through to the audited consent endpoint and
+        // rolls back if the server rejects it.
         setDataConsent(next)
-        localStorage.setItem("parkandgo-data-consent", next ? "true" : "false")
         void logContextEvent("user_action", {
             setting: "data_consent",
             enabled: next,

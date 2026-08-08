@@ -1,6 +1,14 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 import type { Map as MaplibreMap } from "maplibre-gl"
+import {
+  fetchPreferences,
+  setDataConsent as pushDataConsent,
+  updatePreferences,
+  type PreferencesPatch,
+  type ServerPreferences,
+} from "../services/preferences.service"
+import { useAuthStore } from "./authStore"
 
 // Toast type (already exists from Phase 11)
 interface Toast {
@@ -57,17 +65,48 @@ interface UIState {
   // ── Network status ──
   isOffline: boolean
   setOffline: (offline: boolean) => void
+
+  // ── Server preference sync ──
+  // Pull the authoritative preferences for a signed-in user. Server wins, so
+  // this overwrites whatever the local cache held.
+  syncPreferencesFromServer: () => Promise<void>
   // ── Kojo AI assistant ──
   //To-Do
 
 
 }
 
-// persist middleware wraps create() and saves specified fields to localStorage
-// This is how mapStyle and preferences survive a page refresh
+// Push a preference change to the server for signed-in users.
+//
+// Guests have no account, so their preferences stay local only. Failures are
+// swallowed on purpose: a preference toggle must never block the UI, and the
+// next successful sync reconciles from the server anyway.
+function pushPreference(patch: PreferencesPatch): void {
+  const { isAuthenticated } = useAuthStore.getState()
+  if (!isAuthenticated) return
+  void updatePreferences(patch).catch(() => undefined)
+}
+
+// Map a server preferences payload onto local state.
+function fromServer(prefs: ServerPreferences) {
+  return {
+    dataConsent: prefs.data_consent,
+    mapStyle: prefs.map_style,
+    verifiedOnly: prefs.verified_only,
+    directionsOnly: prefs.directions_only,
+    darkMode: prefs.dark_mode,
+    ttsEnabled: prefs.tts_enabled,
+    selectedTTSVoice: prefs.selected_tts_voice,
+    campusRoutingEnabled: prefs.campus_routing_enabled,
+  }
+}
+
+// persist middleware wraps create() and saves specified fields to localStorage.
+// localStorage is only a cache now: for signed-in users the server is the
+// authority and syncPreferencesFromServer overwrites it on load.
 export const useUIStore = create<UIState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       // Toasts
       toasts: [],
       showToast: (message, type) => set((state) => ({
@@ -95,23 +134,69 @@ export const useUIStore = create<UIState>()(
 
       // Map style
       mapStyle: "standard",
-      setMapStyle: (style) => set({ mapStyle: style }),
+      setMapStyle: (style) => {
+        set({ mapStyle: style })
+        pushPreference({ map_style: style })
+      },
 
-      // Preferences
+      // Preferences - each setter updates locally for an instant response and
+      // writes through to the server so other devices pick the change up.
       verifiedOnly: false,
-      setVerifiedOnly: (v) => set({ verifiedOnly: v }),
+      setVerifiedOnly: (v) => {
+        set({ verifiedOnly: v })
+        pushPreference({ verified_only: v })
+      },
       directionsOnly: false,
-      setDirectionsOnly: (v) => set({ directionsOnly: v }),
+      setDirectionsOnly: (v) => {
+        set({ directionsOnly: v })
+        pushPreference({ directions_only: v })
+      },
       darkMode: false,
-      setDarkMode: (v) => set({ darkMode: v }),
+      setDarkMode: (v) => {
+        set({ darkMode: v })
+        pushPreference({ dark_mode: v })
+      },
+
+      // Consent is not an ordinary preference. It goes through its own audited
+      // endpoint, and the server's answer wins: if the write fails we roll the
+      // local value back rather than showing a consent state the server does
+      // not actually have.
       dataConsent: false,
-      setDataConsent: (v) => set({ dataConsent: v }),
+      setDataConsent: (v) => {
+        const previous = get().dataConsent
+        set({ dataConsent: v })
+        if (!useAuthStore.getState().isAuthenticated) return
+        void pushDataConsent(v)
+          .then((result) => set({ dataConsent: result.data_consent }))
+          .catch(() => set({ dataConsent: previous }))
+      },
+
       ttsEnabled: false,
-      setTTSEnabled: (v) => set({ ttsEnabled: v }),
+      setTTSEnabled: (v) => {
+        set({ ttsEnabled: v })
+        pushPreference({ tts_enabled: v })
+      },
       selectedTTSVoice: null,
-      setSelectedTTSVoice: (voiceName) => set({ selectedTTSVoice: voiceName }),
+      setSelectedTTSVoice: (voiceName) => {
+        set({ selectedTTSVoice: voiceName })
+        pushPreference({ selected_tts_voice: voiceName })
+      },
       campusRoutingEnabled: true,
-      setCampusRoutingEnabled: (v) => set({ campusRoutingEnabled: v }),
+      setCampusRoutingEnabled: (v) => {
+        set({ campusRoutingEnabled: v })
+        pushPreference({ campus_routing_enabled: v })
+      },
+
+      // Server sync
+      syncPreferencesFromServer: async () => {
+        if (!useAuthStore.getState().isAuthenticated) return
+        try {
+          set(fromServer(await fetchPreferences()))
+        } catch {
+          // Offline or the request failed. Keep the cached values; the next
+          // load tries again.
+        }
+      },
 
       // Map instance - never persisted, recreated on mount
       mapInstance: null,
@@ -138,3 +223,19 @@ export const useUIStore = create<UIState>()(
     }
   )
 )
+
+// Keep tabs in step.
+//
+// persist writes every field in partialize as one blob. Without this listener a
+// tab that has been open since before a change still holds the old values in
+// memory, and the next preference toggle in that tab rewrites the whole blob
+// from its stale state, silently reverting the other tab's change. That is the
+// mechanism behind data consent appearing to switch itself off. Rehydrating on
+// the storage event means a tab always writes from current values.
+if (typeof window !== "undefined") {
+  window.addEventListener("storage", (event) => {
+    if (event.key === "parkandgo-ui") {
+      void useUIStore.persist.rehydrate()
+    }
+  })
+}

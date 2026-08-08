@@ -16,3 +16,16 @@ class RecommendationContextLogResponse(RecommendationContextLogCreate):
     updated_at: Optional[datetime] = None
 
     model_config = {"from_attributes": True}
+
+
+class ContextLogAck(BaseModel):
+    """
+    Acknowledgement for a context log submission.
+
+    The endpoint always succeeds so callers need no new error handling, but
+    `stored` reports whether the row was actually persisted. It is False when
+    the user has not granted data consent, including for guests.
+    """
+
+    stored: bool
+    log_id: Optional[int] = None

@@ -1,10 +1,11 @@
 import apiClient from "../../../lib/api/client"
 import { ENDPOINTS } from "../../../lib/api/endpoints"
 
+// consent_flag is intentionally absent. The server stamps it from the user's
+// stored consent and ignores anything the client sends.
 export interface ParkingHistoryCreatePayload {
   spot_id: number
   start_time: string
-  consent_flag: boolean
 }
 
 export async function createParkingHistory(payload: ParkingHistoryCreatePayload): Promise<{ history_id: number }> {

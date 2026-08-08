@@ -26,6 +26,8 @@ export const ENDPOINTS = {
   USERS: {
     ME:    "/users/me",
     SAVED: (spotId?: number) => spotId !== undefined ? `/users/me/saved/${spotId}` : "/users/me/saved",
+    PREFERENCES: "/users/me/preferences",
+    CONSENT: "/users/me/preferences/consent",
   },
   PRIVATE_SPOTS: {
     BASE: "/private-spots/",

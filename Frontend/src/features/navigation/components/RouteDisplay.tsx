@@ -28,7 +28,6 @@ export default function RouteDisplay() {
     setCurrentUserLocation,
     setRouteError,
   } = useNavStore()
-  const dataConsent = useUIStore((s) => s.dataConsent)
   const campusRoutingEnabled = useUIStore((s) => s.campusRoutingEnabled)
 
   const [detailsOpen, setDetailsOpen] = useState(false)
@@ -41,7 +40,6 @@ export default function RouteDisplay() {
       await createParkingHistory({
         spot_id: destination.spot_id,
         start_time: new Date().toISOString(),
-        consent_flag: dataConsent,
       })
     } catch {
       // Keep navigation non-blocking if history logging fails.
