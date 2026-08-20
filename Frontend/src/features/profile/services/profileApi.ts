@@ -35,3 +35,10 @@ export async function renameSpot(spotId: number, customName: string): Promise<Sa
   })
   return data
 }
+
+// Permanently delete the current user's account - DELETE /users/me - 204 No Content.
+// Irreversible. The caller is responsible for clearing auth afterwards, since the
+// tokens still parse but now name a user that no longer exists.
+export async function deleteAccount(): Promise<void> {
+  await apiClient.delete(ENDPOINTS.USERS.ME)
+}

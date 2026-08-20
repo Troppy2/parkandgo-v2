@@ -8,12 +8,16 @@ import SavedSpotsList from "./SavedSpotsList"
 import PrivateSpotsList from "./PrivateSpotsList"
 import Preferences from "./Preferences"
 import PrivacyPolicyModal from "../../../components/PrivacyPolicyModal"
+import TermsOfServiceModal from "../../../components/TermsOfServiceModal"
+import DeleteAccountModal from "./DeleteAccountModal"
 
 export default function SettingsModal() {
   const { settingsOpen, setSettingsOpen, mapStyle, setMapStyle, appMode, setAppMode } = useUIStore()
-  const { clearAuth } = useAuthStore()
+  const { clearAuth, isGuest } = useAuthStore()
   const isDesktop = useMediaQuery("(min-width: 768px)")
   const [privacyOpen, setPrivacyOpen] = useState(false)
+  const [termsOpen, setTermsOpen] = useState(false)
+  const [deleteOpen, setDeleteOpen] = useState(false)
   const [isMinimizedForSpecialSpot, setIsMinimizedForSpecialSpot] = useState(false)
 
   // Body scroll lock + Escape key
@@ -21,14 +25,14 @@ export default function SettingsModal() {
     if (!settingsOpen) return
     document.body.style.overflow = "hidden"
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && !privacyOpen) setSettingsOpen(false)
+      if (e.key === "Escape" && !privacyOpen && !termsOpen && !deleteOpen) setSettingsOpen(false)
     }
     document.addEventListener("keydown", handleKeyDown)
     return () => {
       document.body.style.overflow = ""
       document.removeEventListener("keydown", handleKeyDown)
     }
-  }, [settingsOpen, privacyOpen, setSettingsOpen])
+  }, [settingsOpen, privacyOpen, termsOpen, deleteOpen, setSettingsOpen])
 
   // Don't render at all when closed - saves memory
   if (!settingsOpen) return null
@@ -167,12 +171,21 @@ export default function SettingsModal() {
             <div className="flex-1">
               <div className="text-[13px] font-medium text-text1">Park & Go</div>
               <div className="text-[11px] text-text2">Version 2.0 · UMN Campus</div>
-              <button
-                onClick={() => setPrivacyOpen(true)}
-                className="text-[11px] text-blue-600 underline cursor-pointer hover:text-blue-800 transition-colors block mt-0.5"
-              >
-                Privacy Policy
-              </button>
+              <div className="flex items-center gap-2 mt-0.5">
+                <button
+                  onClick={() => setPrivacyOpen(true)}
+                  className="text-[11px] text-blue-600 underline cursor-pointer hover:text-blue-800 transition-colors"
+                >
+                  Privacy Policy
+                </button>
+                <span className="text-[11px] text-text2">&middot;</span>
+                <button
+                  onClick={() => setTermsOpen(true)}
+                  className="text-[11px] text-blue-600 underline cursor-pointer hover:text-blue-800 transition-colors"
+                >
+                  Terms of Service
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -187,6 +200,15 @@ export default function SettingsModal() {
           Sign Out
         </button>
 
+        {!isGuest && (
+          <button
+            onClick={() => setDeleteOpen(true)}
+            className="block mx-auto mb-4 text-[11px] text-text2 underline hover:text-maroon transition-colors"
+          >
+            Delete my account
+          </button>
+        )}
+
 
       </div>
     </div>
@@ -195,6 +217,18 @@ export default function SettingsModal() {
   return (
     <>
       {privacyOpen && <PrivacyPolicyModal onClose={() => setPrivacyOpen(false)} />}
+      {termsOpen && <TermsOfServiceModal onClose={() => setTermsOpen(false)} />}
+      {deleteOpen && (
+        <DeleteAccountModal
+          onClose={() => setDeleteOpen(false)}
+          onDeleted={() => {
+            // The account is gone, so the stored tokens now name nobody.
+            setDeleteOpen(false)
+            clearAuth()
+            setSettingsOpen(false)
+          }}
+        />
+      )}
 
       {isDesktop ? (
         // ── Desktop layout - centered modal overlay ──

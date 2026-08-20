@@ -17,6 +17,7 @@ from app.repositories.parking_repository import ParkingRepository
 from app.repositories.user_preferences_repository import UserPreferencesRepository
 from app.repositories.campus_building_repository import CampusBuildingRepository
 from app.repositories.saved_building_repository import SavedBuildingRepository
+from app.services.account_deletion_service import delete_user_account
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -89,6 +90,27 @@ async def update_profile(
         setattr(current_user, field, value)
     await db.flush()
     return current_user
+
+
+@router.delete("/me", status_code=204)
+async def delete_my_account(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Permanently delete the signed in user and all personal data attached to it.
+
+    Irreversible, and deliberately available in the app rather than only by
+    emailing a human: an account you can create in two taps should not take a
+    support request to remove. What exactly is deleted, anonymized, or kept
+    lives in `app/services/account_deletion_service.py`, which is the module
+    the privacy policy is written against.
+
+    204 with no body. The client is expected to drop its tokens afterwards,
+    since they now authenticate a user that no longer exists.
+    """
+    await delete_user_account(db, current_user)
+    return None
 
 
 @router.get("/me/saved", response_model=list[SavedSpotResponse])
