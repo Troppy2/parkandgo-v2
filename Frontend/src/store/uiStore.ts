@@ -15,7 +15,9 @@ import { useAuthStore } from "./authStore"
 interface Toast {
   id: string
   message: string
-  type: "success" | "error"
+  // "info" carries progress, not failure: a slow route is not a broken one, and
+  // a red toast for it reads as an error that has not happened.
+  type: "success" | "error" | "info"
 }
 
 // Map style type - three options
@@ -24,7 +26,7 @@ export type MapStyle = "standard" | "satellite" | "3d"
 interface UIState {
   // ── Toasts ──
   toasts: Toast[]
-  showToast: (message: string, type: "success" | "error") => void
+  showToast: (message: string, type: "success" | "error" | "info") => void
   removeToast: (id: string) => void
 
   // ── Tab state ──
@@ -69,6 +71,13 @@ interface UIState {
   // ── Map instance (from Phase 18) ──
   mapInstance: MaplibreMap | null
   setMapInstance: (map: MaplibreMap) => void
+
+  // ── Navigation panel height ──
+  // Measured height of the route panel that overlays the bottom of the map, so
+  // the camera can pad for it and keep the destination in the visible strip.
+  // Zero whenever the panel is not on screen.
+  navPanelHeight: number
+  setNavPanelHeight: (height: number) => void
 
   // ── Network status ──
   isOffline: boolean
@@ -218,6 +227,10 @@ export const useUIStore = create<UIState>()(
       // Map instance - never persisted, recreated on mount
       mapInstance: null,
       setMapInstance: (map) => set({ mapInstance: map }),
+
+      // Panel height - never persisted, measured from the DOM on each mount
+      navPanelHeight: 0,
+      setNavPanelHeight: (height) => set({ navPanelHeight: height }),
 
       // Network status - never persisted, derived from browser events on mount
       isOffline: false,

@@ -2,13 +2,19 @@ import { useEffect } from "react"
 import { useUIStore } from "../../store/uiStore"
 import clsx from "clsx"
 
+const TOAST_STYLES = {
+  success: { background: "#10b981", icon: "bi-check-circle-fill" },
+  error: { background: "#ff3b30", icon: "bi-exclamation-circle" },
+  info: { background: "#7A0019", icon: "bi-info-circle-fill" },
+} as const
+
 function ToastItem({
   message,
   type,
   id,
 }: {
   message: string
-  type: "success" | "error"
+  type: "success" | "error" | "info"
   id: string
 }) {
   const removeToast = useUIStore((s) => s.removeToast)
@@ -26,9 +32,9 @@ function ToastItem({
         "text-[13px] font-medium text-white",
         "animate-slide-up pointer-events-auto",
       )}
-      style={{ background: type === "success" ? "#10b981" : "#ff3b30" }}
+      style={{ background: TOAST_STYLES[type].background }}
     >
-      <i className={`bi ${type === "success" ? "bi-check-circle-fill" : "bi-exclamation-circle"} flex-shrink-0`} />
+      <i className={`bi ${TOAST_STYLES[type].icon} flex-shrink-0`} />
       <span className="flex-1">{message}</span>
       <button
         onClick={() => removeToast(id)}
