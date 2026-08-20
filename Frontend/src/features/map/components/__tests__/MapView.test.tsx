@@ -505,6 +505,27 @@ describe("MapView navigation camera", () => {
     expect(options).not.toHaveProperty("bearing");
   });
 
+  // The button was invisible on phones while looking fine on desktop. It was
+  // absolutely positioned inside a h-screen box, and on mobile browsers 100vh
+  // is the large viewport, taller than what is on screen, so "bottom" was
+  // measured from a point underneath the browser chrome. The route panel is
+  // fixed, so the button has to be fixed too for the two to stay a fixed
+  // distance apart.
+  it("anchors Recenter to the visible viewport, above the route panel", async () => {
+    await startGuidance();
+
+    const pauseFollow = onMock.mock.calls.find((c) => c[0] === "dragstart")?.[1] as
+      (e: { originalEvent?: unknown }) => void;
+    act(() => { pauseFollow({ originalEvent: {} }); });
+
+    const pill = screen.getByTitle("Recenter on my location").closest("div");
+    expect(pill?.className).toContain("fixed");
+    expect(pill?.className).not.toContain("absolute");
+    // The panel is z-50, so anything lower hides the button behind the sheet
+    // rather than merely putting it in the wrong place.
+    expect(pill?.className).toContain("z-[60]");
+  });
+
   it("stops following after a manual pan and resumes from Recenter", async () => {
     const { move } = await startGuidance();
 

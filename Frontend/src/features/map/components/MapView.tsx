@@ -863,10 +863,25 @@ export default function MapView() {
             <RouteLayer map={mapReady} userLocation={userLocation?.coords ?? null} />
 
             {/* Recenter, offered only once a manual pan has stopped the camera
-                following. Sits above the route panel so it stays reachable. */}
+                following. Sits above the route panel so it stays reachable.
+
+                Fixed, not absolute. Its container is the map wrapper, which
+                fills a `h-screen` root: on mobile browsers 100vh is the LARGE
+                viewport, taller than what is actually on screen, because the
+                address bar and the system nav bar overlay it. Measuring
+                `bottom` from the foot of that box put the button underneath the
+                browser chrome, so on a phone it was simply never visible, while
+                on desktop, where the two viewports agree, it looked fine. The
+                route panel is fixed and therefore anchored to the viewport the
+                user can actually see, so the button has to be too or the two
+                cannot stay a fixed distance apart.
+
+                z-60 rather than z-10 for the same reason: the panel is z-50, so
+                anything less means a wrong offset hides the button behind the
+                sheet instead of merely misplacing it. */}
             {isNavigating && hasStartedNavigation && followPaused && (
                 <ControlPill
-                    className="absolute right-3 z-10"
+                    className="fixed right-3 z-[60]"
                     style={{ bottom: `calc(${navPanelHeight}px + 1rem)` }}
                 >
                     <ControlButton onClick={handleRecenter} title="Recenter on my location">
