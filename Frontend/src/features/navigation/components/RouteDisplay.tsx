@@ -1,10 +1,12 @@
-import { useState } from "react"
+import { useCallback, useRef, useState } from "react"
 
 import { useNavStore } from "../../../store/navStore"
 import { useUIStore } from "../../../store/uiStore"
 import { createParkingHistory, logContextEvent } from "../services/navigationApi"
 import { formatEta } from "../utils/formatEta"
 import { formatParkingCost } from "../../../lib/parking/formatters"
+import RoutePlanner from "./RoutePlanner"
+import RouteOptions from "./RouteOptions"
 
 const START_GEOLOCATION_OPTIONS = {
   enableHighAccuracy: false,
@@ -34,8 +36,37 @@ export default function RouteDisplay() {
   // Reuses the existing walking lock rather than adding a parallel mechanism.
   const walkingOnly = !campusRoutingEnabled || appMode === "campus"
 
+  const setNavPanelHeight = useUIStore((s) => s.setNavPanelHeight)
+
   const [detailsOpen, setDetailsOpen] = useState(false)
   const [isStarting, setIsStarting] = useState(false)
+
+  // Report this panel's height so the map can pad its camera for it.
+  //
+  // A callback ref rather than useRef + useEffect: the component returns null
+  // until there is a destination, so an effect would fire while the node is
+  // still absent and never see it appear. The height is not a constant either,
+  // the walking banner, the Cancel/Start row and the details drawer all change
+  // it, hence the observer instead of a one-shot measurement.
+  const observerRef = useRef<ResizeObserver | null>(null)
+  const panelRef = useCallback((node: HTMLDivElement | null) => {
+    observerRef.current?.disconnect()
+    observerRef.current = null
+
+    if (!node) {
+      setNavPanelHeight(0)
+      return
+    }
+
+    // borderBoxSize, not contentRect: the panel's safe-area bottom padding
+    // covers the map just as much as its content does.
+    const observer = new ResizeObserver(() => {
+      setNavPanelHeight(node.getBoundingClientRect().height)
+    })
+    observer.observe(node)
+    observerRef.current = observer
+    setNavPanelHeight(node.getBoundingClientRect().height)
+  }, [setNavPanelHeight])
 
   if (!isNavigating || !destination) return null
 
@@ -111,8 +142,13 @@ export default function RouteDisplay() {
     : `${formattedCost} / hr`
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-[22px] shadow-[0_-4px_20px_rgba(0,0,0,0.12)] overflow-hidden pb-safe">
-      <div className="grid grid-cols-3 gap-2 p-4 pb-0">
+    <div ref={panelRef} className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-[22px] shadow-[0_-4px_20px_rgba(0,0,0,0.12)] overflow-hidden pb-safe">
+      {/* The trip is editable up until Start. After that the panel is a
+          readout of a route being followed, and RoutePlanner would be offering
+          edits with nowhere sensible to apply them. */}
+      {!hasStartedNavigation && <RoutePlanner />}
+
+      <div className={`grid grid-cols-3 gap-2 px-3.5 pb-2.5 ${hasStartedNavigation ? "pt-3.5" : ""}`}>
         <div className="bg-[#f2f2f7] rounded-[10px] p-2.5 text-center">
           <div className="text-[9px] text-text3 uppercase tracking-[0.5px] mb-0.5">Distance</div>
           <div className="text-[18px] font-black leading-none text-maroon">
@@ -151,7 +187,14 @@ export default function RouteDisplay() {
         </div>
       </div>
 
-      <div className="flex gap-2 px-3.5 py-2.5 flex-wrap">
+      {/* Options sit directly under the numbers they change, and above the
+          travel-mode pills: picking a different route re-reads as new figures
+          in the tiles right above it. Hidden once guidance starts, since
+          switching the line you are being guided along mid-trip is a different
+          problem from choosing one before you set off. */}
+      {!hasStartedNavigation && <RouteOptions />}
+
+      <div className="flex gap-2 px-3.5 pb-2.5 flex-wrap">
         {walkingOnly && (
           <div className="w-full rounded-[10px] bg-maroon-light px-3 py-2 text-[11px] text-maroon">
             {appMode === "campus"

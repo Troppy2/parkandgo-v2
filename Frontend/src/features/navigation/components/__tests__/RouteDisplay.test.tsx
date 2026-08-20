@@ -75,10 +75,22 @@ describe("RouteDisplay", () => {
   })
 
   it("starts immediately when a watched location already exists", () => {
+    const previewRoute = {
+      coordinates: [
+        [-93.2277, 44.974],
+        [-93.2312, 44.9739],
+      ] as [number, number][],
+      steps: [],
+      totalDistanceMeters: 200,
+      totalDurationSeconds: 150,
+    }
+
     useNavStore.setState({
       isNavigating: true,
       destination: fakeSpot,
       currentUserLocation: { coords: [-93.2277, 44.974], heading: 0 },
+      route: previewRoute,
+      routeStatus: "ready",
     })
 
     renderRouteDisplay()
@@ -87,7 +99,10 @@ describe("RouteDisplay", () => {
 
     const state = useNavStore.getState()
     expect(state.hasStartedNavigation).toBe(true)
-    expect(state.routeStatus).toBe("loading")
+    // Start reuses the route the preview already fetched instead of re-routing,
+    // so the drawn line does not blink out as guidance begins.
+    expect(state.route).toBe(previewRoute)
+    expect(state.routeStatus).toBe("ready")
   })
 
   it("requests geolocation from the Start click before beginning navigation", async () => {
