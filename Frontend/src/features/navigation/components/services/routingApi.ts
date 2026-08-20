@@ -8,15 +8,39 @@ const OSRM_BASE = {
   cycling: "https://routing.openstreetmap.de/routed-bike/route/v1/bike",
 };
 
-const ROUTE_FETCH_TIMEOUT_MS = 4500;
+// One attempt gets 4 seconds, and a request gets three attempts. A route that
+// has not arrived in roughly nine seconds is not arriving, and the user is told
+// so rather than left watching a spinner.
+const ROUTE_ATTEMPTS = 3;
+export const ROUTE_ATTEMPT_TIMEOUT_MS = 4000;
+const ROUTE_RETRY_BACKOFF_MS = 400;
 
-const SPEED_MPH = {
-  driving: 25,
-  walking: 3,
-  cycling: 10,
-} as const;
+// How long a cached route is worth serving without asking the network again.
+// Roads do not move, and re-picking a spot you just looked at should be instant.
+const ROUTE_CACHE_TTL_MS = 5 * 60_000;
 
-const ROUTE_CACHE = new Map<string, RouteResult>();
+// How many options to ask OSRM for on a direct trip.
+//
+// Three is what fits the panel without the cards becoming a list to read. Note
+// that OSRM guarantees nothing here: the driving profile usually returns two or
+// three, while the foot and bike profiles routinely return one, because on a
+// pedestrian network most detours are the same length. A campus walk showing no
+// alternatives is the router being honest, not a bug.
+const MAX_ALTERNATIVES = 3;
+
+interface CachedRoute {
+  // Every option OSRM returned, best first. Cached together because they come
+  // from one request: serving the primary from cache and then re-fetching to
+  // show the alternatives would pay for the same answer twice.
+  routes: RouteResult[];
+  at: number;
+}
+
+const ROUTE_CACHE = new Map<string, CachedRoute>();
+
+// Requests currently in flight, keyed the same way as the cache, so two callers
+// asking for the same route share one request instead of racing each other.
+const IN_FLIGHT = new Map<string, Promise<RouteResult[]>>();
 
 interface OSRMStep {
   maneuver: {
@@ -124,108 +148,64 @@ function haversineDistanceMiles(
   return earthRadiusMiles * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-function buildFallbackRoute(
-  userLng: number,
-  userLat: number,
-  destLng: number,
-  destLat: number,
-  mode: keyof typeof SPEED_MPH,
-  notice: string
-): RouteResult {
-  const distanceMiles = haversineDistanceMiles(userLat, userLng, destLat, destLng);
-  const totalDistanceMeters = distanceMiles * 1609.34;
-  const totalDurationSeconds =
-    Math.max(1, Math.round((distanceMiles / SPEED_MPH[mode]) * 3600));
-
-  return {
-    coordinates: [
-      [userLng, userLat],
-      [destLng, destLat],
-    ],
-    steps: [
-      {
-        instruction: "Head toward your destination",
-        distance: formatDistance(totalDistanceMeters),
-        distanceMeters: totalDistanceMeters,
-        maneuverType: "depart",
-        maneuverModifier: "straight",
-        icon: "bi-arrow-up-circle-fill",
-        location: [userLng, userLat],
-      },
-      {
-        instruction: "You have arrived",
-        distance: "0 ft",
-        distanceMeters: 0,
-        maneuverType: "arrive",
-        maneuverModifier: "straight",
-        icon: "bi-p-circle-fill",
-        location: [destLng, destLat],
-      },
-    ],
-    totalDistanceMeters,
-    totalDurationSeconds,
-    source: "fallback",
-    notice,
-  };
-}
-
-export function createDirectRoutePreview(
-  userLng: number,
-  userLat: number,
-  destLng: number,
-  destLat: number,
-  mode: keyof typeof SPEED_MPH,
-  notice = "Loading live turn-by-turn directions..."
-): RouteResult {
-  return buildFallbackRoute(userLng, userLat, destLng, destLat, mode, notice);
-}
-
+// Every point goes into the key, intermediate stops included. Dropping them
+// would let two different trips through the same endpoints share one entry.
+//
+// The origin keeps its looser 4dp rounding (roughly 11 metres) because it comes
+// from live GPS and jitters; every point after it is a place the user picked, so
+// those are exact to 5dp and a different stop is always a different key.
 function buildCacheKey(
-  userLng: number,
-  userLat: number,
-  destLng: number,
-  destLat: number,
+  points: [number, number][],
   mode: keyof typeof OSRM_BASE
 ): string {
-  return [
-    mode,
-    userLng.toFixed(4),
-    userLat.toFixed(4),
-    destLng.toFixed(5),
-    destLat.toFixed(5),
-  ].join(":");
+  const parts = points.map(([lng, lat], i) => {
+    const precision = i === 0 ? 4 : 5;
+    return `${lng.toFixed(precision)},${lat.toFixed(precision)}`;
+  });
+  return [mode, ...parts].join(":");
 }
 
 function normalizeRoute(route: OSRMRoute): Pick<RouteResult, "coordinates" | "steps" | "totalDistanceMeters" | "totalDurationSeconds"> {
   const decoded = polyline.decode(route.geometry, 5);
   const coordinates: [number, number][] = decoded.map(([lat, lng]: [number, number]) => [lng, lat]);
 
-  const steps: RouteStep[] = route.legs[0].steps.map((step) => {
-    const type = step.maneuver.type;
-    const modifier = step.maneuver.modifier ?? "straight";
-    const streetName = step.name;
+  // Every leg, not just the first.
+  //
+  // OSRM splits the response at each waypoint, so a trip with one stop comes
+  // back as two legs. Reading legs[0] alone reported the distance, duration and
+  // turn list of the first leg as though it were the whole trip, which is
+  // invisible until a stop exists and then quietly wrong.
+  const steps: RouteStep[] = route.legs.flatMap((leg) =>
+    leg.steps.map((step) => {
+      const type = step.maneuver.type;
+      const modifier = step.maneuver.modifier ?? "straight";
+      const streetName = step.name;
 
-    return {
-      instruction: buildInstruction(type, modifier, streetName),
-      distance: formatDistance(step.distance),
-      distanceMeters: step.distance,
-      maneuverType: type,
-      maneuverModifier: modifier,
-      icon: getManeuverIcon(type, modifier),
-      location: step.maneuver.location,
-    };
-  });
+      return {
+        instruction: buildInstruction(type, modifier, streetName),
+        distance: formatDistance(step.distance),
+        distanceMeters: step.distance,
+        maneuverType: type,
+        maneuverModifier: modifier,
+        icon: getManeuverIcon(type, modifier),
+        location: step.maneuver.location,
+      };
+    })
+  );
 
   return {
     coordinates,
     steps,
-    totalDistanceMeters: route.legs[0].distance,
-    totalDurationSeconds: route.legs[0].duration,
+    totalDistanceMeters: route.legs.reduce((sum, leg) => sum + leg.distance, 0),
+    totalDurationSeconds: route.legs.reduce((sum, leg) => sum + leg.duration, 0),
   };
 }
 
 export function clearRouteCache() {
   ROUTE_CACHE.clear();
+  // In-flight promises are part of the cache from a caller's point of view: a
+  // test that clears one and not the other still gets served the old answer.
+  IN_FLIGHT.clear();
 }
 
 // Main function - call this when navigation starts
@@ -329,21 +309,34 @@ export function getRemainingRouteGeometry(
   };
 }
 
+export interface SnappedPosition {
+  /** Nearest point on the polyline. */
+  point: [number, number];
+  /** Compass bearing of the segment that point landed on, degrees clockwise from north. */
+  bearing: number;
+}
+
 /**
- * Snap [lng, lat] to the nearest point on a route polyline.
- * Uses cosine(lat) correction so east-west distances scale correctly.
+ * Snap [lng, lat] to the nearest point on a route polyline, and report the
+ * bearing of the segment it landed on.
+ *
+ * Uses cosine(lat) correction so east-west distances scale correctly. The
+ * bearing is what the navigation puck points at while driving: the raw GPS
+ * heading swings wildly at walking pace and at a red light, while the road the
+ * driver is on does not move at all.
  */
-export function snapToRoute(
+export function snapToRouteWithBearing(
   lngLat: [number, number],
   coordinates: [number, number][]
-): [number, number] {
-  if (coordinates.length === 0) return lngLat;
-  if (coordinates.length === 1) return coordinates[0];
+): SnappedPosition {
+  if (coordinates.length === 0) return { point: lngLat, bearing: 0 };
+  if (coordinates.length === 1) return { point: coordinates[0], bearing: 0 };
 
   const [pLng, pLat] = lngLat;
   const cosLat = Math.cos((pLat * Math.PI) / 180);
 
   let bestPoint: [number, number] = coordinates[0];
+  let bestBearing = 0;
   let bestDistSq = Infinity;
 
   for (let i = 0; i < coordinates.length - 1; i++) {
@@ -368,25 +361,46 @@ export function snapToRoute(
     if (distSq < bestDistSq) {
       bestDistSq = distSq;
       bestPoint = [snapLng, snapLat];
+      // Degenerate segments (a repeated coordinate) carry no direction, so keep
+      // whatever bearing the previous segment gave rather than snapping north.
+      if (segLenSq > 0) {
+        bestBearing = ((Math.atan2(dx, dy) * 180) / Math.PI + 360) % 360;
+      }
     }
   }
 
-  return bestPoint;
+  return { point: bestPoint, bearing: bestBearing };
 }
 
-export async function fetchRoute(
-  userLng: number,
-  userLat: number,
-  destLng: number,
-  destLat: number,
-  mode: keyof typeof OSRM_BASE = "walking"
-): Promise<RouteResult> {
-  const cacheKey = buildCacheKey(userLng, userLat, destLng, destLat, mode);
-  const base = OSRM_BASE[mode];
-  const coords = `${userLng},${userLat};${destLng},${destLat}`;
-  const url = `${base}/${coords}?overview=full&geometries=polyline&steps=true`;
+/**
+ * Snap [lng, lat] to the nearest point on a route polyline.
+ * Thin wrapper over snapToRouteWithBearing so there is one snapping implementation.
+ */
+export function snapToRoute(
+  lngLat: [number, number],
+  coordinates: [number, number][]
+): [number, number] {
+  return snapToRouteWithBearing(lngLat, coordinates).point;
+}
+
+/**
+ * Thrown when every attempt to route has failed and there is no cached route to
+ * fall back on. Callers surface this to the user rather than drawing a straight
+ * line: a line that ignores the roads is not directions, and offering one as if
+ * it were is worse than saying routing is unavailable.
+ */
+export class RouteUnavailableError extends Error {
+  constructor(message = "Could not load a route") {
+    super(message);
+    this.name = "RouteUnavailableError";
+  }
+}
+
+async function requestRoutes(
+  url: string
+): Promise<Array<Pick<RouteResult, "coordinates" | "steps" | "totalDistanceMeters" | "totalDurationSeconds">>> {
   const controller = new AbortController();
-  const timeoutId = window.setTimeout(() => controller.abort(), ROUTE_FETCH_TIMEOUT_MS);
+  const timeoutId = window.setTimeout(() => controller.abort(), ROUTE_ATTEMPT_TIMEOUT_MS);
 
   try {
     const res = await fetch(url, { signal: controller.signal });
@@ -397,34 +411,126 @@ export async function fetchRoute(
       throw new Error("OSRM returned no usable route");
     }
 
-    const normalized = normalizeRoute(data.routes[0]);
-    const route: RouteResult = {
-      ...normalized,
-      source: "network",
-      notice: null,
-    };
-
-    ROUTE_CACHE.set(cacheKey, route);
-    return route;
-  } catch (err) {
-    const cached = ROUTE_CACHE.get(cacheKey);
-    if (cached) {
-      return {
-        ...cached,
-        source: "cache",
-        notice: "Using your last successful route while live routing catches up.",
-      };
-    }
-
-    return buildFallbackRoute(
-      userLng,
-      userLat,
-      destLng,
-      destLat,
-      mode,
-      "Showing a simple direct route. Retry for turn-by-turn directions."
-    );
+    // OSRM orders its routes best first, and that order is preserved all the
+    // way to the cards in the panel.
+    return data.routes.map(normalizeRoute);
   } finally {
     clearTimeout(timeoutId);
   }
+}
+
+/**
+ * Route through an ordered list of points: origin first, destination last, any
+ * number of stops between them.
+ *
+ * OSRM already takes semicolon separated coordinates, so a trip with stops is
+ * one request rather than one per leg. That matters for more than round trips:
+ * routing each leg separately would let the router pick a different approach to
+ * a stop than the one it leaves by, and the seams would show as backtracking.
+ */
+export async function fetchRoutesVia(
+  points: [number, number][],
+  mode: keyof typeof OSRM_BASE = "walking"
+): Promise<RouteResult[]> {
+  if (points.length < 2) {
+    throw new RouteUnavailableError("A route needs a start and an end");
+  }
+
+  const cacheKey = buildCacheKey(points, mode);
+
+  // Serve a fresh cache entry without touching the network. This is the whole
+  // point of holding a cache: previously it was read only after a failure, so
+  // re-picking a spot from ten seconds ago still paid full network latency.
+  const cached = ROUTE_CACHE.get(cacheKey);
+  if (cached && Date.now() - cached.at < ROUTE_CACHE_TTL_MS) {
+    return cached.routes.map((route) => ({ ...route, source: "cache", notice: null }));
+  }
+
+  // Two callers asking for the same route share one request. Without this a
+  // re-render mid-flight starts a second identical fetch and both pay for it.
+  const existing = IN_FLIGHT.get(cacheKey);
+  if (existing) return existing;
+
+  const base = OSRM_BASE[mode];
+  const coords = points.map(([lng, lat]) => `${lng},${lat}`).join(";");
+
+  // Alternatives are asked for only on a direct trip. OSRM does not offer them
+  // once there are waypoints in between, so sending the parameter on a trip
+  // with stops would cost a longer URL for an answer that never varies.
+  const wantsAlternatives = points.length === 2;
+  const url =
+    `${base}/${coords}?overview=full&geometries=polyline&steps=true` +
+    (wantsAlternatives ? `&alternatives=${MAX_ALTERNATIVES}` : "");
+
+  const attempt = (async () => {
+    let lastError: unknown;
+
+    for (let i = 0; i < ROUTE_ATTEMPTS; i++) {
+      try {
+        const normalized = await requestRoutes(url);
+        const routes: RouteResult[] = normalized.map((route) => ({
+          ...route,
+          source: "network",
+          notice: null,
+        }));
+        ROUTE_CACHE.set(cacheKey, { routes, at: Date.now() });
+        return routes;
+      } catch (err) {
+        lastError = err;
+        if (i < ROUTE_ATTEMPTS - 1) {
+          await new Promise((resolve) => window.setTimeout(resolve, ROUTE_RETRY_BACKOFF_MS));
+        }
+      }
+    }
+
+    // Stale but real geometry still beats failing: it was routed along actual
+    // roads, and the only thing wrong with it is its age.
+    if (cached) {
+      return cached.routes.map((route) => ({
+        ...route,
+        source: "cache" as const,
+        notice: "Using your last successful route while live routing catches up.",
+      }));
+    }
+
+    throw new RouteUnavailableError(
+      lastError instanceof Error ? lastError.message : "Could not load a route",
+    );
+  })();
+
+  IN_FLIGHT.set(cacheKey, attempt);
+  try {
+    return await attempt;
+  } finally {
+    IN_FLIGHT.delete(cacheKey);
+  }
+}
+
+/** The best route only, for callers with nothing to do with alternatives. */
+export async function fetchRouteVia(
+  points: [number, number][],
+  mode: keyof typeof OSRM_BASE = "walking"
+): Promise<RouteResult> {
+  const [best] = await fetchRoutesVia(points, mode);
+  return best;
+}
+
+// Main function - call this when navigation starts.
+//
+// The two point case, which is still every trip without stops. Kept as its own
+// export so the many existing callers and their tests read the same as before.
+export async function fetchRoute(
+  userLng: number,
+  userLat: number,
+  destLng: number,
+  destLat: number,
+  mode: keyof typeof OSRM_BASE = "walking"
+): Promise<RouteResult> {
+  return fetchRouteVia(
+    [
+      [userLng, userLat],
+      [destLng, destLat],
+    ],
+    mode
+  );
 }
