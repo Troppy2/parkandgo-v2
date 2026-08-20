@@ -46,6 +46,12 @@ vi.mock('maplibre-gl', () => {
     setPitch = vi.fn()
     setBearing = vi.fn()
     once = vi.fn()
+    on = vi.fn()
+    off = vi.fn()
+    easeTo = vi.fn()
+    isMoving = vi.fn(() => false)
+    setPadding = vi.fn()
+    getContainer = vi.fn(() => document.createElement('div'))
     getStyle = vi.fn(() => ({ layers: [] }))
     addLayer = vi.fn()
     addSource = vi.fn()
@@ -148,6 +154,19 @@ function setupStores() {
     setNavOverlayVisible: vi.fn(),
     updateStats: vi.fn(),
     setTravelMode: vi.fn(),
+    origin: null,
+    stops: [],
+    setOrigin: vi.fn(),
+    routeOptions: [],
+    selectedRouteIndex: 0,
+    setRouteOptions: vi.fn(),
+    selectRoute: vi.fn(),
+    setDestination: vi.fn(),
+    addStop: vi.fn(),
+    setStopPlace: vi.fn(),
+    removeStop: vi.fn(),
+    moveStop: vi.fn(),
+    swapEndpoints: vi.fn(),
     setCurrentUserLocation: vi.fn(),
     setRoute: vi.fn(),
     setRouteError: vi.fn(),
@@ -326,6 +345,19 @@ describe('Phase 4 - Geolocation & Map Stability', () => {
         setNavOverlayVisible: vi.fn(),
         updateStats: vi.fn(),
         setTravelMode: vi.fn(),
+        origin: null,
+        stops: [],
+        setOrigin: vi.fn(),
+        routeOptions: [],
+        selectedRouteIndex: 0,
+        setRouteOptions: vi.fn(),
+        selectRoute: vi.fn(),
+        setDestination: vi.fn(),
+        addStop: vi.fn(),
+        setStopPlace: vi.fn(),
+        removeStop: vi.fn(),
+        moveStop: vi.fn(),
+        swapEndpoints: vi.fn(),
         setCurrentUserLocation: vi.fn(),
         setRoute: vi.fn(),
         setRouteError: vi.fn(),

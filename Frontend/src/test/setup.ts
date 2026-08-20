@@ -12,6 +12,20 @@ const localStorageMock = {
 }
 Object.defineProperty(globalThis, 'localStorage', { value: localStorageMock })
 
+// Stub ResizeObserver for components that measure themselves, such as
+// RouteDisplay reporting its height for the map camera padding (jsdom doesn't
+// implement it). Layout is never computed under jsdom, so observing is inert
+// and the observed elements simply report a height of zero.
+class ResizeObserverMock {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+Object.defineProperty(globalThis, 'ResizeObserver', {
+  writable: true,
+  value: ResizeObserverMock,
+})
+
 // Stub window.matchMedia for useMediaQuery hook (jsdom doesn't implement it)
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
