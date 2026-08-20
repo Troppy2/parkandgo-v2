@@ -4,6 +4,7 @@ import {
   getNearbyBuildings,
   searchCampusBuildings,
 } from "../services/campusBuildingsApi"
+import { useDebounce } from "../../../hooks/useDebounce"
 import type { CampusLocation } from "../../../types/parking.types"
 
 // Buildings only change when someone reruns the extraction script and ships a
@@ -18,13 +19,20 @@ export function useCampusBuildings(campus?: CampusLocation) {
   })
 }
 
-export function useCampusBuildingSearch(query: string) {
-  const trimmed = query.trim()
+/**
+ * Building lookup for the search bar.
+ *
+ * Debounce and minimum length deliberately match useSearch, because the search
+ * bar runs both queries side by side and shows their results as two sections of
+ * one dropdown. If the gates differed, one section would appear a keystroke
+ * before the other and the list would reflow under the user's finger.
+ */
+export function useCampusBuildingSearch(rawQuery: string) {
+  const trimmed = useDebounce(rawQuery.trim(), 300)
   return useQuery({
     queryKey: ["campus-buildings", "search", trimmed],
     queryFn: () => searchCampusBuildings(trimmed),
-    // No request until there is something to search for.
-    enabled: trimmed.length > 0,
+    enabled: trimmed.length >= 2,
     staleTime: BUILDING_STALE_TIME,
   })
 }

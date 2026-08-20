@@ -1,20 +1,111 @@
 import { useState } from "react";
-import clsx from "clsx";
 import { useSearch } from "../hooks/useSearch";
+import { useCampusBuildingSearch } from "../../campus/hooks/useCampusBuildings";
+import { buildingToParkingSpot } from "../../campus/utils/buildingMappers";
 import { useNavStore } from "../../../store/navStore";
+import { useUIStore } from "../../../store/uiStore";
 import { logContextEvent } from "../../navigation/services/navigationApi";
+import type { CampusBuilding } from "../../../types/campus_building.types";
 
 interface SearchBarProps {
   onSettingsClick?: () => void;
 }
 
+// Both sections are sliced to the same small number so neither can push the
+// other off a phone screen. Matches the TOP_N the campus list already uses.
+const SECTION_LIMIT = 5;
+
 export default function SearchBar({ onSettingsClick }: SearchBarProps) {
   const [query, setQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
-  const { data: results, isLoading } = useSearch(query);
+  const { data: spotResults, isLoading: spotsLoading } = useSearch(query);
+  const { data: buildingResults, isLoading: buildingsLoading } =
+    useCampusBuildingSearch(query);
   const startNavigation = useNavStore((s) => s.startNavigation);
+  const setTravelMode = useNavStore((s) => s.setTravelMode);
+  const appMode = useUIStore((s) => s.appMode);
 
   const showResults = isFocused && query.length >= 2;
+  const isLoading = spotsLoading || buildingsLoading;
+
+  const spots = (spotResults ?? []).slice(0, SECTION_LIMIT);
+  const buildings = (buildingResults ?? []).slice(0, SECTION_LIMIT);
+  const isEmpty = spots.length === 0 && buildings.length === 0;
+
+  // Picking a building starts directions, the same as picking a parking spot.
+  // The travel mode is the only difference: a building is somewhere you walk
+  // into, in either app mode. Setting the mode before startNavigation means the
+  // first OSRM request already asks for the foot profile, so no driving route
+  // is fetched and thrown away. Same order as CampusBuildingCard.handleWalkHere.
+  //
+  // buildingToParkingSpot is the one place that knows which parking fields a
+  // building has to leave null, so the destination is built there, not here.
+  const handleBuildingPick = (building: CampusBuilding) => {
+    setTravelMode("walking");
+    startNavigation(buildingToParkingSpot(building));
+    setQuery("");
+  };
+
+  const buildingSection = buildings.length > 0 && (
+    <div key="buildings">
+      <SectionHeader label="Buildings" />
+      {buildings.map((building) => (
+        <button
+          key={building.building_id}
+          // onMouseDown, not onClick, so the pick registers before the input's
+          // blur closes the dropdown.
+          onMouseDown={() => handleBuildingPick(building)}
+          className={ROW_CLASS}
+        >
+          <i className="bi bi-building text-maroon text-lg flex-shrink-0" />
+          <div>
+            <div className="font-semibold text-sm text-text1">{building.name}</div>
+            <div className="text-xs text-text2">
+              {[building.short_name, building.campus_location]
+                .filter(Boolean)
+                .join(" · ")}
+            </div>
+          </div>
+        </button>
+      ))}
+    </div>
+  );
+
+  const spotSection = spots.length > 0 && (
+    <div key="spots">
+      <SectionHeader label="Parking" />
+      {spots.map((spot) => (
+        <button
+          key={spot.spot_id}
+          onMouseDown={() => {
+            startNavigation(spot);
+            void logContextEvent("search_navigation_click", {
+              spot_id: spot.spot_id,
+              query,
+            }).catch(() => undefined);
+            setQuery("");
+          }}
+          className={ROW_CLASS}
+        >
+          <i className="bi bi-p-square-fill text-maroon text-lg flex-shrink-0" />
+          <div>
+            <div className="font-semibold text-sm text-text1">{spot.spot_name}</div>
+            <div className="text-xs text-text2">
+              {[spot.campus_location, spot.parking_type]
+                .filter(Boolean)
+                .join(" · ")}
+            </div>
+          </div>
+        </button>
+      ))}
+    </div>
+  );
+
+  // Whichever the active mode is about goes on top.
+  const sections =
+    appMode === "campus"
+      ? [buildingSection, spotSection]
+      : [spotSection, buildingSection];
 
   return (
     // Relative wrapper so the dropdown positions against it
@@ -32,7 +123,7 @@ export default function SearchBar({ onSettingsClick }: SearchBarProps) {
             // Delay so tapping a result registers before blur closes the list
             setTimeout(() => setIsFocused(false), 150);
           }}
-          placeholder="Search parking spots..."
+          placeholder="Search buildings and parking..."
           className="flex-1 text-sm bg-transparent outline-none text-text1 placeholder:text-text3"
         />
         {/* Clear button - only shows when there's text */}
@@ -63,45 +154,26 @@ export default function SearchBar({ onSettingsClick }: SearchBarProps) {
             <div className="px-4 py-3 text-sm text-text3">Searching...</div>
           )}
 
-          {!isLoading && results?.length === 0 && (
+          {!isLoading && isEmpty && (
             <div className="px-4 py-3 text-sm text-text2">
-              No spots found for "{query}"
+              No results for "{query}"
             </div>
           )}
 
-          {!isLoading &&
-            results &&
-            results.map((spot, i) => (
-              <button
-                key={spot.spot_id}
-                onMouseDown={() => {
-                  startNavigation(spot);
-                  void logContextEvent("search_navigation_click", {
-                    spot_id: spot.spot_id,
-                    query,
-                  }).catch(() => undefined)
-                  setQuery("");
-                }}
-                className={clsx(
-                  "w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 active:bg-gray-100 transition-colors",
-                  i < results.length - 1 ? "border-b border-black/5" : ""
-                )}
-              >
-                <i className="bi bi-p-square-fill text-maroon text-lg flex-shrink-0" />
-                <div>
-                  <div className="font-semibold text-sm text-text1">
-                    {spot.spot_name}
-                  </div>
-                  <div className="text-xs text-text2">
-                    {[spot.campus_location, spot.parking_type]
-                      .filter(Boolean)
-                      .join(" \u00B7 ")}
-                  </div>
-                </div>
-              </button>
-            ))}
+          {!isLoading && sections}
         </div>
       )}
+    </div>
+  );
+}
+
+const ROW_CLASS =
+  "w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 active:bg-gray-100 transition-colors border-b border-black/5 last:border-b-0";
+
+function SectionHeader({ label }: { label: string }) {
+  return (
+    <div className="px-4 pt-2.5 pb-1 text-[10px] font-semibold uppercase tracking-wide text-text3">
+      {label}
     </div>
   );
 }
