@@ -5,6 +5,31 @@
 // via inline translate3d(), so transforms (the teardrop rotation, the heading
 // rotation, the location pulse) must live on CHILD elements only. The root may
 // safely carry a filter, which is how each pin gets a grounded drop shadow.
+//
+// For the same reason the root must stay OUT of normal flow. MapLibre's own
+// stylesheet gives it "position: absolute; top: 0; left: 0", and its translate
+// assumes that origin. An inline "position: relative" beats that class rule and
+// leaves the root in flow, so every marker picks up the stacked height of the
+// markers appended before it as a fixed pixel offset: the puck reads as sliding
+// whenever the map zooms, jumps as pins come and go, and eventually falls off
+// the bottom of the viewport. Set the absolute positioning inline instead, so
+// the invariant holds even if the MapLibre stylesheet is not loaded.
+
+// Authored geometry of the teardrop path, in its own coordinate space.
+//
+// The silhouette is drawn 30 units wide with its point at y = 39 and the head
+// centered at y = 15.2. The element box is cropped to exactly the tip, so the
+// bottom edge of the marker IS the point: callers get a pixel-accurate marker
+// from anchor "bottom" alone and must not pass a compensating offset.
+const PIN_VIEW_W = 30
+const PIN_TIP_Y = 39
+const PIN_HEAD_CY = 15.2
+
+// Active-guidance puck geometry. The box is square and the disc is centered in
+// it, so MapLibre anchor "center" puts the disc exactly on the coordinate. The
+// box is far wider than the disc on purpose: the beam needs room to fade out.
+const PUCK_VIEW = 72
+const PUCK_DISC_R = 17
 
 interface TeardropPinOptions {
   /** Fill color of the pin body. */
@@ -26,14 +51,19 @@ interface TeardropPinOptions {
  * HTML over the head so we can reuse Bootstrap icons or a display-font letter.
  */
 export function createTeardropPin({ fill, iconColor, iconClass, label, size = 28 }: TeardropPinOptions): HTMLDivElement {
-  // Path is authored in a 30x40 viewBox and scaled to `size`; the head center
-  // lands at (size/2, size/2) and the tip near the bottom edge.
-  const w = Math.round(size)
-  const h = Math.round(size * (40 / 30))
+  // The box is cropped to the tip rather than to the authored 40-unit canvas,
+  // so the element's bottom edge lands exactly on the point. Heights stay
+  // fractional on purpose: rounding them would scale y differently from x and
+  // squash the silhouette by a fraction of a percent.
+  const scale = size / PIN_VIEW_W
+  const w = size
+  const h = size * (PIN_TIP_Y / PIN_VIEW_W)
 
   const wrap = document.createElement("div")
   wrap.style.cssText = `
-    position: relative;
+    position: absolute;
+    top: 0;
+    left: 0;
     width: ${w}px;
     height: ${h}px;
     cursor: pointer;
@@ -46,24 +76,28 @@ export function createTeardropPin({ fill, iconColor, iconClass, label, size = 28
   const discRadius = hasGlyph ? 6.6 : 3.8
 
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
-  svg.setAttribute("viewBox", "0 0 30 40")
+  svg.setAttribute("viewBox", `0 0 ${PIN_VIEW_W} ${PIN_TIP_Y}`)
   svg.setAttribute("width", String(w))
   svg.setAttribute("height", String(h))
-  svg.style.cssText = "position:absolute; top:0; left:0; display:block;"
+  // overflow must stay visible: the 2-unit stroke is centered on the path, so
+  // its mitred apex reaches ~1.6 units past the tip. The default SVG clip would
+  // slice that apex off square and the pin would read as blunt.
+  svg.style.cssText = "position:absolute; top:0; left:0; display:block; overflow:visible;"
   svg.innerHTML = `
     <path d="M15 1.2 C7.27 1.2 1 7.47 1 15.2 C1 23.4 8.4 30.6 15 39 C21.6 30.6 29 23.4 29 15.2 C29 7.47 22.73 1.2 15 1.2 Z"
       fill="${fill}" stroke="#ffffff" stroke-width="2"/>
-    <circle cx="15" cy="15.2" r="${discRadius}" fill="#ffffff"/>
+    <circle cx="${PIN_VIEW_W / 2}" cy="${PIN_HEAD_CY}" r="${discRadius}" fill="#ffffff"/>
   `
   wrap.appendChild(svg)
 
   if (!hasGlyph) return wrap
 
-  // Glyph layer, centered on the head.
+  // Glyph layer, centered on the head. Driven off the head center rather than
+  // half the width, which is only an approximation of it.
   const glyph = document.createElement("div")
   glyph.style.cssText = `
     position: absolute;
-    top: ${(w / 2).toFixed(1)}px;
+    top: ${(PIN_HEAD_CY * scale).toFixed(2)}px;
     left: 50%;
     transform: translate(-50%, -50%);
     display: flex;
@@ -100,7 +134,9 @@ export function createUserLocationMarker(): HTMLDivElement {
   wrap.setAttribute("data-user-location-marker", "true")
   // Explicit min-width/height stops a flex parent from squeezing the puck.
   wrap.style.cssText = `
-    position: relative;
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 44px;
     height: 44px;
     min-width: 44px;
@@ -155,4 +191,83 @@ export function createUserLocationMarker(): HTMLDivElement {
   wrap.appendChild(halo)
   wrap.appendChild(svg)
   return wrap
+}
+
+/**
+ * Build the active-guidance puck: a maroon disc with a white ring, a gold
+ * chevron pointing along the direction of travel, and a long gold beam fading
+ * out ahead of it. This replaces the idle location dot once the user presses
+ * Start, in the idiom every navigation app uses: the marker stops reporting
+ * "here is where you are, roughly" and starts reporting "here is where you are
+ * heading". The accuracy pulse is deliberately absent, since the app is no
+ * longer locating.
+ *
+ * Same contract as createUserLocationMarker: the caller rotates the puck by
+ * writing a transform on the [data-heading-transform] child, never on the root.
+ */
+export function createNavigationPuck(): HTMLDivElement {
+  const wrap = document.createElement("div")
+  wrap.setAttribute("data-navigation-puck", "true")
+  // Explicit min-width/height stops a flex parent from squeezing the puck.
+  wrap.style.cssText = `
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: ${PUCK_VIEW}px;
+    height: ${PUCK_VIEW}px;
+    min-width: ${PUCK_VIEW}px;
+    min-height: ${PUCK_VIEW}px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));
+  `
+
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
+  svg.setAttribute("viewBox", `0 0 ${PUCK_VIEW} ${PUCK_VIEW}`)
+  svg.setAttribute("width", String(PUCK_VIEW))
+  svg.setAttribute("height", String(PUCK_VIEW))
+  svg.setAttribute("data-heading-transform", "true")
+  // The disc sits at the viewBox center, so rotating about that center sweeps
+  // the beam and the chevron while the disc itself stays put on the coordinate.
+  svg.style.cssText = `
+    position: relative;
+    display: block;
+    overflow: visible;
+    transition: transform 140ms ease-out;
+    transform-origin: center center;
+    transform-box: view-box;
+    animation: puckScaleIn 0.24s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  `
+
+  // Per-instance id: two pucks in one document must not share a gradient.
+  const beamGradientId = `puckBeam-${Math.random().toString(36).slice(2, 9)}`
+  const c = PUCK_VIEW / 2
+  svg.innerHTML = `
+    <defs>
+      <radialGradient id="${beamGradientId}" cx="50%" cy="100%" r="100%">
+        <stop offset="0%" stop-color="rgba(255,204,51,0.62)"/>
+        <stop offset="60%" stop-color="rgba(255,204,51,0.18)"/>
+        <stop offset="100%" stop-color="rgba(255,204,51,0)"/>
+      </radialGradient>
+    </defs>
+    <path d="M${c} ${c} L15 6 Q${c} 0 57 6 Z" fill="url(#${beamGradientId})"/>
+    <circle cx="${c}" cy="${c}" r="${PUCK_DISC_R}" fill="#7A0019" stroke="#ffffff" stroke-width="3.5"/>
+    <path d="M${c} 27 L45 46.5 L${c} 40 L27 46.5 Z" fill="#FFCC33"/>
+  `
+
+  wrap.appendChild(svg)
+  return wrap
+}
+
+/**
+ * Unwrap a target heading so a CSS rotate transition always takes the short way
+ * round. Rotating from 350deg to 10deg is a 20deg turn, but writing the raw
+ * values makes the browser animate 340deg backwards and the puck spins on every
+ * pass through north. Returning 370 instead keeps the angle continuous.
+ */
+export function shortestArcRotation(previousDeg: number, targetDeg: number): number {
+  const delta = (((targetDeg - previousDeg) % 360) + 540) % 360 - 180
+  return previousDeg + delta
 }

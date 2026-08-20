@@ -369,3 +369,18 @@ button:not(:disabled):active,
   70%  { transform: scale(1.6); opacity: 0; }
   100% { transform: scale(1.6); opacity: 0; }
 }
+
+/* Short scale-in when the idle dot is promoted to the navigation puck.
+   Lives on the rotating child, which already owns a transform, so the puck's
+   heading rotation composes with it instead of fighting MapLibre's placement. */
+@keyframes puckScaleIn {
+  from { opacity: 0; scale: 0.55; }
+  to   { opacity: 1; scale: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-navigation-puck="true"] [data-heading-transform="true"] {
+    animation: none;
+    transition: none;
+  }
+}
